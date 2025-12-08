@@ -1,0 +1,16 @@
+<div class="app">
+  <app-top-bar></app-top-bar>
+  <app-sidebar></app-sidebar>
+  <app-mobile-menu></app-mobile-menu>
+  <main class="app__main" [class.app__main--collapsed]="sidebarService.isCollapsed()">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Login Modal Component -->
+  <app-login-modal
+    [isOpen]="(loginModalService.isOpen$ | async) === true && !isAuthenticated"
+    [allowClose]="false"
+    (isOpenChange)="onLoginModalOpenChange($event)"
+    (loginSuccess)="onLoginSuccess()">
+  </app-login-modal>
+</div>
