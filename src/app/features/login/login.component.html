@@ -1,11 +1,12 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="modal-logo">
+<div class="login-page">
+  <div class="login-card" @fadeAnimation>
+    <!-- Logo Header -->
+    <div class="login-card__header">
       <svg xmlns="http://www.w3.org/2000/svg" width="119" height="95" viewBox="0 0 119 95" fill="none">
-        <mask id="mask0_606_54369" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="95">
+        <mask id="mask0_login" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="95">
           <path d="M0.5 94.4H119.006V0H0.5V94.4Z" fill="white"/>
         </mask>
-        <g mask="url(#mask0_606_54369)">
+        <g mask="url(#mask0_login)">
           <path d="M30.8705 41.0054C30.2925 40.5939 29.5697 40.5531 28.9696 40.8982C28.8454 40.9561 28.7297 41.0344 28.6329 41.126C28.303 41.4339 28.1211 41.8505 28.1211 42.2977C28.1211 42.6174 28.2299 42.92 28.4424 43.2006C28.672 43.4659 29.2264 43.8892 29.5579 44.134C31.3365 45.4281 33.1917 46.506 33.2104 46.518L33.2307 46.5299L33.2512 46.5401C33.3021 46.564 33.4177 46.6286 33.5657 46.7118C40.7582 50.7214 50.0593 53.0849 59.7533 53.0849H59.9709C75.4137 52.9761 91.3837 46.7577 91.3837 36.5385C91.3837 33.1156 89.1579 29.567 84.5702 25.6816C80.7512 22.672 76.2555 19.8646 71.967 17.2784L70.8432 16.6016C63.8733 12.4033 57.2894 8.438 57.2894 5.45554C57.2894 3.65994 59.4302 3.14812 63.9294 3.14812C69.2838 3.14812 76.4425 4.7958 82.2169 7.51471C82.3019 7.55551 82.3904 7.59632 82.4753 7.63712C82.4992 7.64733 82.8699 7.81226 83.1062 7.87688C83.4089 7.9517 83.783 7.98741 84.1315 7.86328C84.4955 7.73405 84.8117 7.48069 85.0005 7.12532C85.1995 6.75804 85.2368 6.33973 85.1093 5.94525C85.0005 5.61538 84.7811 5.33991 84.4921 5.14437C84.4921 5.14437 84.2913 5.02535 83.9667 4.8621C82.9633 4.3758 82.0453 3.99661 80.7206 3.5188C74.0721 1.11787 67.4083 -0.000976562 59.7533 -0.000976562C45.3187 -0.000976562 30.7566 4.76008 30.7566 15.3909C30.7566 18.8137 32.9824 22.3624 37.5616 26.2393C40.9624 29.0126 44.9225 31.6516 48.7501 34.2022C55.6757 38.8136 62.2171 43.1716 62.2171 46.4721C62.2171 48.0177 60.2939 48.7931 55.5753 48.7931C51.8499 48.7931 49.4541 48.3902 49.4541 48.3902C42.1339 47.2185 36.2982 44.9248 31.0763 41.1499C31.0763 41.1499 30.9505 41.0564 30.8705 41.0054Z" fill="#DC1B30"/>
           <path d="M6.2123 88.5242C4.33509 88.5242 2.43066 88.3066 0.635054 87.7352L0.771083 84.6338C2.34904 85.4499 4.09022 85.7219 5.85862 85.7219C7.54539 85.7219 9.34099 85.1234 9.34099 83.1918C9.34099 81.8043 7.40936 81.0698 6.10347 80.4984L4.25346 79.6822C2.13139 78.7299 0.499023 77.4786 0.499023 75.0027C0.499023 71.0579 4.55274 69.8064 7.87187 69.8064C9.42262 69.8064 10.9462 69.9696 12.4425 70.3778L12.3065 73.3704C11.0278 72.8262 9.50424 72.5814 8.11672 72.5814C6.62038 72.5814 4.52552 73.0166 4.52552 74.8123C4.52552 76.0638 6.10347 76.744 7.30054 77.2064L9.25938 77.9682C11.6535 78.8933 13.4219 80.1718 13.4219 83.0013C13.4219 86.9734 9.7763 88.5242 6.2123 88.5242Z" fill="#F4F4F5"/>
           <path d="M20.6582 88.5241C17.5568 88.5241 16.795 86.538 16.795 83.6814V77.0432H14.3464V74.5675H16.795V71.7924L20.5494 70.5681V74.5675H23.5964V77.0432H20.5494V83.7358C20.5494 84.8785 20.8488 85.8035 22.1817 85.8035C22.6987 85.8035 23.2156 85.6947 23.6782 85.5043L23.787 88.0072C22.8075 88.3337 21.6921 88.5241 20.6582 88.5241Z" fill="#F4F4F5"/>
@@ -21,73 +22,76 @@
       </svg>
     </div>
 
-    <div class="modal-header">
-      <h2 class="modal-title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15M10 17L15 12M15 12L10 7M15 12H3" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Log in to Reco
-      </h2>
-    </div>
-
-    <div class="modal-content">
-      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-        <div class="form-group">
-          <label for="username">Username or Email <span class="required">(Required)</span></label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            [(ngModel)]="username"
-            required
-            class="form-control"
-            placeholder="user@example.com"
-            autocomplete="email">
+    <!-- Form Body -->
+    <div class="login-card__body">
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" class="login-card__form">
+        <!-- Title -->
+        <div class="login-card__title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15M10 17L15 12M15 12L10 7M15 12H3" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Log in to Reco Webshop</span>
         </div>
 
-        <div class="form-group">
-          <label for="password">Password <span class="required">(Required)</span></label>
-          <div class="password-input-wrapper">
-            <input
-              [type]="showPassword ? 'text' : 'password'"
-              id="password"
-              name="password"
-              [(ngModel)]="password"
-              required
-              class="form-control"
-              placeholder="Enter your password"
-              autocomplete="current-password">
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path *ngIf="!showPassword" d="M9.99996 11.6667C10.9205 11.6667 11.6666 10.9205 11.6666 10C11.6666 9.07952 10.9205 8.33333 9.99996 8.33333C9.07944 8.33333 8.33329 9.07952 8.33329 10C8.33329 10.9205 9.07944 11.6667 9.99996 11.6667Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path *ngIf="!showPassword" d="M17.5 10C15.8693 13.0975 13.1693 15 10 15C6.83067 15 4.13067 13.0975 2.5 10C4.13067 6.9025 6.83067 5 10 5C13.1693 5 15.8693 6.9025 17.5 10Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path *ngIf="showPassword" d="M3.33329 3.33334L16.6666 16.6667M12.0758 12.0833C11.4796 12.63 10.7144 12.9067 9.93942 12.845C9.16444 12.7834 8.44574 12.3881 7.93829 11.7467C7.43085 11.1053 7.1729 10.2787 7.21309 9.44334C7.25328 8.60795 7.58835 7.82159 8.15829 7.24167M15.775 15.775C14.3285 16.9215 12.5142 17.5396 10.6666 17.5C5.83329 17.5 2.08329 14.1667 1.66663 10C1.86273 8.91985 2.26786 7.89508 2.85829 7L15.775 15.775Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
+        <!-- Divider -->
+        <div class="login-card__divider"></div>
+
+        <ui-input
+          label="Username or Email"
+          [required]="true"
+          type="email"
+          name="username"
+          autocomplete="email"
+          [(ngModel)]="usernameValue"
+          (inputChange)="onUsernameChange($event)">
+        </ui-input>
+
+        <ui-input
+          label="Password"
+          [required]="true"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          [showPasswordToggle]="true"
+          [(ngModel)]="passwordValue"
+          (inputChange)="onPasswordChange($event)">
+        </ui-input>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage()" class="login-card__error">
+          {{ errorMessage() }}
         </div>
 
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
+        <!-- Options Row -->
+        <div class="login-card__options">
+          <ui-checkbox
+            label="Remember me"
+            size="sm"
+            [checked]="rememberMe()"
+            (checkboxChange)="onRememberMeChange($event)">
+          </ui-checkbox>
+          <ui-link
+            routerLink="/forgot-password"
+            variant="primary"
+            size="sm">
+            Reset password
+          </ui-link>
         </div>
 
-        <div class="form-options">
-          <div class="remember-me">
-            <input type="checkbox" id="remember" [(ngModel)]="rememberMe" name="rememberMe">
-            <label for="remember">Remember me</label>
-          </div>
-          <a href="javascript:void(0)" class="reset-password" (click)="resetPassword()">Reset password</a>
-        </div>
-
-        <button type="submit" class="login-button" [disabled]="isLoading">
-          <span *ngIf="isLoading">Logging in...</span>
-          <span *ngIf="!isLoading">
-            Log in
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 12L10 8L6 4" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </button>
+        <!-- Submit Button -->
+        <ui-button
+          type="submit"
+          variant="primary"
+          [fullWidth]="true"
+          [loading]="isLoading()"
+          [disabled]="isLoading()"
+          iconRight="chevron">
+          Log in
+          <svg iconRight xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </ui-button>
       </form>
     </div>
   </div>

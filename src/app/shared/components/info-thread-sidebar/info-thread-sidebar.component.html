@@ -1,0 +1,236 @@
+<div class="sidebar-backdrop" [class.sidebar-backdrop--visible]="isOpen" (click)="onBackdropClick($event)"></div>
+<div class="sidebar" [class.sidebar--open]="isOpen">
+        <!-- Header -->
+        <div class="sidebar__header">
+            <button class="sidebar__back" (click)="onClose()" [disabled]="saving">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="sidebar__title-container" *ngIf="part">
+                <h2 class="sidebar__title">{{ part.partNumber || 'Part' }}</h2>
+                <span class="sidebar__subtitle">{{ part.partName }}</span>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="sidebar__status-bar" *ngIf="infoRequest" [ngClass]="statusClass">
+            <span class="sidebar__status-label">{{ statusLabel }}</span>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="sidebar__view-toggle" *ngIf="!loading && infoRequest">
+            <button
+                class="sidebar__view-btn"
+                [class.sidebar__view-btn--active]="viewMode === 'messages'"
+                (click)="viewMode = 'messages'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Messages
+            </button>
+            <button
+                class="sidebar__view-btn"
+                [class.sidebar__view-btn--active]="viewMode === 'timeline'"
+                (click)="viewMode = 'timeline'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Timeline
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div class="sidebar__loading" *ngIf="loading">
+            <div class="sidebar__spinner"></div>
+            <span>Loading conversation...</span>
+        </div>
+
+        <!-- Content -->
+        <div class="sidebar__content" *ngIf="!loading && infoRequest">
+            <!-- Messages Thread -->
+            <div class="sidebar__messages" *ngIf="viewMode === 'messages'">
+                <div class="sidebar__message"
+                     *ngFor="let message of infoRequest.messages"
+                     [class.sidebar__message--admin]="message.senderType === 'admin'"
+                     [class.sidebar__message--client]="message.senderType === 'client'">
+
+                    <!-- Avatar -->
+                    <div class="sidebar__message-avatar" [class.sidebar__message-avatar--admin]="message.senderType === 'admin'">
+                        {{ getSenderInitials(message) }}
+                    </div>
+
+                    <!-- Message Content -->
+                    <div class="sidebar__message-content">
+                        <div class="sidebar__message-header">
+                            <span class="sidebar__message-sender">{{ getSenderName(message) }}</span>
+                            <span class="sidebar__message-type" [class.sidebar__message-type--admin]="message.senderType === 'admin'">
+                                {{ message.senderType === 'admin' ? 'Admin' : 'Client' }}
+                            </span>
+                            <span class="sidebar__message-time">{{ message.createdAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</span>
+                        </div>
+
+                        <div class="sidebar__message-text">
+                            {{ message.messageText }}
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="sidebar__message-attachments" *ngIf="message.mediaItems && message.mediaItems.length > 0">
+                            <div class="sidebar__attachment" *ngFor="let file of message.mediaItems">
+                                <!-- Image Preview -->
+                                <div class="sidebar__attachment-preview" *ngIf="isImageFile(file.filename)">
+                                    <img [src]="getFileUrl(file)" [alt]="file.filename">
+                                </div>
+
+                                <!-- File Info -->
+                                <div class="sidebar__attachment-info">
+                                    <svg *ngIf="!isImageFile(file.filename)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="sidebar__attachment-name">{{ file.filename }}</span>
+                                    <button class="sidebar__attachment-download" (click)="downloadFile(file)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="sidebar__timeline" *ngIf="viewMode === 'timeline'">
+                <div class="timeline">
+                    <div class="timeline__item"
+                         *ngFor="let event of buildTimeline()"
+                         [ngClass]="'timeline__item--' + event.type">
+
+                        <!-- Timeline dot -->
+                        <div class="timeline__dot" [ngClass]="'timeline__dot--' + (event.status || event.actorType)">
+                            <!-- Created icon -->
+                            <svg *ngIf="event.type === 'created'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <!-- Message icon -->
+                            <svg *ngIf="event.type === 'message'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <!-- Status change icon -->
+                            <svg *ngIf="event.type === 'status_change'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+
+                        <!-- Timeline line -->
+                        <div class="timeline__line"></div>
+
+                        <!-- Timeline content -->
+                        <div class="timeline__content">
+                            <div class="timeline__header">
+                                <span class="timeline__title">{{ event.title }}</span>
+                                <span class="timeline__time">{{ event.timestamp | dateFilter:'dd.MM.yyyy @ HH:mm' }}</span>
+                            </div>
+
+                            <div class="timeline__actor" *ngIf="event.actor">
+                                <span class="timeline__actor-badge" [ngClass]="'timeline__actor-badge--' + event.actorType">
+                                    {{ event.actorType === 'admin' ? 'Admin' : (event.actorType === 'client' ? 'Client' : 'System') }}
+                                </span>
+                                {{ event.actor }}
+                            </div>
+
+                            <div class="timeline__description" *ngIf="event.description">
+                                {{ event.description }}
+                            </div>
+
+                            <div class="timeline__attachments" *ngIf="event.hasAttachments">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                                {{ event.attachmentCount }} attachment{{ event.attachmentCount !== 1 ? 's' : '' }}
+                            </div>
+
+                            <div class="timeline__status" *ngIf="event.type === 'status_change' && event.status" [ngClass]="'timeline__status--' + event.status">
+                                {{ event.status | titlecase }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply Section (for responded status) -->
+        <div class="sidebar__reply" *ngIf="!loading && infoRequest && (showAcceptButton || showRequestMoreButton)">
+            <div class="sidebar__reply-header">
+                <span class="sidebar__reply-label">Reply</span>
+                <div class="sidebar__template-selector">
+                    <button
+                        type="button"
+                        class="sidebar__template-btn"
+                        (click)="toggleTemplateDropdown()"
+                        [disabled]="saving">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        Template
+                    </button>
+                    <div class="sidebar__template-dropdown" *ngIf="showTemplateDropdown">
+                        <button
+                            type="button"
+                            class="sidebar__template-option"
+                            *ngFor="let template of templates"
+                            (click)="selectTemplate(template)">
+                            {{ template.label }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar__reply-input">
+                <textarea
+                    [(ngModel)]="replyText"
+                    placeholder="Add a follow-up message (optional for accept, required for request more)..."
+                    rows="3"
+                    [disabled]="saving">
+                </textarea>
+            </div>
+
+            <div class="sidebar__reply-actions">
+                <button class="sidebar__btn sidebar__btn--more"
+                        *ngIf="showRequestMoreButton"
+                        (click)="onRequestMore()"
+                        [disabled]="!canSendReply">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Request More
+                </button>
+
+                <button class="sidebar__btn sidebar__btn--accept"
+                        *ngIf="showAcceptButton"
+                        (click)="onAccept()"
+                        [disabled]="saving">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    {{ saving ? 'Accepting...' : 'Accept Info' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="sidebar__empty" *ngIf="!loading && !infoRequest">
+            <p>No information request selected</p>
+        </div>
+</div>

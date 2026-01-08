@@ -1,0 +1,116 @@
+<div class="fuel-surcharges-page" (click)="closeDropdown()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">Fuel surcharge</span>
+    </div>
+  </div>
+
+  <!-- List Header -->
+  <div class="list-header">
+    <div class="list-header__left">
+      <svg class="list-header__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M3.33333 17.5V5C3.33333 4.55797 3.50893 4.13405 3.82149 3.82149C4.13405 3.50893 4.55797 3.33333 5 3.33333H10.8333C11.2754 3.33333 11.6993 3.50893 12.0118 3.82149C12.3244 4.13405 12.5 4.55797 12.5 5V17.5M3.33333 17.5H12.5M3.33333 17.5H1.66667M12.5 17.5H18.3333M12.5 10H13.3333C13.7754 10 14.1993 10.1756 14.5118 10.4882C14.8244 10.8007 15 11.2246 15 11.6667V14.1667C15 14.6087 15.1756 15.0326 15.4882 15.3452C15.8007 15.6577 16.2246 15.8333 16.6667 15.8333C17.1087 15.8333 17.5326 15.6577 17.8452 15.3452C18.1577 15.0326 18.3333 14.6087 18.3333 14.1667V7.5L15.8333 5M5 7.5H10.8333V11.6667H5V7.5Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="list-header__title">Fuel surcharge</h1>
+    </div>
+    <div class="list-header__right">
+      <div class="search-input">
+        <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch()"
+          placeholder=""
+          class="search-input__field"
+        />
+      </div>
+      <button class="btn btn--icon" (click)="onExport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn btn--primary" (click)="onAddFuelSurcharge()">
+        <span>Add option</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <ui-data-table
+      [columns]="columns"
+      [data]="fuelSurcharges()"
+      (sort)="onSortChange($event)"
+    ></ui-data-table>
+  </div>
+
+  <!-- Checkbox Header Template -->
+  <ng-template #checkboxHeaderTemplate>
+    <div class="checkbox-header" (click)="toggleHeaderDropdown($event)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+      </svg>
+      <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
+        <button class="header-dropdown__item" (click)="onSelectAll()">Select all</button>
+        <button class="header-dropdown__item" (click)="onSelectNone()">None</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Checkbox Template -->
+  <ng-template #checkboxTemplate let-row>
+    <div class="checkbox-cell" (click)="$event.stopPropagation()">
+      <input 
+        type="checkbox" 
+        [checked]="row.selected" 
+        (change)="toggleFuelSurchargeSelection(row)"
+        class="checkbox"
+      />
+    </div>
+  </ng-template>
+
+  <!-- Fuel Surcharge Template -->
+  <ng-template #fuelSurchargeTemplate let-row>
+    <span>{{ formatFuelSurcharge(row.fuelSurcharge) }}</span>
+  </ng-template>
+
+  <!-- Actions Template -->
+  <ng-template #actionsTemplate let-row>
+    <div class="actions-cell">
+      <button class="actions-btn" (click)="toggleDropdown(row.id, $event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+        </svg>
+      </button>
+      <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
+        <button class="dropdown-menu__item" (click)="onEdit(row)">Edit</button>
+        <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onDelete(row)">Delete</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Table Footer -->
+  <div class="table-footer">
+    <span class="table-footer__info">Showing 1 to {{ fuelSurcharges().length }} from {{ totalItems() }} results</span>
+  </div>
+</div>

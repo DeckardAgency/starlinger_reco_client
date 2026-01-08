@@ -1,0 +1,289 @@
+<div class="products-group">
+  <!-- Header with Breadcrumbs -->
+  <header class="products-group__header">
+    <div class="products-group__breadcrumb">
+      <button class="products-group__menu-btn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M2.5 5h15M2.5 10h15M2.5 15h15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="products-group__separator"></div>
+      <ui-breadcrumbs [items]="breadcrumbItems()" [showHome]="true" homeRoute="/customer/dashboard"></ui-breadcrumbs>
+    </div>
+  </header>
+
+  <!-- List Header -->
+  <div class="products-group__list-header">
+    <div class="products-group__list-header-left">
+      <h1 class="products-group__title">Available parts</h1>
+      <span class="products-group__count">{{ totalCount() }}</span>
+    </div>
+    <div class="products-group__list-header-right">
+      <button
+        class="products-group__view-btn"
+        [class.products-group__view-btn--active]="viewMode() === 'grid'"
+        (click)="setViewMode('grid')"
+        type="button"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1.333" y="1.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
+          <rect x="9.333" y="1.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
+          <rect x="1.333" y="9.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
+          <rect x="9.333" y="9.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
+        </svg>
+        <span>Grid view</span>
+      </button>
+      <button
+        class="products-group__view-btn"
+        [class.products-group__view-btn--active]="viewMode() === 'list'"
+        (click)="setViewMode('list')"
+        type="button"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M5.333 4H14M5.333 8H14M5.333 12H14" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+          <circle cx="2" cy="4" r="1" fill="currentColor"/>
+          <circle cx="2" cy="8" r="1" fill="currentColor"/>
+          <circle cx="2" cy="12" r="1" fill="currentColor"/>
+        </svg>
+        <span>List view</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="products-group__content" [class.products-group__content--split]="viewMode() === 'list' && selectedProduct()">
+    <!-- Product List Column -->
+    <div class="products-group__list-column">
+      <!-- Filters Row -->
+      <div class="products-group__filters">
+        <div class="products-group__search">
+          <svg class="products-group__search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M7.333 12.667a5.333 5.333 0 100-10.667 5.333 5.333 0 000 10.667zM14 14l-2.9-2.9" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input
+            type="text"
+            class="products-group__search-input"
+            placeholder="Filter by part number"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+
+        <div class="products-group__filter-dropdown">
+          <button class="products-group__filter-btn" type="button" (click)="toggleFilter()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+            </svg>
+            <span>{{ getFilterButtonLabel() }}</span>
+            <svg class="products-group__filter-chevron" [class.products-group__filter-chevron--open]="isFilterOpen()" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          @if (isFilterOpen()) {
+            <div class="products-group__filter-menu">
+              @for (group of productGroups; track group.id) {
+                <label class="products-group__filter-item" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    class="products-group__filter-checkbox"
+                    [checked]="isGroupSelected(group.id)"
+                    (change)="toggleGroup(group.id)"
+                  />
+                  <span class="products-group__filter-checkmark">
+                    @if (isGroupSelected(group.id)) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    }
+                  </span>
+                  <span class="products-group__filter-label">{{ group.label }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Active Filters -->
+      @if (selectedGroupLabels().length > 0) {
+        <div class="products-group__active-filters">
+          <span class="products-group__active-filters-label">Active filters:</span>
+          @for (filter of selectedGroupLabels(); track filter.id) {
+            <span class="products-group__filter-pill">
+              <span>{{ filter.label }}</span>
+              <button type="button" class="products-group__filter-pill-remove" (click)="removeFilter(filter.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      <!-- Products Grid/List -->
+      <div class="products-group__products" [class.products-group__products--grid]="viewMode() === 'grid'" [class.products-group__products--list]="viewMode() === 'list'">
+        @for (product of filteredProducts(); track trackByProductId($index, product)) {
+          <article 
+            class="product-card" 
+            [class.product-card--grid]="viewMode() === 'grid'" 
+            [class.product-card--list]="viewMode() === 'list'"
+            [class.product-card--selected]="isProductSelected(product)"
+            (click)="onProductClick(product)"
+          >
+            <div class="product-card__image-container">
+              <img class="product-card__img" [src]="product.image" [alt]="product.name" />
+              <button class="product-card__favorite" [class.product-card__favorite--active]="product.isFavorite" (click)="toggleFavorite(product, $event)" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M17.367 3.842a4.583 4.583 0 00-6.484 0L10 4.725l-.883-.883a4.584 4.584 0 00-6.484 6.483l.884.883L10 17.692l6.483-6.484.884-.883a4.583 4.583 0 000-6.483z" [attr.stroke]="product.isFavorite ? '#DC2626' : 'currentColor'" [attr.fill]="product.isFavorite ? '#DC2626' : 'none'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="product-card__info">
+              <div class="product-card__meta">
+                <span class="product-card__label">Product code</span>
+                <span class="product-card__code">{{ product.code }}</span>
+              </div>
+              <div class="product-card__meta">
+                <span class="product-card__label">Product name</span>
+                <span class="product-card__name">{{ product.name }}</span>
+              </div>
+              <div class="product-card__divider"></div>
+              <div class="product-card__price">{{ formatPrice(product.price) }}</div>
+            </div>
+            <!-- Arrow button for selected product in list view -->
+            @if (viewMode() === 'list' && isProductSelected(product)) {
+              <button class="product-card__arrow" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3.333 8h9.334M8.667 4L12.667 8l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            }
+          </article>
+        } @empty {
+          <div class="products-group__empty">
+            <p>No products found</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Product Detail Panel (List view only) -->
+    @if (viewMode() === 'list' && selectedProduct()) {
+      <div class="product-detail">
+        <!-- Header (outside card) -->
+        <div class="product-detail__header">
+          <div class="product-detail__header-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="18.5" cy="15.5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20.5 17.5L22 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span class="product-detail__header-title">Product details</span>
+          </div>
+          <button class="product-detail__wishlist-btn" type="button" (click)="addToWishlist()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+            </svg>
+            <span>Add to Wishlist</span>
+          </button>
+        </div>
+
+        <!-- Product Card -->
+        <div class="product-detail__card">
+          <!-- Image Carousel -->
+          <div class="product-detail__image-wrapper">
+            <img class="product-detail__image" [src]="selectedProduct()!.image" [alt]="selectedProduct()!.name" />
+            <button class="product-detail__carousel-btn product-detail__carousel-btn--prev" type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button class="product-detail__carousel-btn product-detail__carousel-btn--next" type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-detail__info">
+            <div class="product-detail__code">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 6v4l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <div class="product-detail__code-text">
+                <span class="product-detail__code-label">Product code</span>
+                <span class="product-detail__code-value">{{ selectedProduct()!.code }}</span>
+              </div>
+            </div>
+
+            <h2 class="product-detail__name">{{ selectedProduct()!.name }}</h2>
+
+            <div class="product-detail__description">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M14.167 2.5H5.833A1.667 1.667 0 004.167 4.167v11.666a1.667 1.667 0 001.666 1.667h8.334a1.667 1.667 0 001.666-1.667V4.167A1.667 1.667 0 0014.167 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.5 5.833h5M7.5 9.167h5M7.5 12.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div class="product-detail__description-text">
+                <span class="product-detail__description-label">Technical description</span>
+                <span class="product-detail__description-value">{{ selectedProduct()!.technicalDescription }}</span>
+              </div>
+            </div>
+
+            <div class="product-detail__price-row">
+              <span class="product-detail__price-label">Regular price:</span>
+              <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="product-detail__actions">
+            <div class="product-detail__quantity">
+              <button class="product-detail__quantity-btn" type="button" (click)="decrementQuantity()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <span class="product-detail__quantity-value">{{ quantity() }}</span>
+              <button class="product-detail__quantity-btn" type="button" (click)="incrementQuantity()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <button class="product-detail__add-btn" type="button" (click)="addToCart()">
+              <span>Add to Cart</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3.333 8h9.334M8 3.333l4.667 4.667L8 12.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Toast notification -->
+@if (showToast()) {
+  <div class="toast-container">
+    <ui-toast
+      type="success"
+      variant="dark"
+      title="Success!"
+      message="Product added to cart."
+      actionLabel="View Cart"
+      [showIcon]="false"
+      [showClose]="false"
+      [duration]="5000"
+      (closed)="onToastClosed()"
+      (actionClick)="onViewCart()"
+    ></ui-toast>
+  </div>
+}
+
+

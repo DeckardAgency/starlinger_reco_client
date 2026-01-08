@@ -1,0 +1,170 @@
+<div class="checkout">
+  <!-- Header -->
+  <div class="checkout__header">
+    <ui-breadcrumbs [items]="breadcrumbItems"></ui-breadcrumbs>
+  </div>
+
+  <!-- Title -->
+  <div class="checkout__title-section">
+    <div class="checkout__title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M5 1.667L2.5 5v11.667a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666V5L15 1.667H5zM2.5 5h15M13.333 8.333a3.333 3.333 0 01-6.666 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Cart overview</span>
+      <div class="checkout__count">{{ itemCount() }}</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="checkout__content">
+    <!-- Table -->
+    <div class="checkout__table-wrapper">
+      <div class="checkout__table">
+        <!-- Header Row -->
+        <div class="checkout__table-row checkout__table-row--header">
+          <div class="checkout__cell checkout__cell--item checkout__cell--header">Item</div>
+          <div class="checkout__cell checkout__cell--price checkout__cell--header">Price</div>
+          <div class="checkout__cell checkout__cell--discount checkout__cell--header">Discount</div>
+          <div class="checkout__cell checkout__cell--quantity checkout__cell--header">Quantity</div>
+          <div class="checkout__cell checkout__cell--total checkout__cell--header">Total</div>
+          <div class="checkout__cell checkout__cell--actions checkout__cell--header"></div>
+        </div>
+
+        <!-- Data Rows -->
+        @for (item of cartItems(); track item.id) {
+          <div class="checkout__table-row">
+            <!-- Item Cell -->
+            <div class="checkout__cell checkout__cell--item">
+              <div class="checkout__product-card">
+                <div class="checkout__product-image">
+                  <img [src]="item.product.image" [alt]="item.product.name">
+                  <button class="checkout__favorite-btn" type="button" (click)="toggleFavorite(item)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path [attr.fill]="item.isFavorite ? '#DC2626' : 'none'" d="M8 14s-5.5-3.5-5.5-7A3.5 3.5 0 018 4.5 3.5 3.5 0 0113.5 7c0 3.5-5.5 7-5.5 7z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="checkout__product-info">
+                  <div class="checkout__product-code">
+                    <span class="checkout__label">Product code</span>
+                    <span class="checkout__value">{{ item.product.code }}</span>
+                  </div>
+                  <div class="checkout__product-name">
+                    <span class="checkout__label">Product name</span>
+                    <span class="checkout__value">{{ item.product.name }}</span>
+                  </div>
+                  <div class="checkout__product-divider"></div>
+                  <div class="checkout__product-price">
+                    <span class="checkout__old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
+                    <span class="checkout__discount-badge">-{{ item.discount }}%</span>
+                    <span class="checkout__final-price">{{ formatPrice(getDiscountedPrice(item)) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Cell -->
+            <div class="checkout__cell checkout__cell--price">
+              {{ formatPrice(item.product.price) }}
+            </div>
+
+            <!-- Discount Cell -->
+            <div class="checkout__cell checkout__cell--discount">
+              {{ formatDiscount(item.discount) }}
+            </div>
+
+            <!-- Quantity Cell -->
+            <div class="checkout__cell checkout__cell--quantity">
+              <div class="checkout__quantity-selector">
+                <button class="checkout__qty-btn" type="button" (click)="decrementQuantity(item)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <span class="checkout__qty-value">{{ item.quantity }}</span>
+                <button class="checkout__qty-btn" type="button" (click)="incrementQuantity(item)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3.333V12.667M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Total Cell -->
+            <div class="checkout__cell checkout__cell--total">
+              {{ formatPrice(getItemTotal(item)) }}
+            </div>
+
+            <!-- Actions Cell -->
+            <div class="checkout__cell checkout__cell--actions">
+              <button class="checkout__delete-btn" type="button" (click)="removeItem(item)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334zM6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="checkout__sidebar">
+      <!-- Internal Reference -->
+      <div class="checkout__reference">
+        <label class="checkout__reference-label">Enter internal reference number</label>
+        <input 
+          type="text" 
+          class="checkout__reference-input" 
+          [value]="internalReference()"
+          (input)="onReferenceChange($any($event.target).value)"
+          placeholder="#0001"
+        >
+      </div>
+
+      <!-- Summary -->
+      <div class="checkout__summary">
+        <div class="checkout__summary-row">
+          <div class="checkout__summary-label">
+            <!-- Truck icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M13.333 2.5H1.667v10.833h11.666V2.5zM13.333 6.667h3.334l2.5 2.5v4.166h-5.834V6.667zM5 16.667a1.667 1.667 0 100-3.334 1.667 1.667 0 000 3.334zM15 16.667a1.667 1.667 0 100-3.334 1.667 1.667 0 000 3.334z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Shipping & handling</span>
+          </div>
+          <span class="checkout__summary-value">{{ formatPrice(shippingCost) }}</span>
+        </div>
+        <div class="checkout__summary-row">
+          <div class="checkout__summary-label">
+            <!-- SquareSigma icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="2.5" y="2.5" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13.333 5.833H6.667l3.333 4.167-3.333 4.167h6.666" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Total</span>
+          </div>
+          <span class="checkout__summary-value checkout__summary-value--total">{{ formatPrice(total()) }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="checkout__actions">
+        <button class="checkout__btn checkout__btn--primary" type="button" (click)="onPlaceOrder()">
+          <span>Place order</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="checkout__btn checkout__btn--outline" type="button" (click)="onSaveDraft()">
+          <span>Save draft</span>
+          <!-- CloudUpload icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10.667 10.667L8 8l-2.667 2.667M8 8v6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.593 11.26A3.333 3.333 0 0012 5.333h-.84A5.333 5.333 0 102.667 12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

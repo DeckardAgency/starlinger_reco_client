@@ -1,0 +1,336 @@
+<div class="delivery-type-detail-page" (click)="closeDropdowns()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <a routerLink="/admin/delivery-types" class="page-header__link">Delivery types</a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">{{ isEditMode() ? 'Edit' : 'Add' }}</span>
+    </div>
+  </div>
+
+  <!-- Detail Header -->
+  <div class="detail-header">
+    <div class="detail-header__left">
+      <button class="back-btn" (click)="onBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h1 class="detail-header__title">{{ isEditMode() ? 'Edit delivery type' : 'Add delivery type' }}</h1>
+    </div>
+    <div class="detail-header__right">
+      <button class="btn btn--secondary" (click)="onSaveAndContinue()">
+        <span>Save and continue</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn btn--primary" (click)="onSave()">
+        <span>Save</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M13.333 10v2.667A1.334 1.334 0 0112 14H4a1.333 1.333 0 01-1.333-1.333V10M10.667 5.333L8 2.667 5.333 5.333M8 2.667v8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Delivery Type Details Card -->
+  <div class="form-section">
+    <div class="card">
+      <h2 class="card__title">Delivery type details</h2>
+      <div class="card__content">
+        <!-- Toggles Row -->
+        <div class="toggles-row">
+          <div class="toggle-item" (click)="toggleActive()">
+            <span class="toggle-item__label">Active</span>
+            <div class="toggle" [class.toggle--active]="deliveryType().active">
+              <div class="toggle__track"></div>
+              <div class="toggle__thumb"></div>
+            </div>
+          </div>
+          <div class="toggle-item" (click)="toggleReadyForShop()">
+            <span class="toggle-item__label">Ready for Shop</span>
+            <div class="toggle" [class.toggle--active]="deliveryType().readyForShop">
+              <div class="toggle__track"></div>
+              <div class="toggle__thumb"></div>
+            </div>
+          </div>
+          <div class="toggle-item" (click)="toggleExpress()">
+            <span class="toggle-item__label">Express</span>
+            <div class="toggle" [class.toggle--active]="deliveryType().express">
+              <div class="toggle__track"></div>
+              <div class="toggle__thumb"></div>
+            </div>
+          </div>
+          <div class="toggle-item" (click)="toggleEnableFreeDelivery()">
+            <span class="toggle-item__label">Enable Free Delivery</span>
+            <div class="toggle" [class.toggle--active]="deliveryType().enableFreeDelivery">
+              <div class="toggle__track"></div>
+              <div class="toggle__thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="form-fields">
+          <ui-form-field label="Name" layout="horizontal">
+            <input type="text" [value]="deliveryType().name" (input)="onNameChange($event)" placeholder="Enter name">
+          </ui-form-field>
+
+          <ui-form-field label="Gross factor" layout="horizontal">
+            <input type="text" [value]="formatNumber(deliveryType().grossFactor)" (input)="onGrossFactorChange($event)" placeholder="1,00">
+          </ui-form-field>
+
+          <ui-form-field label="Order" layout="horizontal">
+            <input type="text" [value]="deliveryType().order" (input)="onOrderChange($event)" placeholder="0">
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Section -->
+  <div class="tabs-section">
+    <div class="tabs-container">
+      <!-- Tab Headers -->
+      <div class="tabs-header">
+        <button 
+          class="tab-btn" 
+          [class.tab-btn--active]="activeTab() === 'description'"
+          (click)="setActiveTab('description')"
+        >
+          <svg *ngIf="activeTab() === 'description'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M13.333 4L6 11.333 2.667 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Short description
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.tab-btn--active]="activeTab() === 'documents'"
+          (click)="setActiveTab('documents')"
+        >
+          <svg *ngIf="activeTab() === 'documents'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M13.333 4L6 11.333 2.667 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Delivery type documents
+        </button>
+        <div class="tabs-header__spacer"></div>
+        <button *ngIf="activeTab() === 'documents'" class="btn btn--secondary" (click)="onAddDocument()">
+          <span>Add document</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Tab Content: Short Description -->
+      <div class="tab-content tab-content--description" *ngIf="activeTab() === 'description'">
+        <div class="rich-text-editor">
+          <div class="rich-text-editor__toolbar">
+            <div class="toolbar-group">
+              <button class="toolbar-btn"><strong>B</strong></button>
+              <button class="toolbar-btn"><em>I</em></button>
+              <button class="toolbar-btn"><u>U</u></button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4H4v8h2M6 8h4M10 4h2v8h-2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4H4v8h2M6 8h4M10 4h2v8h-2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 4h8M4 8h8M4 12h8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.33"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="toolbar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-dropdown">
+              <span>Normal</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-dropdown">
+              <span>Size</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="rich-text-editor__content">
+            <textarea 
+              [value]="deliveryType().shortDescription" 
+              (input)="onShortDescriptionChange($event)"
+              placeholder="Start typing."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Documents -->
+      <div class="tab-content tab-content--table" *ngIf="activeTab() === 'documents'">
+        <ui-data-table
+          [columns]="documentColumns"
+          [data]="deliveryType().documents"
+        ></ui-data-table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Templates -->
+  <ng-template #checkboxHeaderTemplate>
+    <div class="checkbox-header" (click)="toggleHeaderDropdown($event)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+      </svg>
+      <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
+        <button class="header-dropdown__item" (click)="onSelectAllDocuments()">Select all</button>
+        <button class="header-dropdown__item" (click)="onSelectNoneDocuments()">Select none</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #checkboxTemplate let-row>
+    <div class="checkbox-cell" (click)="$event.stopPropagation()">
+      <input 
+        type="checkbox" 
+        [checked]="row.selected" 
+        (change)="toggleDocumentSelection(row)"
+        class="checkbox"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #actionsTemplate let-row>
+    <div class="doc-actions">
+      <button class="doc-actions__btn" (click)="toggleDocumentActions(row.id, $event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+        </svg>
+      </button>
+      <div class="doc-actions__dropdown" *ngIf="activeDocActionId() === row.id" (click)="$event.stopPropagation()">
+        <button class="doc-actions__dropdown-item" (click)="renameDocument(row.id)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M11.3333 2.00004C11.5084 1.82494 11.7163 1.68605 11.9451 1.59129C12.1739 1.49653 12.4191 1.44775 12.6667 1.44775C12.9143 1.44775 13.1595 1.49653 13.3883 1.59129C13.617 1.68605 13.825 1.82494 14 2.00004C14.1751 2.17513 14.314 2.383 14.4088 2.61178C14.5035 2.84055 14.5523 3.08575 14.5523 3.33337C14.5523 3.58099 14.5035 3.82619 14.4088 4.05497C14.314 4.28374 14.1751 4.49161 14 4.66671L5 13.6667L1.33333 14.6667L2.33333 11L11.3333 2.00004Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Rename</span>
+        </button>
+        <button class="doc-actions__dropdown-item" (click)="downloadDocument(row.id)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4.66667 6.66663L8 9.99996L11.3333 6.66663" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 10V2" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Download</span>
+        </button>
+        <button class="doc-actions__dropdown-item doc-actions__dropdown-item--danger" (click)="deleteDocument(row.id)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4H14" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33334 6.66667 1.33334H9.33333C9.68696 1.33334 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2762C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2762C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Rename Modal -->
+  <ui-modal
+    [isOpen]="isRenameModalOpen()"
+    (isOpenChange)="isRenameModalOpen.set($event)"
+    [showClose]="false"
+    size="sm"
+  >
+    <div class="rename-modal">
+      <div class="rename-modal__header">
+        <h3 class="rename-modal__title">Rename</h3>
+        <button class="rename-modal__close" (click)="cancelRename()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M15 5L5 15M5 5L15 15" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="rename-modal__body">
+        <input
+          type="text"
+          class="rename-modal__input"
+          [value]="renameValue()"
+          (input)="onRenameInputChange($event)"
+          (keyup.enter)="confirmRename()"
+        />
+      </div>
+      <div class="rename-modal__footer">
+        <button class="btn btn--ghost" (click)="cancelRename()">Cancel</button>
+        <button class="btn btn--primary" (click)="confirmRename()">
+          <span>OK</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M13.3333 4L6.00001 11.3333L2.66667 8" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </ui-modal>
+</div>
+

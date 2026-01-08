@@ -1,0 +1,74 @@
+<div class="product-groups">
+  <!-- Header with Breadcrumbs -->
+  <header class="product-groups__header">
+    <div class="product-groups__breadcrumb">
+      <button class="product-groups__menu-btn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M2.5 5h15M2.5 10h15M2.5 15h15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="product-groups__separator"></div>
+      <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard"></ui-breadcrumbs>
+    </div>
+  </header>
+
+  <!-- List Header -->
+  <div class="product-groups__list-header">
+    <h1 class="product-groups__title">Product groups</h1>
+  </div>
+
+  <!-- Content -->
+  <div class="product-groups__content">
+    <div class="product-groups__grid">
+      @for (group of productGroups(); track trackByGroupId($index, group)) {
+        <article class="group-card" [class.group-card--with-image]="group.imageUrl">
+          @if (group.imageUrl) {
+            <div class="group-card__image-container">
+              <img class="group-card__image" [src]="group.imageUrl" [alt]="group.name" />
+            </div>
+          }
+          
+          <div class="group-card__content">
+            <div class="group-card__info">
+              <!-- Group Icon with background -->
+              <div class="group-card__icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M8.33333 2.5H3.33333C2.8731 2.5 2.5 2.8731 2.5 3.33333V8.33333C2.5 8.79357 2.8731 9.16667 3.33333 9.16667H8.33333C8.79357 9.16667 9.16667 8.79357 9.16667 8.33333V3.33333C9.16667 2.8731 8.79357 2.5 8.33333 2.5Z" stroke="#71717A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16.6667 2.5H11.6667C11.2064 2.5 10.8333 2.8731 10.8333 3.33333V8.33333C10.8333 8.79357 11.2064 9.16667 11.6667 9.16667H16.6667C17.1269 9.16667 17.5 8.79357 17.5 8.33333V3.33333C17.5 2.8731 17.1269 2.5 16.6667 2.5Z" stroke="#71717A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8.33333 10.8333H3.33333C2.8731 10.8333 2.5 11.2064 2.5 11.6667V16.6667C2.5 17.1269 2.8731 17.5 3.33333 17.5H8.33333C8.79357 17.5 9.16667 17.1269 9.16667 16.6667V11.6667C9.16667 11.2064 8.79357 10.8333 8.33333 10.8333Z" stroke="#71717A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16.6667 10.8333H11.6667C11.2064 10.8333 10.8333 11.2064 10.8333 11.6667V16.6667C10.8333 17.1269 11.2064 17.5 11.6667 17.5H16.6667C17.1269 17.5 17.5 17.1269 17.5 16.6667V11.6667C17.5 11.2064 17.1269 10.8333 16.6667 10.8333Z" stroke="#71717A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="group-card__text">
+                <span class="group-card__label">Product group name</span>
+                <span class="group-card__name">{{ group.name }}</span>
+              </div>
+            </div>
+            
+            <div class="group-card__info">
+              <!-- Hash Icon with background -->
+              <div class="group-card__icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M3.33333 7.5H16.6667M3.33333 12.5H16.6667M8.33333 2.5L6.66667 17.5M13.3333 2.5L11.6667 17.5" stroke="#71717A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="group-card__text">
+                <span class="group-card__label">Total products</span>
+                <span class="group-card__value">{{ group.totalProducts }}</span>
+              </div>
+            </div>
+            
+            <button class="group-card__button" type="button" (click)="viewGroup(group.id)">
+              <span>View group</span>
+              <!-- Chevron Right Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</div>
+

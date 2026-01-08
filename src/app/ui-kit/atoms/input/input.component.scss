@@ -17,8 +17,10 @@
   }
 
   &__required {
-    color: #DC2626;
-    margin-left: 2px;
+    color: #71717A;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 100%;
   }
 
   &__wrapper {
@@ -44,6 +46,7 @@
 
   &__prefix {
     left: 12px;
+    pointer-events: auto;
   }
 
   &__suffix {

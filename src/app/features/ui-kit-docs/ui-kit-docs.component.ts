@@ -200,7 +200,7 @@ export class UiKitDocsComponent {
     { id: 3, imageUrl: 'https://picsum.photos/800/400?random=3', title: 'Slide 3', description: 'Third slide description' }
   ];
 
-  tableColumns: TableColumn<Record<string, unknown>>[] = [
+  tableColumns: TableColumn[] = [
     { key: 'id', label: 'ID', sortable: true, width: '80px' },
     { key: 'name', label: 'Name', sortable: true },
     { key: 'status', label: 'Status', sortable: true },

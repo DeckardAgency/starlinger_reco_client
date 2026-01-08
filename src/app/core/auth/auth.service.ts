@@ -68,7 +68,12 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<boolean> {
-    // Check if dummy auth is enabled
+    // When mocks are enabled, use API (which gets intercepted by MockInterceptor)
+    // When dummy auth is enabled without mocks, use built-in dummy login
+    if ((environment as any).useMocks) {
+      return this.apiLogin(username, password);
+    }
+
     if ((environment as any).useDummyAuth) {
       return this.dummyLogin(username, password);
     }
@@ -165,14 +170,7 @@ export class AuthService {
   }
 
   logout(): void {
-    // Clear storage
-    this.removeItemFromStorage(this.tokenKey);
-    this.removeItemFromStorage(this.refreshTokenKey);
-    this.removeItemFromStorage(this.userKey);
-
-    // Update subjects
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
+    this.clearAuthData();
   }
 
   isAuthenticated(): boolean {
@@ -315,23 +313,44 @@ export class AuthService {
 
   private loadUserFromStorage(): void {
     try {
+      // Only load user if we have a valid token
+      if (!this.hasStoredToken()) {
+        // Clear invalid data
+        this.clearAuthData();
+        return;
+      }
+      
       const storedUser = this.getItemFromStorage(this.userKey);
-      if (storedUser) {
+      if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         this.currentUserSubject.next(JSON.parse(storedUser));
         this.isAuthenticatedSubject.next(true);
       }
     } catch (error) {
       this.logger.error('Error loading user from storage', error);
+      this.clearAuthData();
     }
   }
 
   private hasStoredToken(): boolean {
     try {
-      return !!this.getItemFromStorage(this.tokenKey);
+      const token = this.getItemFromStorage(this.tokenKey);
+      // Check that token exists and is not the string "undefined" or "null"
+      return !!token && token !== 'undefined' && token !== 'null' && token.length > 10;
     } catch (error) {
       this.logger.warn('Could not check authentication status', error);
       return false;
     }
+  }
+  
+  /**
+   * Clear all authentication data from storage
+   */
+  private clearAuthData(): void {
+    this.removeItemFromStorage(this.tokenKey);
+    this.removeItemFromStorage(this.refreshTokenKey);
+    this.removeItemFromStorage(this.userKey);
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
   }
 
   // Safe storage methods with fallbacks

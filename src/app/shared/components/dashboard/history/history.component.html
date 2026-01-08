@@ -1,0 +1,64 @@
+<section class="history">
+  <ui-section-header
+    title="History"
+    [icon]="historyIcon"
+    viewAllLink="/history"
+  ></ui-section-header>
+
+  <ui-tabs
+    [tabs]="tabs"
+    [activeTab]="activeTab()"
+    (tabChange)="onTabChange($event)"
+    variant="underline"
+  ></ui-tabs>
+
+  <ui-data-table
+    [columns]="columns()"
+    [data]="filteredData"
+    [sortColumn]="sortColumn()"
+    [sortDirection]="sortDirection()"
+    (sort)="onSort($event)"
+  ></ui-data-table>
+</section>
+
+<ng-template #typeCell let-row>
+  <ui-badge [variant]="getTypeBadgeVariant(row.type)" size="sm">
+    {{ getTypeLabel(row.type) }}
+  </ui-badge>
+</ng-template>
+
+<ng-template #customerCell let-row>
+  <div class="history__customer">
+    <ui-avatar [name]="row.customerName" size="sm"></ui-avatar>
+    <span class="history__customer-name">{{ row.customerName }}</span>
+  </div>
+</ng-template>
+
+<ng-template #statusCell let-row>
+  <ui-badge [variant]="getStatusBadgeVariant(row.status)" size="sm">
+    {{ getStatusLabel(row.status) }}
+  </ui-badge>
+</ng-template>
+
+<ng-template #actionsCell let-row>
+  <div class="history__actions">
+    <ui-button
+      variant="ghost"
+      size="sm"
+      [iconOnly]="true"
+      (click)="toggleMenu(row.inquiryId)"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="3" r="1" fill="currentColor"/>
+        <circle cx="8" cy="8" r="1" fill="currentColor"/>
+        <circle cx="8" cy="13" r="1" fill="currentColor"/>
+      </svg>
+    </ui-button>
+    <ui-dropdown-menu
+      [items]="dropdownMenuItems"
+      [isOpen]="openMenuRowId() === row.inquiryId"
+      (itemClick)="onMenuItemClick($event, row)"
+      (closeMenu)="closeMenu()"
+    ></ui-dropdown-menu>
+  </div>
+</ng-template>

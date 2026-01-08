@@ -1,0 +1,91 @@
+<div class="fuel-surcharge-detail-page">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <a routerLink="/admin/fuel-surcharges" class="page-header__link">Fuel surcharge</a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">{{ isEditMode() ? 'Edit' : 'Add' }}</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="section-header__left">
+        <button class="btn btn--icon btn--outline" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="section-header__title">{{ isEditMode() ? 'Edit option' : 'Add option' }}</h1>
+      </div>
+      <div class="section-header__actions">
+        <button class="btn btn--outline" (click)="onSaveAndContinue()">
+          <span>Save and continue</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn btn--primary" (click)="onSave()">
+          <span>Save</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 8L6.5 10.5L12 5" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+      <div class="card">
+        <!-- Form Fields -->
+        <div class="card__fields">
+          <ui-form-field label="Delivery type" layout="horizontal">
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!fuelSurcharge().deliveryType">Select</span>
+              <div class="pill" *ngIf="fuelSurcharge().deliveryType">
+                <button class="pill__remove" (click)="removeDeliveryType(); $event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <span>{{ fuelSurcharge().deliveryType }}</span>
+              </div>
+              <select class="select-field" [(ngModel)]="selectedDeliveryType" (change)="onDeliveryTypeChange()">
+                <option value="" disabled selected>Select</option>
+                <option *ngFor="let opt of deliveryTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Date" layout="horizontal">
+            <input type="text" [value]="fuelSurcharge().date" (input)="onDateChange($event)" placeholder="01/01/2025">
+          </ui-form-field>
+
+          <ui-form-field label="Fuel surcharge" layout="horizontal">
+            <input type="text" [value]="formatFuelSurcharge(fuelSurcharge().fuelSurcharge)" (input)="onFuelSurchargeChange($event)" placeholder="1,025">
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

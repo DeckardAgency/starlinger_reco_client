@@ -79,6 +79,10 @@
     &:active:not(:disabled) {
       background-color: #E4E4E7;
     }
+
+    &:focus {
+      box-shadow: none;
+    }
   }
 
   &--outline {
@@ -114,6 +118,27 @@
     width: 100%;
   }
 
+  // Icon only
+  &--icon-only {
+    border-radius: 9999px;
+    padding: 0;
+
+    &.ui-button--sm {
+      width: 28px;
+      height: 28px;
+    }
+
+    &.ui-button--md {
+      width: 32px;
+      height: 32px;
+    }
+
+    &.ui-button--lg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
   // Loading state
   &--loading {
     pointer-events: none;
@@ -139,14 +164,6 @@
     svg {
       width: 16px;
       height: 16px;
-    }
-
-    &--left {
-      margin-right: 4px;
-    }
-
-    &--right {
-      margin-left: 4px;
     }
   }
 

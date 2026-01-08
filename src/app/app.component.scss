@@ -1,25 +1,40 @@
 .app {
   display: block;
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 95px);
   background-color: #FAFAFA;
   font-family: "Inter", serif;
   font-optical-sizing: auto;
   font-style: normal;
 
-  &__main {
-    margin-left: 15.625rem;
-    margin-top: 5rem; // Account for top-bar height
-    transition: margin-left 0.3s ease;
-    min-height: calc(100vh - 5.5625rem); // Subtract top-bar height
+  .ng-star-inserted {
+    height: 100%;
+  }
 
-    @media screen and (max-width: 52.125rem) {
-      margin-left: 0rem;
+  // Auth pages (login, forgot-password) - full viewport
+  &--auth-page {
+    height: 100vh;
+    background-color: transparent;
+
+    // Override main content margins when on auth pages
+    .app__main {
+      margin-left: 0;
+      margin-top: 0;
+      min-height: 100vh;
+    }
+  }
+
+  &__main {
+    margin-left: 250px;
+    margin-top: 80px; // Account for top-bar height
+    transition: margin-left 0.3s ease;
+    height: 100%;
+
+    @media screen and (max-width: 834px) {
+      margin-left: 0px;
     }
 
     &--collapsed {
-      margin-left: 3.75rem; // Match the collapsed sidebar width
+      margin-left: 80px; // Match the collapsed sidebar width
     }
-
-
   }
 }

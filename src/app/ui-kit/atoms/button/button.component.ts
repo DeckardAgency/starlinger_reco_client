@@ -19,6 +19,7 @@ export class ButtonComponent {
   @Input({ transform: booleanAttribute }) disabled = false;
   @Input({ transform: booleanAttribute }) loading = false;
   @Input({ transform: booleanAttribute }) fullWidth = false;
+  @Input({ transform: booleanAttribute }) iconOnly = false;
   @Input() iconLeft?: string;
   @Input() iconRight?: string;
 
@@ -33,6 +34,10 @@ export class ButtonComponent {
 
     if (this.fullWidth) {
       classes.push('ui-button--full-width');
+    }
+
+    if (this.iconOnly) {
+      classes.push('ui-button--icon-only');
     }
 
     if (this.loading) {

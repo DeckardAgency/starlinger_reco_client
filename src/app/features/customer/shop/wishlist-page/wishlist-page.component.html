@@ -1,0 +1,87 @@
+<div class="wishlist-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/customer/dashboard" class="page-header__home">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 6l6-4.667L14 6v7.333a1.333 1.333 0 01-1.333 1.334H3.333A1.333 1.333 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 14.667V8h4v6.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="8" height="15" viewBox="0 0 8 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1l6 6.5-6 6.5" stroke="#E4E4E7" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">Wishlist</span>
+    </div>
+  </div>
+
+  <!-- List Header -->
+  <div class="list-header">
+    <div class="list-header__left">
+      <svg class="list-header__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M5 1.667L2.5 5v11.667a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666V5L15 1.667H5zM2.5 5h15M13.333 8.333a3.333 3.333 0 01-6.666 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="list-header__title">Wishlist</h1>
+      <span class="list-header__count">{{ itemCount }}</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="wishlist-content">
+    <!-- Table -->
+    <div class="table-container">
+      <div class="table-wrapper">
+        <ui-data-table
+          [data]="wishlistItems()"
+          [columns]="columns"
+        ></ui-data-table>
+      </div>
+    </div>
+
+    <!-- Sidebar Actions -->
+    <div class="sidebar-actions">
+      <button class="btn btn--primary btn--full" (click)="onAddToCart()">
+        <span>Add to cart</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Template -->
+<ng-template #itemTemplate let-row>
+  <div class="item-cell">
+    <div class="item-cell__image">
+      <img [src]="row.imageUrl" [alt]="row.productName">
+    </div>
+    <div class="item-cell__info">
+      <div class="item-cell__field">
+        <span class="item-cell__label">Product code</span>
+        <span class="item-cell__value">{{ row.productCode }}</span>
+      </div>
+      <div class="item-cell__field">
+        <span class="item-cell__label">Product name</span>
+        <span class="item-cell__value">{{ row.productName }}</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Price Template -->
+<ng-template #priceTemplate let-row>
+  <span class="price-cell">{{ formatPrice(row.price) }}</span>
+</ng-template>
+
+<!-- Actions Template -->
+<ng-template #actionsTemplate let-row>
+  <button class="btn-delete" (click)="removeItem(row)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334zM6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</ng-template>
+

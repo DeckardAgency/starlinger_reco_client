@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.active-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+
+  ui-section-header {
+    width: 100%;
+  }
+
+  &__cards {
+    display: flex;
+    gap: 16px;
+    align-self: stretch;
+
+    @media screen and (max-width: 1024px) {
+      flex-direction: column;
+    }
+  }
+}

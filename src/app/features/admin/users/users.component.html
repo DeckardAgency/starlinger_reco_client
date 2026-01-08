@@ -1,0 +1,123 @@
+<div class="users-page" (click)="closeDropdown()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">Users</span>
+    </div>
+  </div>
+
+  <!-- List Header -->
+  <div class="list-header">
+    <div class="list-header__left">
+      <svg class="list-header__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M13.3335 17.5V15.8333C13.3335 14.9493 12.9823 14.1014 12.3572 13.4763C11.7321 12.8512 10.8842 12.5 10.0002 12.5H5.00016C4.11611 12.5 3.26826 12.8512 2.64314 13.4763C2.01802 14.1014 1.66683 14.9493 1.66683 15.8333V17.5M18.3335 17.4999V15.8333C18.3329 15.0948 18.0873 14.3773 17.6347 13.7936C17.182 13.2099 16.5488 12.7929 15.8335 12.6083M13.3335 2.60828C14.0505 2.79186 14.6856 3.20882 15.1399 3.79352C15.5943 4.37821 15.8401 5.09726 15.8401 5.8374C15.8401 6.57755 15.5943 7.29659 15.1399 7.88129C14.6856 8.46599 14.0505 8.88295 13.3335 9.06653M10.8335 5.83333C10.8335 7.67428 9.34111 9.16667 7.50016 9.16667C5.65921 9.16667 4.16683 7.67428 4.16683 5.83333C4.16683 3.99238 5.65921 2.5 7.50016 2.5C9.34111 2.5 10.8335 3.99238 10.8335 5.83333Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="list-header__title">Users</h1>
+      <span class="list-header__count">{{ totalItems() }}</span>
+    </div>
+    <div class="list-header__right">
+      <div class="search-input">
+        <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch()"
+          placeholder=""
+          class="search-input__field"
+        />
+      </div>
+      <button class="btn btn--icon" (click)="onExport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn btn--primary" (click)="onAddUser()">
+        <span>Add user</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <ui-data-table
+      [columns]="columns"
+      [data]="users()"
+      (sort)="onSortChange($event)"
+    ></ui-data-table>
+  </div>
+
+  <!-- Checkbox Header Template -->
+  <ng-template #checkboxHeaderTemplate>
+    <div class="checkbox-header" (click)="toggleHeaderDropdown($event)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+      </svg>
+      <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
+        <button class="header-dropdown__item" (click)="onSelectAll()">Select all</button>
+        <button class="header-dropdown__item" (click)="onSelectNone()">None</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Checkbox Template -->
+  <ng-template #checkboxTemplate let-row>
+    <div class="checkbox-cell" (click)="$event.stopPropagation()">
+      <input 
+        type="checkbox" 
+        [checked]="row.selected" 
+        (change)="toggleUserSelection(row)"
+        class="checkbox"
+      />
+    </div>
+  </ng-template>
+
+  <!-- Name Template -->
+  <ng-template #nameTemplate let-row>
+    <span>{{ getFullName(row) }}</span>
+  </ng-template>
+
+  <!-- Role Template -->
+  <ng-template #roleTemplate let-row>
+    <span>{{ formatRole(row.role) }}</span>
+  </ng-template>
+
+  <!-- Actions Template -->
+  <ng-template #actionsTemplate let-row>
+    <div class="actions-cell">
+      <button class="actions-btn" (click)="toggleDropdown(row.id, $event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+        </svg>
+      </button>
+      <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
+        <button class="dropdown-menu__item" (click)="onEdit(row)">Edit</button>
+        <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onDelete(row)">Delete</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Table Footer -->
+  <div class="table-footer">
+    <span class="table-footer__info">Showing 1 to {{ users().length }} from {{ totalItems() }} results</span>
+  </div>
+</div>
+

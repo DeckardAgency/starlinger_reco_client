@@ -14,3 +14,7 @@ export * from './carousel/carousel.component';
 export * from './quantity-selector/quantity-selector.component';
 export * from './price-display/price-display.component';
 export * from './accordion/accordion.component';
+export * from './order-card/order-card.component';
+export * from './quick-action-card/quick-action-card.component';
+export * from './section-header/section-header.component';
+export * from './dropdown-menu/dropdown-menu.component';

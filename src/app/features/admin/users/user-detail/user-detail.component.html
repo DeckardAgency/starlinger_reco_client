@@ -1,0 +1,201 @@
+<div class="user-detail-page">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <a routerLink="/admin/users" class="page-header__link">Users</a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">{{ isEditMode() ? 'Edit user' : 'Add' }}</span>
+    </div>
+  </div>
+
+  <!-- Detail Header -->
+  <div class="detail-header">
+    <div class="detail-header__left">
+      <button class="back-btn" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h1 class="detail-header__title">{{ isEditMode() ? 'Edit user' : 'Add user' }}</h1>
+    </div>
+    <div class="detail-header__right">
+      <button class="btn btn--secondary" (click)="onDiscard()">
+        <span>Discard changes</span>
+      </button>
+      <button class="btn btn--primary" (click)="onSave()">
+        <span>Save</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Form Content - Two Column Layout -->
+  <div class="form-container">
+    <div class="form-grid">
+      <!-- Left Column -->
+      <div class="form-column">
+        <!-- User Information Card -->
+        <div class="form-card">
+          <h2 class="form-card__title">User information</h2>
+          <div class="form-card__content">
+            <!-- First Name -->
+            <div class="form-field">
+              <label class="form-field__label">First name</label>
+              <div class="form-field__input-wrapper">
+                <input
+                  type="text"
+                  class="form-field__input"
+                  [value]="user().firstName"
+                  (input)="onFirstNameChange($event)"
+                  placeholder="Enter first name"
+                />
+              </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-field">
+              <label class="form-field__label">Last name</label>
+              <div class="form-field__input-wrapper">
+                <input
+                  type="text"
+                  class="form-field__input"
+                  [value]="user().lastName"
+                  (input)="onLastNameChange($event)"
+                  placeholder="Enter last name"
+                />
+              </div>
+            </div>
+
+            <!-- Username -->
+            <div class="form-field">
+              <label class="form-field__label">Username</label>
+              <div class="form-field__input-wrapper">
+                <input
+                  type="text"
+                  class="form-field__input"
+                  [value]="user().username"
+                  (input)="onUsernameChange($event)"
+                  placeholder="Enter username"
+                />
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field">
+              <label class="form-field__label">Email</label>
+              <div class="form-field__input-wrapper">
+                <input
+                  type="email"
+                  class="form-field__input"
+                  [value]="user().email"
+                  (input)="onEmailChange($event)"
+                  placeholder="Enter email"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Card -->
+        <div class="form-card">
+          <h2 class="form-card__title">Password</h2>
+          <div class="form-card__content">
+            <!-- Password -->
+            <div class="form-field">
+              <label class="form-field__label">Password</label>
+              <div class="form-field__input-wrapper form-field__input-wrapper--with-icon">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  class="form-field__input"
+                  [value]="password()"
+                  (input)="onPasswordChange($event)"
+                  placeholder="Enter password"
+                />
+                <button class="form-field__icon-btn" (click)="togglePasswordVisibility()" type="button">
+                  <svg *ngIf="!showPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M0.833344 10C0.833344 10 4.16668 3.33334 10 3.33334C15.8333 3.33334 19.1667 10 19.1667 10C19.1667 10 15.8333 16.6667 10 16.6667C4.16668 16.6667 0.833344 10 0.833344 10Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="showPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M11.7667 11.7667C11.5378 12.0123 11.2618 12.2093 10.9551 12.3459C10.6484 12.4826 10.3171 12.556 9.98172 12.562C9.64635 12.5679 9.31287 12.5062 9.00175 12.3804C8.69063 12.2547 8.40822 12.0674 8.17139 11.8306C7.93456 11.5937 7.74823 11.3113 7.62248 10.9999C7.49673 10.6885 7.43491 10.3548 7.4409 10.0194C7.4469 9.68406 7.52006 9.35272 7.65671 9.04601C7.79336 8.7393 7.99034 8.46339 8.23585 8.23459M14.95 14.95C13.5255 16.0358 11.7909 16.6374 10 16.6667C4.16668 16.6667 0.833344 10 0.833344 10C1.86992 8.06825 3.30762 6.38051 5.05001 5.05L14.95 14.95ZM8.25001 3.53334C8.82363 3.39907 9.41093 3.33195 10 3.33334C15.8333 3.33334 19.1667 10 19.1667 10C18.6608 10.9463 18.0575 11.8373 17.3667 12.6583L8.25001 3.53334Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M0.833344 0.833336L19.1667 19.1667" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Repeat Password -->
+            <div class="form-field">
+              <label class="form-field__label">Repeat password</label>
+              <div class="form-field__input-wrapper form-field__input-wrapper--with-icon">
+                <input
+                  [type]="showRepeatPassword() ? 'text' : 'password'"
+                  class="form-field__input"
+                  [value]="repeatPassword()"
+                  (input)="onRepeatPasswordChange($event)"
+                  placeholder="Repeat password"
+                />
+                <button class="form-field__icon-btn" (click)="toggleRepeatPasswordVisibility()" type="button">
+                  <svg *ngIf="!showRepeatPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M0.833344 10C0.833344 10 4.16668 3.33334 10 3.33334C15.8333 3.33334 19.1667 10 19.1667 10C19.1667 10 15.8333 16.6667 10 16.6667C4.16668 16.6667 0.833344 10 0.833344 10Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="showRepeatPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M11.7667 11.7667C11.5378 12.0123 11.2618 12.2093 10.9551 12.3459C10.6484 12.4826 10.3171 12.556 9.98172 12.562C9.64635 12.5679 9.31287 12.5062 9.00175 12.3804C8.69063 12.2547 8.40822 12.0674 8.17139 11.8306C7.93456 11.5937 7.74823 11.3113 7.62248 10.9999C7.49673 10.6885 7.43491 10.3548 7.4409 10.0194C7.4469 9.68406 7.52006 9.35272 7.65671 9.04601C7.79336 8.7393 7.99034 8.46339 8.23585 8.23459M14.95 14.95C13.5255 16.0358 11.7909 16.6374 10 16.6667C4.16668 16.6667 0.833344 10 0.833344 10C1.86992 8.06825 3.30762 6.38051 5.05001 5.05L14.95 14.95ZM8.25001 3.53334C8.82363 3.39907 9.41093 3.33195 10 3.33334C15.8333 3.33334 19.1667 10 19.1667 10C18.6608 10.9463 18.0575 11.8373 17.3667 12.6583L8.25001 3.53334Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M0.833344 0.833336L19.1667 19.1667" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="form-column">
+        <!-- Roles Card -->
+        <div class="form-card form-card--roles">
+          <h2 class="form-card__title">Roles</h2>
+          <div class="form-card__content">
+            <div class="role-list">
+              <div 
+                class="role-item" 
+                *ngFor="let role of roleOptions"
+                (click)="selectRole(role.id)"
+                [class.role-item--selected]="isRoleSelected(role.id)"
+              >
+                <div class="role-item__header">
+                  <div class="role-item__checkbox">
+                    <svg *ngIf="!isRoleSelected(role.id)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <rect x="0.5" y="0.5" width="19" height="19" rx="3.5" stroke="#E4E4E7"/>
+                    </svg>
+                    <svg *ngIf="isRoleSelected(role.id)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <rect x="0.5" y="0.5" width="19" height="19" rx="3.5" fill="none" stroke="white"/>
+                      <path d="M14.6667 6.5L8.25 12.9167L5.33334 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <span class="role-item__name">Role → {{ role.name }}</span>
+                </div>
+                <p class="role-item__description">{{ role.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

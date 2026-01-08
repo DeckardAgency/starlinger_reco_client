@@ -1,21 +1,20 @@
-import { Component, signal, OnInit, ElementRef, HostListener, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ElementRef, HostListener, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarService } from '@services/sidebar.service';
 import { AuthService } from '@core/auth/auth.service';
-import { User } from '@core/models';
+import { User, USER_ROLES } from '@core/models';
 import { trigger, transition, style, animate, state } from '@angular/animations';
-import { LoginModalComponent } from '@shared/components/modals/login-modal/login-modal.component';
-import { LoginModalService } from '@services/login-modal.service';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+
+type SectionKey = 'customer' | 'actions' | 'product' | 'ecommerce' | 'user' | 'machine' | 'shop' | 'inquiries';
 
 @Component({
     selector: 'app-sidebar',
-    imports: [CommonModule, RouterModule, LoginModalComponent],
+    imports: [CommonModule, RouterModule],
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [
         trigger('fadeInOut', [
             transition(':enter', [
@@ -38,49 +37,50 @@ import { filter } from 'rxjs/operators';
                 opacity: 1
             })),
             transition('void <=> *', [
-                animate('300ms ease-in-out')
+                animate('200ms ease-in-out')
             ])
         ])
     ]
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
+  // Disable animations when sidebar is collapsed
+  @HostBinding('@.disabled')
+  get animationsDisabled(): boolean {
+    return this.sidebarService.isCollapsed();
+  }
+
   isUserDropdownOpen = signal<boolean>(false);
-  isLoginModalOpen = signal<boolean>(false);
   currentUser: User | null = null;
   userFullName: string = '';
   userRole: string = '';
   userInitials: string = '';
-  private destroyRef = inject(DestroyRef);
-  private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
+
+  // Section expansion states - all expanded by default
+  private expandedSections = signal<Set<SectionKey>>(new Set(['customer', 'actions', 'product', 'ecommerce', 'user', 'machine', 'shop', 'inquiries']));
 
   constructor(
     private sidebarService: SidebarService,
     public authService: AuthService,
     private router: Router,
     private elementRef: ElementRef,
-    public loginModalService: LoginModalService
   ) {}
 
   ngOnInit(): void {
     // Subscribe to user changes
-    this.authService.currentUser$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(user => {
+    this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateUserDisplay();
-      this.cdr.markForCheck();
     });
 
     // Initialize with current user
     this.currentUser = this.authService.getCurrentUser();
     this.updateUserDisplay();
+  }
 
-    // Subscribe to login modal state
-    this.loginModalService.isOpen$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(isOpen => {
-      this.isLoginModalOpen.set(isOpen);
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('document:click', ['$event'])
@@ -96,22 +96,26 @@ export class SidebarComponent implements OnInit {
     }
   }
 
+  toggleSection(section: SectionKey): void {
+    this.expandedSections.update(sections => {
+      const newSections = new Set(sections);
+      if (newSections.has(section)) {
+        newSections.delete(section);
+      } else {
+        newSections.add(section);
+      }
+      return newSections;
+    });
+  }
+
+  isSectionExpanded(section: SectionKey): boolean {
+    return this.expandedSections().has(section);
+  }
+
   toggleUserDropdown(event: Event) {
     // Stop event propagation to prevent the document click handler from firing immediately
     event.stopPropagation();
     this.isUserDropdownOpen.update(value => !value);
-  }
-
-  openLoginModal() {
-    // Close the user dropdown when opening the login modal
-    this.isUserDropdownOpen.set(false);
-    this.loginModalService.open();
-  }
-
-  onLoginSuccess() {
-    // Refresh the user display after login
-    this.currentUser = this.authService.getCurrentUser();
-    this.updateUserDisplay();
   }
 
   updateUserDisplay(): void {
@@ -131,7 +135,7 @@ export class SidebarComponent implements OnInit {
 
       // Set user role (assuming roles is an array of strings)
       if (this.currentUser.roles && this.currentUser.roles.length > 0) {
-        const role = this.currentUser.roles[1];
+        const role = this.currentUser.roles[1] || this.currentUser.roles[0];
         // Convert ROLE_USER to User, ROLE_ADMIN to Administrator, etc.
         this.userRole = role.replace('ROLE_', '').charAt(0).toUpperCase() +
           role.replace('ROLE_', '').slice(1).toLowerCase();
@@ -154,32 +158,90 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Check if the current user has a specific role
-   * @param role The role to check for (without the ROLE_ prefix)
-   * @returns True if the user has the role
-   */
-  hasRole(role: string): boolean {
-    if (!this.currentUser || !this.currentUser.roles) {
-      return false;
-    }
-
-    const fullRole = `ROLE_${role.toUpperCase()}`;
-    return this.currentUser.roles.includes(fullRole);
+  isRouteActive(basePath: string): boolean {
+    return this.router.url.includes(`/${basePath}`);
   }
 
   /**
-   * Check if a menu item should be visible for the current user
-   * @param requiredRole Optional role required to view the item
-   * @returns True if the item should be visible
+   * Check if current user is a Super Admin (Starlinger Admin)
+   * Uses authService.hasRole for consistency
    */
-  isMenuItemVisible(requiredRole?: string): boolean {
-    // If no role is required, show to all authenticated users
-    if (!requiredRole) {
-      return true;
-    }
+  get isSuperAdmin(): boolean {
+    return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
+  }
 
-    // If a role is required, check if user has it
-    return this.hasRole(requiredRole);
+  /**
+   * Check if current user is a Customer Admin (Client Admin)
+   * Uses authService.hasRole for consistency
+   */
+  get isCustomerAdmin(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT_ADMIN);
+  }
+
+  /**
+   * Check if current user is a Customer (Client)
+   * Uses authService.hasRole for consistency
+   */
+  get isCustomer(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT);
+  }
+
+  /**
+   * Navigate to company profile page
+   */
+  navigateToCompany(): void {
+    this.router.navigate(['/customer-admin/company']);
+    this.isUserDropdownOpen.set(false);
+  }
+
+  /**
+   * Navigate to settings page
+   */
+  navigateToSettings(): void {
+    this.router.navigate(['/customer-admin/settings']);
+    this.isUserDropdownOpen.set(false);
+  }
+
+  /**
+   * Switch user functionality (placeholder)
+   */
+  switchUser(): void {
+    // TODO: Implement user switching logic
+    console.log('Switch user clicked');
+    this.isUserDropdownOpen.set(false);
+  }
+
+  /**
+   * Get the correct support link based on user role
+   */
+  getSupportLink(): string {
+    if (this.isSuperAdmin) {
+      return '/admin/support';
+    } else if (this.isCustomerAdmin) {
+      return '/customer-admin/support';
+    } else {
+      return '/customer/support';
+    }
+  }
+
+  /**
+   * Get the correct documentation link based on user role
+   */
+  getDocumentationLink(): string {
+    if (this.isSuperAdmin) {
+      return '/admin/documentation';
+    } else if (this.isCustomerAdmin) {
+      return '/customer-admin/documentation';
+    } else {
+      return '/customer/documentation';
+    }
+  }
+
+  /**
+   * Navigate to customer settings page
+   */
+  navigateToCustomerSettings(): void {
+    this.router.navigate(['/customer/settings']);
+    this.isUserDropdownOpen.set(false);
   }
 }

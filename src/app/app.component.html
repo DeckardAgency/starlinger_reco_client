@@ -1,16 +1,35 @@
-<div class="app">
-  <app-top-bar></app-top-bar>
-  <app-sidebar></app-sidebar>
-  <app-mobile-menu></app-mobile-menu>
-  <main class="app__main" [class.app__main--collapsed]="sidebarService.isCollapsed()">
+<div class="app" [class.app--auth-page]="isAuthPage">
+  <ng-container *ngIf="!isAuthPage">
+    <app-top-bar></app-top-bar>
+    <app-sidebar></app-sidebar>
+    <app-mobile-menu></app-mobile-menu>
+  </ng-container>
+
+  <main
+    class="app__main"
+    [class.app__main--collapsed]="sidebarService.isCollapsed()"
+    [class.app__main--full]="isAuthPage">
     <router-outlet></router-outlet>
   </main>
 
   <!-- Login Modal Component -->
   <app-login-modal
+    *ngIf="!isAuthPage"
     [isOpen]="(loginModalService.isOpen$ | async) === true && !isAuthenticated"
     [allowClose]="false"
     (isOpenChange)="onLoginModalOpenChange($event)"
     (loginSuccess)="onLoginSuccess()">
   </app-login-modal>
+
+  <!-- Cart Popup (Customer only) -->
+  <app-cart
+    *ngIf="isCustomer && cartService.isCartOpen()"
+    (close)="cartService.closeCart()">
+  </app-cart>
+
+  <!-- Wishlist Popup (Customer only) -->
+  <app-wishlist
+    *ngIf="isCustomer && wishlistService.isWishlistOpen()"
+    (close)="wishlistService.closeWishlist()">
+  </app-wishlist>
 </div>

@@ -4,3 +4,4 @@ export * from './toast-container/toast-container.component';
 export * from './data-table/data-table.component';
 export * from './card-grid/card-grid.component';
 export * from './drawer/drawer.component';
+export * from './data-table/data-table.component';

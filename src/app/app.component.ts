@@ -3,13 +3,17 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { TopBarComponent } from './layout/topbar/top-bar.component';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { SidebarService } from '@services/sidebar.service';
 import { LoginModalService } from '@services/login-modal.service';
 import { LoginModalComponent } from '@shared/components/modals/login-modal/login-modal.component';
 import { AuthService } from '@core/auth/auth.service';
+import { CartService } from '@core/services/cart.service';
+import { WishlistService } from '@core/services/wishlist.service';
 import { MobileMenuComponent } from './layout/mobile-menu/mobile-menu.component';
+import { CartComponent } from '@features/customer/shop/cart/cart.component';
+import { WishlistComponent } from '@features/customer/shop/wishlist/wishlist.component';
 import { UserService } from '@services/http/user.service';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { environment } from '@env/environment';
@@ -21,8 +25,11 @@ import { environment } from '@env/environment';
       SidebarComponent,
       TopBarComponent,
       AsyncPipe,
+      NgIf,
       LoginModalComponent,
-      MobileMenuComponent
+      MobileMenuComponent,
+      CartComponent,
+      WishlistComponent
     ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
@@ -31,6 +38,9 @@ export class AppComponent implements OnInit {
   title = 'starlinger_reco_client';
   currentRoute: string = '';
   isAuthenticated: boolean = false;
+  isAuthPage: boolean = false;
+
+  private readonly authRoutes = ['/login', '/forgot-password'];
 
   private destroyRef = inject(DestroyRef);
   private logger!: ScopedLogger;
@@ -40,6 +50,8 @@ export class AppComponent implements OnInit {
     private router: Router,
     public loginModalService: LoginModalService,
     private authService: AuthService,
+    public cartService: CartService,
+    public wishlistService: WishlistService,
     private userService: UserService,
     private loggerService: LoggerService
   ) {
@@ -51,6 +63,7 @@ export class AppComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
       this.currentRoute = event.url;
+      this.isAuthPage = this.authRoutes.some(route => event.url.startsWith(route));
 
       // Check client status on every route change
       this.checkClientStatus();
@@ -58,6 +71,7 @@ export class AppComponent implements OnInit {
 
     // Initialize current route
     this.currentRoute = this.router.url;
+    this.isAuthPage = this.authRoutes.some(route => this.router.url.startsWith(route));
 
     // Subscribe to authentication state changes
     this.authService.isAuthenticated$.pipe(
@@ -81,6 +95,10 @@ export class AppComponent implements OnInit {
   onLoginSuccess(): void {
     // Handle successful login - e.g., redirect to dashboard
     this.router.navigate(['/dashboard']);
+  }
+
+  get isCustomer(): boolean {
+    return this.authService.hasRole('ROLE_CLIENT');
   }
 
   /**

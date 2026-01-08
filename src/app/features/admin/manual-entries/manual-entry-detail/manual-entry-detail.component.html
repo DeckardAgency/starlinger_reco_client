@@ -1,0 +1,327 @@
+<div class="manual-entry-detail">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <ui-breadcrumbs
+      [items]="breadcrumbItems"
+      [showHome]="true"
+      homeRoute="/admin/dashboard"
+      separator="chevron">
+    </ui-breadcrumbs>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="section-header__left">
+        <button class="btn btn--icon btn--outline" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="section-header__title-group">
+          <!-- PackageCheck icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="section-header__icon">
+            <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.083 12.917l1.667 1.666 4.167-4.166" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h1 class="section-header__title">Inquiry ID: #{{ entry().id }}</h1>
+          <ui-badge [variant]="getStatusBadgeVariant(entry().status)">
+            {{ entry().status === 'new' ? 'New' : entry().status }}
+          </ui-badge>
+        </div>
+      </div>
+      <div class="section-header__actions">
+        <button class="btn btn--outline" (click)="onExport()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 10v2.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Export</span>
+        </button>
+        <button class="btn btn--outline" (click)="onPrint()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6V1.333h8V6M4 12H2.667A1.333 1.333 0 011.333 10.667V7.333A1.333 1.333 0 012.667 6h10.666a1.333 1.333 0 011.334 1.333v3.334A1.333 1.333 0 0113.333 12H12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 9.333H4v5.334h8V9.333z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Print</span>
+        </button>
+        <button class="btn btn--primary" (click)="onSave()">
+          <span>Save</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10.667 13.333v-4H5.333v4M5.333 2.667V6h4M13.333 6.667V13.333a.667.667 0 01-.666.667H3.333a.667.667 0 01-.666-.667V2.667A.667.667 0 013.333 2h6.667l3.333 3.333v1.334z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Entry Info Row -->
+    <div class="order-info-row">
+      <div class="order-info-row__left">
+        <span class="order-info-row__label">Internal reference number:&nbsp;&nbsp;</span>
+        <span class="order-info-row__value">{{ entry().internalRef }}</span>
+      </div>
+      <div class="order-info-row__right">
+        <div class="order-info-row__item">
+          <span class="order-info-row__label">Date created:&nbsp;&nbsp;</span>
+          <span class="order-info-row__value">{{ entry().dateCreated }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Cards -->
+    <div class="form-cards">
+      <!-- Basic Information Card -->
+      <div class="card">
+        <h2 class="card__title">Basic information</h2>
+        
+        <div class="card__toggle">
+          <ui-toggle 
+            label="Enable sale" 
+            labelPosition="left"
+            [checked]="entry().enableSale"
+            (toggleChange)="onEnableSaleChange($event)">
+          </ui-toggle>
+        </div>
+
+        <div class="card__fields">
+          <ui-form-field label="Account" layout="horizontal">
+            <input type="text" [value]="entry().account" readonly>
+          </ui-form-field>
+
+          <ui-form-field label="Contact" layout="horizontal">
+            <input type="text" [value]="entry().contact" readonly>
+          </ui-form-field>
+
+          <ui-form-field label="Contact" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ entry().contact }}</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Billing address" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>1060 Wien, Sonnenuhrgasse 4</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Status" layout="horizontal">
+            <div class="select-with-badge">
+              <ui-badge [variant]="getStatusBadgeVariant(entry().status)">
+                {{ entry().status === 'new' ? 'New' : entry().status }}
+              </ui-badge>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Date" layout="horizontal">
+            <input type="text" [value]="entry().date" disabled class="input--disabled">
+          </ui-form-field>
+        </div>
+      </div>
+
+      <!-- Order Address Card -->
+      <div class="card">
+        <h2 class="card__title">Order address</h2>
+
+        <div class="card__fields">
+          <ui-form-field label="Payment type" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Bank transfer</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Delivery type" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>DHL</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Price without tax" layout="horizontal">
+            <input type="text" [value]="formatCurrency(entry().priceWithoutTax)" disabled class="input--disabled">
+          </ui-form-field>
+
+          <ui-form-field label="Total price" layout="horizontal">
+            <input type="text" [value]="formatCurrency(entry().totalPrice)" disabled class="input--disabled">
+          </ui-form-field>
+
+          <ui-form-field label="Price tax" layout="horizontal">
+            <input type="text" [value]="formatCurrency(entry().priceTax)" disabled class="input--disabled">
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inquiry Overview Section -->
+    <div class="inquiry-section">
+      <div class="inquiry-section__header">
+        <!-- ShoppingBag icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M5 1.667L2.5 5v11.667a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666V5L15 1.667H5z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.5 5h15M13.333 8.333a3.333 3.333 0 01-6.666 0" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2 class="inquiry-section__title">Inquiry overview</h2>
+      </div>
+
+      <!-- Inquiry Parts -->
+      <div class="inquiry-parts">
+        <div class="inquiry-part" *ngFor="let part of entry().inquiryParts">
+          <div class="inquiry-part__header">
+            <div class="inquiry-part__title-group">
+              <div class="inquiry-part__title">
+                <!-- Bolt icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10.833 1.667L2.5 11.667h7.5l-.833 6.666 8.333-10h-7.5l.833-6.666z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ part.partNumber }}</span>
+              </div>
+              <div class="inquiry-part__machine">
+                <!-- Component icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M7.083 4.167L10 1.667l2.917 2.5M7.083 15.833L10 18.333l2.917-2.5M15.833 7.083L18.333 10l-2.5 2.917M4.167 7.083L1.667 10l2.5 2.917" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 7.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ part.machineName }}</span>
+              </div>
+            </div>
+            <button class="inquiry-part__toggle" (click)="toggleInquiryPart(part.id)">
+              <span>{{ part.isExpanded ? 'Close' : 'Open' }}</span>
+              <svg *ngIf="part.isExpanded" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M12 10L8 6L4 10" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg *ngIf="!part.isExpanded" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="inquiry-part__content" *ngIf="part.isExpanded">
+            <!-- Details Section -->
+            <div class="content-section">
+              <h3 class="content-section__title">Details</h3>
+              <div class="content-section__field">
+                <p class="content-section__label">Part (product) name</p>
+                <p class="content-section__value">{{ part.productName }}</p>
+              </div>
+              <div class="content-section__field">
+                <p class="content-section__label">Detailed description</p>
+                <p class="content-section__value">{{ part.detailedDescription }}</p>
+              </div>
+            </div>
+
+            <!-- Attached Files Section -->
+            <div class="content-section">
+              <h3 class="content-section__title">Attached files</h3>
+              <div class="files-list">
+                <div class="file-item" *ngFor="let file of part.attachedFiles">
+                  <div class="file-item__left">
+                    <div class="file-item__icon">
+                      <!-- FileText icon (pdf/text) -->
+                      <svg *ngIf="file.type === 'pdf' || file.type === 'text'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.333 1.333v4h4M10.667 8.667H5.333M10.667 11.333H5.333M6.667 6H5.333" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <!-- Image icon -->
+                      <svg *ngIf="file.type === 'image'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M12.667 2H3.333A1.333 1.333 0 002 3.333v9.334A1.333 1.333 0 003.333 14h9.334A1.333 1.333 0 0014 12.667V3.333A1.333 1.333 0 0012.667 2z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.667 6.667a1 1 0 100-2 1 1 0 000 2zM14 10l-3.333-3.333L3.333 14" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <!-- FileSpreadsheet icon -->
+                      <svg *ngIf="file.type === 'spreadsheet'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.333 1.333v4h4M5.333 8h5.334M5.333 10.667h5.334M5.333 6H6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="file-item__info">
+                      <span class="file-item__name">{{ file.name }}</span>
+                      <span class="file-item__size">{{ file.size }}</span>
+                    </div>
+                  </div>
+                  <button class="file-item__action" (click)="onViewFile(file)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M.667 8s2.666-5.333 7.333-5.333S15.333 8 15.333 8s-2.666 5.333-7.333 5.333S.667 8 .667 8z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>View</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="content-section">
+              <h3 class="content-section__title">Notes</h3>
+              <div class="content-section__field">
+                <p class="content-section__label">Additional notes</p>
+                <p class="content-section__value">{{ part.additionalNotes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log Messages Section -->
+    <div class="log-section">
+      <div class="log-section__header">
+        <!-- PackageCheck icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="log-section__icon">
+          <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7.083 12.917l1.667 1.666 4.167-4.166" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2 class="log-section__title">Log messages</h2>
+      </div>
+
+      <div class="log-table-wrapper">
+        <table class="log-table">
+          <tbody>
+            <tr *ngFor="let log of entry().logMessages">
+              <td style="width: 180px;">
+                <ui-badge [variant]="log.statusVariant">{{ log.status }}</ui-badge>
+              </td>
+              <td style="width: 160px;">{{ log.dateTime }}</td>
+              <td style="width: 200px;">{{ log.user }}</td>
+              <td>{{ log.message }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

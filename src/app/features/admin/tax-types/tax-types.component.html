@@ -1,0 +1,123 @@
+<div class="tax-types-page" (click)="closeDropdown()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="1" height="15" viewBox="0 0 1 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0.5" y1="0" x2="0.5" y2="15" stroke="#E4E4E7"/>
+        </svg>
+      </span>
+      <span class="page-header__current">Tax types</span>
+    </div>
+  </div>
+
+  <!-- List Header -->
+  <div class="list-header">
+    <div class="list-header__left">
+      <svg class="list-header__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 6.667V10L12.5 12.5M17.5 10a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="list-header__title">Tax types</h1>
+      <span class="list-header__count">{{ totalItems() }}</span>
+    </div>
+    <div class="list-header__right">
+      <div class="search-input">
+        <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch()"
+          placeholder=""
+          class="search-input__field"
+        />
+      </div>
+      <button class="btn btn--icon" (click)="onBulkDelete()" *ngIf="hasSelected()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 4h12M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4m2 0V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn btn--primary" (click)="onAddTaxType()">
+        <span>Add tax type</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <ui-data-table
+      [columns]="columns"
+      [data]="taxTypes()"
+      (sort)="onSortChange($event)"
+    ></ui-data-table>
+  </div>
+
+  <!-- Checkbox Header Template -->
+  <ng-template #checkboxHeaderTemplate>
+    <div class="checkbox-header" (click)="toggleHeaderDropdown($event)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+      </svg>
+      <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
+        <button class="header-dropdown__item" (click)="onSelectAll()">Select all</button>
+        <button class="header-dropdown__item" (click)="onSelectNone()">Select none</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Checkbox Template -->
+  <ng-template #checkboxTemplate let-row>
+    <div class="checkbox-cell" (click)="$event.stopPropagation()">
+      <input 
+        type="checkbox" 
+        [checked]="row.selected" 
+        (change)="toggleTaxTypeSelection(row)"
+        class="checkbox"
+      />
+    </div>
+  </ng-template>
+
+  <!-- Percent Template -->
+  <ng-template #percentTemplate let-row>
+    {{ formatPercent(row.percent) }}
+  </ng-template>
+
+  <!-- Remote Code Template -->
+  <ng-template #remoteCodeTemplate let-row>
+    {{ row.remoteCode || '-' }}
+  </ng-template>
+
+  <!-- Actions Template -->
+  <ng-template #actionsTemplate let-row>
+    <div class="actions-cell">
+      <button class="actions-btn" (click)="toggleDropdown(row.id, $event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
+          <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
+        </svg>
+      </button>
+      <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
+        <button class="dropdown-menu__item" (click)="onEdit(row)">Edit</button>
+        <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onDelete(row)">Delete</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Table Footer -->
+  <div class="table-footer">
+    <span class="table-footer__info">Showing 1 to {{ taxTypes().length }} from {{ totalItems() }} results</span>
+  </div>
+</div>
+

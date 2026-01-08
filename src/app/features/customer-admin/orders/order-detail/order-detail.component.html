@@ -1,0 +1,304 @@
+<div class="order-detail-page" *ngIf="order()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <ui-breadcrumbs
+      [items]="breadcrumbItems"
+      [showHome]="true"
+      homeRoute="/customer-admin/orders"
+      separator="chevron">
+    </ui-breadcrumbs>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="section-header__left">
+        <button class="btn btn--icon btn--outline" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="section-header__title-group">
+          <!-- PackageCheck icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="section-header__icon">
+            <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h1 class="section-header__title">{{ order()?.type === 'order' ? 'Order' : 'Inquiry' }} ID: #{{ order()?.id }}</h1>
+          <ui-badge variant="dark">{{ order()?.type === 'order' ? 'Order' : 'Inquiry' }}</ui-badge>
+          <ui-badge [variant]="getStatusBadgeVariant(order()?.status || '')">{{ getStatusLabel(order()?.status || '') }}</ui-badge>
+        </div>
+      </div>
+      <div class="section-header__actions">
+        <button class="btn btn--outline" (click)="onExport()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 10v2.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Export</span>
+        </button>
+        <button class="btn btn--outline" (click)="onPrint()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6V1.333h8V6M4 12H2.667A1.333 1.333 0 011.333 10.667V7.333A1.333 1.333 0 012.667 6h10.666a1.333 1.333 0 011.334 1.333v3.334A1.333 1.333 0 0113.333 12H12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 9.333H4v5.334h8V9.333z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Print</span>
+        </button>
+        <button class="btn btn--icon btn--outline" (click)="onDelete()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4H3.33333H14M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.9739 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.9739 5.72386 1.72386C5.9739 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.9739 10.6667 2.31305 10.6667 2.66667V4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Info Row -->
+    <div class="order-info-row">
+      <div class="order-info-row__left">
+        <span class="order-info-row__label">Internal reference number: </span>
+        <span class="order-info-row__value">{{ order()?.internalRef }}</span>
+      </div>
+      <div class="order-info-row__right">
+        <div class="order-info-row__item">
+          <span class="order-info-row__label">Date created: </span>
+          <span class="order-info-row__value">{{ order()?.dateCreated }}</span>
+        </div>
+        @if (order()?.type === 'order' && order()?.partsOrdered) {
+          <div class="order-info-row__item">
+            <span class="order-info-row__label">Parts ordered: </span>
+            <span class="order-info-row__value">{{ order()?.partsOrdered }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ORDER TYPE: Products Ordered Section -->
+    @if (order()?.type === 'order') {
+      <div class="products-section">
+        <div class="products-section__header">
+          <!-- Package icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2 class="products-section__title">Products ordered</h2>
+        </div>
+
+        <!-- Machine Groups -->
+        <div class="machine-groups">
+          @for (group of order()?.machineGroups; track group.id) {
+            <div class="machine-group">
+              <div class="machine-group__header">
+                <div class="machine-group__title">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.5 1.667h5M10 1.667V5M15.833 5H4.167a.833.833 0 00-.834.833v11.667c0 .46.373.833.834.833h11.666c.46 0 .834-.373.834-.833V5.833a.833.833 0 00-.834-.833z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.5 10h5M7.5 13.333h5" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ group.name }}</span>
+                </div>
+                <button class="machine-group__toggle" (click)="toggleMachineGroup(group.id)">
+                  <span>{{ group.isExpanded ? 'Close' : 'Open' }}</span>
+                  @if (group.isExpanded) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M12 10L8 6L4 10" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+
+              @if (group.isExpanded) {
+                <div class="machine-group__content">
+                  <table class="products-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 140px;">Part no.</th>
+                        <th>Product name</th>
+                        <th style="width: 100px;">Weight</th>
+                        <th style="width: 100px;">Quantity</th>
+                        <th style="width: 120px; text-align: right;">Unit price</th>
+                        <th style="width: 100px;">Discount</th>
+                        <th style="width: 140px; text-align: right;">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (product of group.products; track product.partNo) {
+                        <tr>
+                          <td>{{ product.partNo }}</td>
+                          <td>{{ product.productName }}</td>
+                          <td>{{ product.weight }}</td>
+                          <td>{{ product.quantity }}</td>
+                          <td class="text-right">{{ formatCurrency(product.unitPrice) }}</td>
+                          <td>{{ product.discount }}</td>
+                          <td class="text-right">{{ formatCurrency(product.price) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Total Price -->
+        <div class="total-price-row">
+          <span class="total-price-row__label">Total price</span>
+          <span class="total-price-row__value">{{ formatCurrency(order()?.totalPrice || 0) }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- INQUIRY TYPE: Inquiry Overview Section -->
+    @if (order()?.type === 'inquiry') {
+      <div class="inquiry-section-wrapper">
+        <div class="inquiry-section__header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16.667 6.667V3.333A1.667 1.667 0 0015 1.667H5A1.667 1.667 0 003.333 3.333v13.334A1.667 1.667 0 005 18.333h10a1.667 1.667 0 001.667-1.666v-3.334M8.333 10h10M15 6.667L18.333 10 15 13.333" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2 class="inquiry-section__title">Inquiry overview</h2>
+        </div>
+
+        <!-- Parts -->
+        <div class="inquiry-parts">
+          @for (part of order()?.parts; track part.id) {
+            <div class="inquiry-part">
+              <div class="inquiry-part__header">
+                <div class="inquiry-part__title">
+                  <div class="inquiry-part__number">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="10" r="7.5" stroke="#232323" stroke-width="1.5"/>
+                    </svg>
+                    <span>{{ part.partNumber }}</span>
+                  </div>
+                  <div class="inquiry-part__machine">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M17.5 5.833L10 1.667L2.5 5.833M17.5 5.833L10 10M17.5 5.833V14.167L10 18.333M2.5 5.833L10 10M2.5 5.833V14.167L10 18.333M10 10V18.333" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ part.machineName }}</span>
+                  </div>
+                </div>
+                <button class="inquiry-part__toggle" (click)="togglePart(part.id)">
+                  <span>{{ part.isExpanded ? 'Close' : 'Open' }}</span>
+                  @if (part.isExpanded) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M12 10L8 6L4 10" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+
+              @if (part.isExpanded) {
+                <div class="inquiry-part__content">
+                  <!-- Details Section -->
+                  <div class="inquiry-detail-section">
+                    <h3 class="inquiry-detail-section__title">Details</h3>
+                    <div class="inquiry-field">
+                      <span class="inquiry-field__label">Part (product) name</span>
+                      <span class="inquiry-field__value">{{ part.productName }}</span>
+                    </div>
+                    <div class="inquiry-field">
+                      <span class="inquiry-field__label">Detailed description</span>
+                      <span class="inquiry-field__value">{{ part.description }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Attached Files Section -->
+                  <div class="inquiry-detail-section">
+                    <h3 class="inquiry-detail-section__title">Attached files</h3>
+                    <div class="files-list">
+                      @for (file of part.files; track file.id) {
+                        <div class="file-item">
+                          <div class="file-item__icon">
+                            @if (file.type === 'pdf') {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9.333 1.333v4h4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            } @else if (file.type === 'image') {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <rect x="2" y="2" width="12" height="12" rx="1.333" stroke="#71717A" stroke-width="1.33"/>
+                                <path d="M5.667 6.333a.667.667 0 100-1.333.667.667 0 000 1.333zM14 10l-3.333-3.333L3.333 14" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            } @else {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5.333 8h5.334M5.333 10.667h5.334M5.333 5.333h1.334" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            }
+                          </div>
+                          <span class="file-item__name">{{ file.name }}</span>
+                          <span class="file-item__size">{{ file.size }}</span>
+                          <button class="file-item__view">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M.667 8S3.333 2.667 8 2.667 15.333 8 15.333 8s-2.666 5.333-7.333 5.333S.667 8 .667 8z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>View</span>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Notes Section -->
+                  <div class="inquiry-detail-section">
+                    <h3 class="inquiry-detail-section__title">Notes</h3>
+                    <div class="inquiry-field">
+                      <span class="inquiry-field__label">Additional notes</span>
+                      <span class="inquiry-field__value">{{ part.notes }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Log Messages Section -->
+    <div class="log-section">
+      <div class="log-section__wrapper">
+        <!-- Section Title -->
+        <div class="log-section__title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M13.333 3.333H15a1.667 1.667 0 011.667 1.667v11.667A1.667 1.667 0 0115 18.333H5a1.667 1.667 0 01-1.667-1.666V5A1.667 1.667 0 015 3.333h1.667" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.5 1.667h-5A.833.833 0 006.667 2.5v1.667c0 .46.373.833.833.833h5c.46 0 .833-.373.833-.833V2.5a.833.833 0 00-.833-.833z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.667 9.167h6.666M6.667 12.5h6.666M6.667 15.833h3.333" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>Log messages</h2>
+        </div>
+
+        <!-- Table -->
+        <div class="log-section__table-container">
+          <table class="log-section__table">
+            <tbody>
+              @for (log of order()?.logMessages; track log.dateTime) {
+                <tr>
+                  <td style="width: 180px;">
+                    <ui-badge [variant]="log.statusVariant">{{ log.status }}</ui-badge>
+                  </td>
+                  <td style="width: 180px;" class="log-datetime">
+                  <span class="log-datetime__date">{{ log.dateTime.split(' | ')[0] }}</span>
+                  <span class="log-datetime__delimiter">|</span>
+                  <span class="log-datetime__time">{{ log.dateTime.split(' | ')[1] }}</span>
+                </td>
+                  <td style="width: 200px;">{{ log.user }}</td>
+                  <td>{{ log.message }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

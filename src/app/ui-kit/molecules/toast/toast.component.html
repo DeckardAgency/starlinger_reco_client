@@ -33,7 +33,15 @@
     <ng-content></ng-content>
   </div>
 
-  <!-- Actions -->
+  <!-- Action button -->
+  <button *ngIf="actionLabel" class="ui-toast__action-btn" (click)="onAction()">
+    {{ actionLabel }}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+      <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- Actions slot -->
   <div class="ui-toast__actions">
     <ng-content select="[toastAction]"></ng-content>
   </div>

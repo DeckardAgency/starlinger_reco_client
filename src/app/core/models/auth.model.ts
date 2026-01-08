@@ -94,3 +94,74 @@ export interface UserMember {
     maxActiveUsers?: number;
   };
 }
+
+// =============================================================================
+// ROLE DEFINITIONS
+// =============================================================================
+
+/**
+ * User roles for the RECO application
+ * - ROLE_USER: Base role (all authenticated users)
+ * - ROLE_CLIENT: Customer role (shop, inquiry, search)
+ * - ROLE_CLIENT_ADMIN: Customer Admin role (manages client users & machines)
+ * - ROLE_SUPER_ADMIN: Starlinger Admin role (full system access)
+ */
+export const USER_ROLES = {
+  USER: 'ROLE_USER',
+  CLIENT: 'ROLE_CLIENT',
+  CLIENT_ADMIN: 'ROLE_CLIENT_ADMIN',
+  SUPER_ADMIN: 'ROLE_SUPER_ADMIN'
+} as const;
+
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+
+/**
+ * Role arrays for selection (each role option includes ROLE_USER as base)
+ */
+export const ROLE_ARRAYS = {
+  CLIENT: ['ROLE_USER', 'ROLE_CLIENT'],
+  CLIENT_ADMIN: ['ROLE_USER', 'ROLE_CLIENT_ADMIN'],
+  SUPER_ADMIN: ['ROLE_USER', 'ROLE_SUPER_ADMIN']
+} as const;
+
+/**
+ * Helper function to get role display name
+ */
+export function getRoleDisplayName(role: string): string {
+  const roleMap: Record<string, string> = {
+    'ROLE_USER': 'User',
+    'ROLE_CLIENT': 'Customer',
+    'ROLE_CLIENT_ADMIN': 'Customer Admin',
+    'ROLE_SUPER_ADMIN': 'Super Admin'
+  };
+  return roleMap[role] || role;
+}
+
+/**
+ * Check if user has a specific role
+ */
+export function hasRole(user: User | null, role: UserRole): boolean {
+  if (!user || !user.roles) return false;
+  return user.roles.includes(role);
+}
+
+/**
+ * Check if user is a Customer (ROLE_CLIENT)
+ */
+export function isCustomer(user: User | null): boolean {
+  return hasRole(user, USER_ROLES.CLIENT);
+}
+
+/**
+ * Check if user is a Customer Admin (ROLE_CLIENT_ADMIN)
+ */
+export function isCustomerAdmin(user: User | null): boolean {
+  return hasRole(user, USER_ROLES.CLIENT_ADMIN);
+}
+
+/**
+ * Check if user is a Super Admin (ROLE_SUPER_ADMIN)
+ */
+export function isSuperAdmin(user: User | null): boolean {
+  return hasRole(user, USER_ROLES.SUPER_ADMIN);
+}

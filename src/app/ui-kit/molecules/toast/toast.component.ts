@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastVariant = 'light' | 'dark';
 export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 
 @Component({
@@ -26,8 +27,10 @@ export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-
 })
 export class ToastComponent implements OnInit, OnDestroy {
   @Input() type: ToastType = 'info';
+  @Input() variant: ToastVariant = 'light';
   @Input() title = '';
   @Input() message = '';
+  @Input() actionLabel = '';
   @Input() duration = 5000; // milliseconds, 0 = no auto-close
   @Input({ transform: booleanAttribute }) showClose = true;
   @Input({ transform: booleanAttribute }) showIcon = true;
@@ -41,7 +44,8 @@ export class ToastComponent implements OnInit, OnDestroy {
   get toastClasses(): string[] {
     return [
       'ui-toast',
-      `ui-toast--${this.type}`
+      `ui-toast--${this.type}`,
+      `ui-toast--${this.variant}`
     ];
   }
 

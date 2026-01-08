@@ -1,0 +1,11 @@
+<section class="active-orders">
+  <ui-section-header
+    title="Active orders & inquiries"
+    [icon]="ordersIcon"
+    viewAllLink="/admin/active-inquiries"
+  ></ui-section-header>
+
+  <div class="active-orders__cards">
+    <ui-order-card *ngFor="let order of orders" [data]="order"></ui-order-card>
+  </div>
+</section>

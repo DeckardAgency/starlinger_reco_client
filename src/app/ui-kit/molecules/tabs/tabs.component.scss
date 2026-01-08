@@ -76,17 +76,33 @@
   // Underline variant
   &--underline {
     gap: 0;
+    background: transparent;
     border-bottom: 1px solid #E4E4E7;
 
     .ui-tabs__tab {
-      border-radius: 0;
+      flex: 1;
+      height: 56px;
+      padding: 6px 12px;
+      border-radius: 2px;
       background: transparent;
-      color: #52525B;
+      color: #71717A;
+      font-family: Inter, sans-serif;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px;
+      text-align: center;
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
 
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
       &--active {
-        color: #DC2626;
+        color: #232323;
+        font-weight: 500;
         border-bottom-color: #DC2626;
       }
 
@@ -94,6 +110,10 @@
         color: #18181B;
         border-bottom-color: #D4D4D8;
       }
+    }
+
+    .ui-tabs__tab-checkmark {
+      color: #232323;
     }
   }
 
@@ -130,6 +150,10 @@
       }
     }
 
+    &-checkmark {
+      flex-shrink: 0;
+    }
+
     &-badge {
       display: inline-flex;
       align-items: center;
@@ -147,5 +171,9 @@
 
   &__content {
     margin-top: 16px;
+
+    &:empty {
+      display: none;
+    }
   }
 }

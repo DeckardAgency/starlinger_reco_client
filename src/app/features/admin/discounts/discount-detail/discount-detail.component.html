@@ -1,0 +1,204 @@
+<div class="discount-detail-page" (click)="closeDropdown()">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <a routerLink="/admin/discounts" class="page-header__link">Discounts</a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">{{ isEditMode() ? discount().name : 'Add new' }}</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="section-header__left">
+        <button class="btn btn--icon btn--outline" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="section-header__title">{{ isEditMode() ? discount().name : 'Add new discount' }}</h1>
+      </div>
+      <div class="section-header__actions">
+        <button class="btn btn--outline" (click)="onSaveAndContinue()">
+          <span>Save and continue</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn btn--primary" (click)="onSave()">
+          <span>Save</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10.667 2v2.667a.667.667 0 01-.667.666H6a.667.667 0 01-.667-.666V2M5.333 14v-4h5.334v4M2 5.333V14a.667.667 0 00.667.667h10.666A.667.667 0 0014 14V4.667L11.333 2H2.667A.667.667 0 002 2.667v2.666z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+      <div class="card">
+        <!-- Toggle Section -->
+        <div class="card__toggles">
+          <ui-toggle
+            label="Active"
+            labelPosition="left"
+            [checked]="discount().active"
+            (toggleChange)="onActiveChange($event)">
+          </ui-toggle>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="card__fields">
+          <ui-form-field label="Name" layout="horizontal">
+            <input type="text" [value]="discount().name" (input)="onNameChange($event)" placeholder="Enter name">
+          </ui-form-field>
+
+          <ui-form-field label="Date from" layout="horizontal">
+            <input type="text" [value]="discount().dateFrom" (input)="onDateFromChange($event)" placeholder="DD/MM/YYYY">
+          </ui-form-field>
+
+          <ui-form-field label="Date to" layout="horizontal">
+            <input type="text" [value]="discount().dateTo" (input)="onDateToChange($event)" placeholder="DD/MM/YYYY">
+          </ui-form-field>
+
+          <ui-form-field label="Discount %" layout="horizontal">
+            <input type="number" [value]="discount().discountPercent" (input)="onDiscountPercentChange($event)" placeholder="0">
+          </ui-form-field>
+
+          <ui-form-field label="Priority" layout="horizontal">
+            <input type="number" [value]="discount().priority" (input)="onPriorityChange($event)" placeholder="0">
+          </ui-form-field>
+
+          <ui-form-field label="Account groups" layout="horizontal">
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="discount().accountGroups.length === 0">Select</span>
+              <div class="pill" *ngFor="let group of discount().accountGroups">
+                <button class="pill__remove" (click)="removeAccountGroup(group); $event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <span>{{ getAccountGroupLabel(group) }}</span>
+              </div>
+              <select class="select-field" [(ngModel)]="selectedAccountGroup" (change)="onAccountGroupChange()">
+                <option value="" disabled selected>Select</option>
+                <option *ngFor="let opt of accountGroupOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Accounts" layout="horizontal">
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="discount().accounts.length === 0">Select</span>
+              <div class="pill" *ngFor="let account of discount().accounts">
+                <button class="pill__remove" (click)="removeAccount(account); $event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <span>{{ getAccountLabel(account) }}</span>
+              </div>
+              <select class="select-field" [(ngModel)]="selectedAccount" (change)="onAccountChange()">
+                <option value="" disabled selected>Select</option>
+                <option *ngFor="let opt of accountOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Section (only in edit mode) -->
+    <div class="products-section" *ngIf="isEditMode()">
+      <!-- Section Title -->
+      <div class="section-title-header">
+        <div class="section-title-header__left">
+          <h2 class="section-title-header__title">Products that match criteria</h2>
+          <span class="section-title-header__count">{{ totalItems() }}</span>
+        </div>
+        <div class="section-title-header__right">
+          <div class="search-input">
+            <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearch()"
+              placeholder=""
+              class="search-input__field"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <div class="table-wrapper">
+          <ui-data-table
+            [columns]="productColumns"
+            [data]="products()"
+            [sortColumn]="sortColumn"
+            [sortDirection]="sortDirection"
+            (sort)="onSortChange($event)"
+          ></ui-data-table>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="table-footer">
+        <span class="table-footer__info">Showing 1 to {{ products().length }} from {{ totalItems() }} results</span>
+        <ui-pagination
+          [currentPage]="currentPage()"
+          [totalItems]="totalItems()"
+          [itemsPerPage]="itemsPerPage()"
+          (pageChange)="onPageChange($event)"
+        ></ui-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Actions Template -->
+<ng-template #productActionsTemplate let-row>
+  <div class="actions-cell">
+    <button class="actions-trigger" (click)="toggleDropdown(row.id, $event)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 8.66667C8.36819 8.66667 8.66667 8.36819 8.66667 8C8.66667 7.63181 8.36819 7.33333 8 7.33333C7.63181 7.33333 7.33333 7.63181 7.33333 8C7.33333 8.36819 7.63181 8.66667 8 8.66667Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 4C8.36819 4 8.66667 3.70152 8.66667 3.33333C8.66667 2.96514 8.36819 2.66667 8 2.66667C7.63181 2.66667 7.33333 2.96514 7.33333 3.33333C7.33333 3.70152 7.63181 4 8 4Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 13.3333C8.36819 13.3333 8.66667 13.0349 8.66667 12.6667C8.66667 12.2985 8.36819 12 8 12C7.63181 12 7.33333 12.2985 7.33333 12.6667C7.33333 13.0349 7.63181 13.3333 8 13.3333Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
+      <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onRemoveProduct(row)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 4h12M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4m2 0V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Remove</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+

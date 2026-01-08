@@ -1,0 +1,185 @@
+<div class="contact-detail-page">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="1" height="15" viewBox="0 0 1 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0.5" y1="0" x2="0.5" y2="15" stroke="#E4E4E7"/>
+        </svg>
+      </span>
+      <span class="page-header__current">Contacts</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="section-header__left">
+        <button class="btn btn--icon btn--outline" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="section-header__title">{{ isEditMode() ? 'Contact detail' : 'Add new contact' }}</h1>
+      </div>
+      <div class="section-header__actions">
+        <button class="btn btn--outline" (click)="onSaveAndContinue()">
+          <span>Save and continue</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn btn--primary" (click)="onSave()">
+          <span>Save</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 10.667V13.333A.667.667 0 002.667 14h10.666a.667.667 0 00.667-.667v-2.666M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Cards -->
+    <div class="form-cards">
+      <!-- Basic Information Card -->
+      <div class="card">
+        <h2 class="card__title">Basic information</h2>
+        
+        <div class="card__toggles">
+          <ui-toggle 
+            label="Billing" 
+            labelPosition="left"
+            [checked]="isBilling()"
+            (toggleChange)="onBillingChange($event)">
+          </ui-toggle>
+          <ui-toggle 
+            label="Is active" 
+            labelPosition="left"
+            [checked]="isActive()"
+            (toggleChange)="onActiveChange($event)">
+          </ui-toggle>
+        </div>
+
+        <div class="card__fields">
+          <ui-form-field label="Account" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill-tags">
+                <span class="pill" *ngIf="contact().account">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ contact().account }}</span>
+                </span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Person title" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill-tags">
+                <span class="pill" *ngIf="contact().personTitle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ contact().personTitle }}</span>
+                </span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="First name" layout="horizontal">
+            <input type="text" [value]="contact().firstName" placeholder="First name">
+          </ui-form-field>
+
+          <ui-form-field label="Last name" layout="horizontal">
+            <input type="text" [value]="contact().lastName" placeholder="Last name">
+          </ui-form-field>
+
+          <ui-form-field label="Department" layout="horizontal">
+            <div class="select-with-pills">
+              <div class="pill-tags">
+                <span class="pill" *ngIf="contact().department">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ contact().department }}</span>
+                </span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Date of birth" layout="horizontal">
+            <input type="text" [value]="formatValue(contact().dateOfBirth)" placeholder="–">
+          </ui-form-field>
+
+          <ui-form-field label="Support level" layout="horizontal">
+            <div class="select-field">
+              <input type="text" [value]="contact().supportLevel" placeholder="" readonly>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+
+          <ui-form-field label="Support person" layout="horizontal">
+            <div class="select-field">
+              <input type="text" [value]="contact().supportPerson" placeholder="" readonly>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </ui-form-field>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="card">
+        <h2 class="card__title">Contact information</h2>
+
+        <div class="card__fields">
+          <ui-form-field label="Phone" layout="horizontal">
+            <input type="text" [value]="contact().phone" placeholder="Phone">
+          </ui-form-field>
+
+          <ui-form-field label="Other phone" layout="horizontal">
+            <input type="text" [value]="formatValue(contact().otherPhone)" placeholder="–">
+          </ui-form-field>
+
+          <ui-form-field label="Home phone" layout="horizontal">
+            <input type="text" [value]="formatValue(contact().homePhone)" placeholder="–">
+          </ui-form-field>
+
+          <ui-form-field label="Email" layout="horizontal">
+            <input type="text" [value]="contact().email" placeholder="Email">
+          </ui-form-field>
+
+          <ui-form-field label="Other email" layout="horizontal">
+            <input type="text" [value]="formatValue(contact().otherEmail)" placeholder="–">
+          </ui-form-field>
+
+          <ui-form-field label="Fax" layout="horizontal">
+            <input type="text" [value]="formatValue(contact().fax)" placeholder="–">
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer (empty space at bottom) -->
+    <div class="page-footer"></div>
+  </div>
+</div>
+

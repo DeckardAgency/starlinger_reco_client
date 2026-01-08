@@ -1,0 +1,73 @@
+<div class="tax-type-detail-page">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a routerLink="/admin/dashboard" class="page-header__home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <a routerLink="/admin/tax-types" class="page-header__link">Tax types</a>
+      <span class="page-header__separator">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="page-header__current">{{ isEditMode() ? 'Edit' : 'Add' }}</span>
+    </div>
+  </div>
+
+  <!-- Detail Header -->
+  <div class="detail-header">
+    <div class="detail-header__left">
+      <button class="back-btn" (click)="onBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h1 class="detail-header__title">{{ isEditMode() ? 'Edit tax type' : 'Add tax type' }}</h1>
+    </div>
+    <div class="detail-header__right">
+      <button class="btn btn--secondary" (click)="onSaveAndContinue()">
+        <span>Save and continue</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn btn--primary" (click)="onSave()">
+        <span>Save</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M13.333 10v2.667A1.334 1.334 0 0112 14H4a1.333 1.333 0 01-1.333-1.333V10M10.667 5.333L8 2.667 5.333 5.333M8 2.667v8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card">
+    <div class="card">
+      <h2 class="card__title">Tax type details</h2>
+      <div class="card__content">
+        <div class="form-fields">
+          <ui-form-field label="Name" layout="horizontal">
+            <input type="text" [value]="taxType().name" (input)="onNameChange($event)" placeholder="Enter name">
+          </ui-form-field>
+
+          <ui-form-field label="Percent" layout="horizontal">
+            <input type="text" [value]="formatPercent(taxType().percent)" (input)="onPercentChange($event)" placeholder="0,00">
+          </ui-form-field>
+
+          <ui-form-field label="Remote code" layout="horizontal">
+            <input type="text" [value]="taxType().remoteCode || '-'" (input)="onRemoteCodeChange($event)" placeholder="-">
+          </ui-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

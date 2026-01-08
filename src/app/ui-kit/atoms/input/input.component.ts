@@ -79,11 +79,11 @@ export class InputComponent implements ControlValueAccessor {
       classes.push('ui-input__field--disabled');
     }
 
-    if (this.prefixIcon) {
+    if (this.prefixIcon || (this.type === 'password' && this.showPasswordToggle)) {
       classes.push('ui-input__field--has-prefix');
     }
 
-    if (this.suffixIcon || (this.type === 'password' && this.showPasswordToggle)) {
+    if (this.suffixIcon) {
       classes.push('ui-input__field--has-suffix');
     }
 

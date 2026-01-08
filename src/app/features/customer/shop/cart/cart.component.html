@@ -1,0 +1,138 @@
+<div class="cart-overlay" [class.cart-overlay--open]="isOpen()" (click)="onScrimClick($event)">
+  <div class="cart-sheet" [class.cart-sheet--open]="isOpen()">
+    <!-- Header -->
+    <div class="cart-sheet__header">
+      <div class="cart-sheet__title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M5 1.667L2.5 5v11.667a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666V5L15 1.667H5zM2.5 5h15M13.333 8.333a3.333 3.333 0 01-6.666 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Cart overview</span>
+        <div class="cart-sheet__count">{{ itemCount() }}</div>
+      </div>
+      <button class="cart-sheet__close" type="button" (click)="closeCart()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="cart-sheet__items">
+      @for (item of cartItems(); track item.id) {
+        <div class="cart-item">
+          <div class="cart-item__image-wrapper">
+            <img [src]="item.product.image" [alt]="item.product.name" class="cart-item__image">
+            <button class="cart-item__favorite" type="button" (click)="toggleFavorite(item)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path [attr.fill]="item.isFavorite ? '#DC2626' : 'none'" d="M8 14s-5.5-3.5-5.5-7A3.5 3.5 0 018 4.5 3.5 3.5 0 0113.5 7c0 3.5-5.5 7-5.5 7z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="cart-item__info">
+            <div class="cart-item__details">
+              <div class="cart-item__code-section">
+                <span class="cart-item__label">Product code</span>
+                <span class="cart-item__code">{{ item.product.code }}</span>
+              </div>
+              <div class="cart-item__name-section">
+                <span class="cart-item__label">Product name</span>
+                <span class="cart-item__name">{{ item.product.name }}</span>
+              </div>
+            </div>
+            <div class="cart-item__controls">
+              <div class="cart-item__divider"></div>
+              <div class="cart-item__quantity-row">
+                <div class="cart-item__quantity">
+                  <button class="cart-item__qty-btn" type="button" (click)="decrementQuantity(item)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <span class="cart-item__qty-value">{{ item.quantity }}</span>
+                  <button class="cart-item__qty-btn" type="button" (click)="incrementQuantity(item)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 3.333V12.667M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="cart-item__delete" type="button" (click)="removeItem(item)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <span class="cart-item__price">{{ formatPrice(item.product.price * item.quantity) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="cart-sheet__bottom">
+      <!-- Internal Reference -->
+      <div class="cart-sheet__reference">
+        <label class="cart-sheet__reference-label">Enter internal reference number</label>
+        <input 
+          type="text" 
+          class="cart-sheet__reference-input" 
+          [value]="internalReference()"
+          (input)="onReferenceChange($any($event.target).value)"
+          placeholder="#0001"
+        >
+      </div>
+
+      <!-- Summary -->
+      <div class="cart-sheet__summary">
+        <div class="cart-sheet__summary-row">
+          <div class="cart-sheet__summary-label">
+            <!-- Truck icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M13.333 2.5H1.667v10.833h11.666V2.5zM13.333 6.667h3.334l2.5 2.5v4.166h-5.834V6.667zM5 16.667a1.667 1.667 0 100-3.334 1.667 1.667 0 000 3.334zM15 16.667a1.667 1.667 0 100-3.334 1.667 1.667 0 000 3.334z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Shipping & handling</span>
+          </div>
+          <span class="cart-sheet__summary-value">{{ formatPrice(shippingCost) }}</span>
+        </div>
+        <div class="cart-sheet__summary-row">
+          <div class="cart-sheet__summary-label">
+            <!-- SquareSigma icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="2.5" y="2.5" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13.333 5.833H6.667l3.333 4.167-3.333 4.167h6.666" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Total</span>
+          </div>
+          <span class="cart-sheet__summary-value cart-sheet__summary-value--total">{{ formatPrice(total()) }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="cart-sheet__actions">
+        <button class="cart-sheet__btn cart-sheet__btn--back" type="button" (click)="onBackToProducts()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Back to product list</span>
+        </button>
+        <div class="cart-sheet__actions-right">
+          <button class="cart-sheet__btn cart-sheet__btn--draft" type="button" (click)="onSaveDraft()">
+            <!-- CloudUpload icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10.667 10.667L8 8l-2.667 2.667M8 8v6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13.593 11.26A3.333 3.333 0 0012 5.333h-.84A5.333 5.333 0 102.667 12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Save draft</span>
+          </button>
+          <button class="cart-sheet__btn cart-sheet__btn--checkout" type="button" (click)="onCheckout()">
+            <span>Checkout</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
