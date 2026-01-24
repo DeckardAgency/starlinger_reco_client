@@ -4,8 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
 import { DeliveryPrice } from '@core/models/delivery-price.model';
+
+// Consolidated components
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { ListHeaderComponent } from '@app/ui-kit/molecules/list-header/list-header.component';
+import { TableActionsDropdownComponent, TableAction } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TableCheckboxSelectionComponent } from '@app/ui-kit/molecules/table-checkbox-selection/table-checkbox-selection.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
 
 @Component({
   selector: 'app-delivery-prices',
@@ -15,7 +21,11 @@ import { DeliveryPrice } from '@core/models/delivery-price.model';
     FormsModule,
     RouterModule,
     DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent,
+    TableFooterComponent
   ],
   templateUrl: './delivery-prices.component.html',
   styleUrls: ['./delivery-prices.component.scss'],
@@ -54,6 +64,12 @@ export class DeliveryPricesComponent implements AfterViewInit {
 
   // Table columns
   columns: TableColumn[] = [];
+
+  // Table actions
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   // Pagination
   currentPage = signal(1);
@@ -97,6 +113,11 @@ export class DeliveryPricesComponent implements AfterViewInit {
     ];
   }
 
+  onSearchQueryChange(query: string): void {
+    this.searchQuery = query;
+    this.onSearch();
+  }
+
   onSearch(): void {
     console.log('Searching:', this.searchQuery);
   }
@@ -110,8 +131,7 @@ export class DeliveryPricesComponent implements AfterViewInit {
     this.router.navigate(['/admin/delivery-prices/new']);
   }
 
-  toggleDropdown(deliveryPriceId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(deliveryPriceId: string): void {
     if (this.openDropdownId() === deliveryPriceId) {
       this.openDropdownId.set(null);
     } else {
@@ -124,13 +144,13 @@ export class DeliveryPricesComponent implements AfterViewInit {
     this.isHeaderDropdownOpen.set(false);
   }
 
-  onEdit(deliveryPrice: DeliveryPrice): void {
-    this.router.navigate(['/admin/delivery-prices', deliveryPrice.id]);
-    this.closeDropdown();
-  }
-
-  onDelete(deliveryPrice: DeliveryPrice): void {
-    console.log('Delete delivery price:', deliveryPrice);
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const deliveryPrice = event.row as DeliveryPrice;
+    if (event.action.id === 'edit') {
+      this.router.navigate(['/admin/delivery-prices', deliveryPrice.id]);
+    } else if (event.action.id === 'delete') {
+      console.log('Delete delivery price:', deliveryPrice);
+    }
     this.closeDropdown();
   }
 
@@ -142,9 +162,8 @@ export class DeliveryPricesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
     this.openDropdownId.set(null);
   }
 
@@ -178,4 +197,3 @@ export class DeliveryPricesComponent implements AfterViewInit {
     this.currentPage.set(page);
   }
 }
-

@@ -1,26 +1,11 @@
 <div class="product-detail-page">
   <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <div class="page-header__breadcrumb">
-      <a routerLink="/admin/dashboard" class="page-header__home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="page-header__separator">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <a routerLink="/admin/products" class="page-header__link">Products</a>
-      <span class="page-header__separator">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="page-header__current">Product detail</span>
-    </div>
-  </div>
+  <ui-breadcrumbs
+    [items]="breadcrumbItems"
+    [showHome]="true"
+    homeRoute="/admin/dashboard"
+    variant="page-header">
+  </ui-breadcrumbs>
 
   <!-- Main Content -->
   <div class="page-content">
@@ -28,9 +13,7 @@
     <div class="section-header">
       <div class="section-header__left">
         <button class="btn btn--icon btn--outline" (click)="goBack()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="arrow-back" size="sm"></ui-icon>
         </button>
         <ui-badge *ngIf="isEditMode()" variant="dark" size="sm">{{ product().code }}</ui-badge>
         <h1 class="section-header__title">{{ isEditMode() ? product().name : 'New product' }}</h1>
@@ -38,15 +21,11 @@
       <div class="section-header__actions">
         <button class="btn btn--outline" (click)="onSaveAndContinue()">
           <span>Save and continue</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="chevron-right" size="sm"></ui-icon>
         </button>
         <button class="btn btn--primary" (click)="onSave()">
           <span>Save</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10.667 2v2.667a.667.667 0 01-.667.666H6a.667.667 0 01-.667-.666V2M5.333 14v-4h5.334v4M2 5.333V14a.667.667 0 00.667.667h10.666A.667.667 0 0014 14V4.667L11.333 2H2.667A.667.667 0 002 2.667v2.666z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="save" size="sm"></ui-icon>
         </button>
       </div>
     </div>
@@ -95,9 +74,7 @@
             <div class="select-with-pill">
               <div class="pill" *ngIf="productGroupValue">
                 <button class="pill__remove" (click)="productGroupValue = ''">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
                 </button>
                 <span>{{ getProductGroupLabel(productGroupValue) }}</span>
               </div>
@@ -105,9 +82,7 @@
                 <option value="" disabled>Select product group</option>
                 <option *ngFor="let opt of productGroupOptions" [value]="opt.value">{{ opt.label }}</option>
               </select>
-              <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
           <ui-form-field label="Code" layout="horizontal">
@@ -161,112 +136,18 @@
         <div class="tabbed-section__cta" *ngIf="activeTab() === 'documents'">
           <button class="btn btn--outline" (click)="addDocument()">
             <span>Add document</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3.33333V12.6667M3.33333 8H12.6667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="plus" size="sm"></ui-icon>
           </button>
         </div>
       </div>
 
       <!-- Short Description Tab Content -->
       <div class="tab-content" *ngIf="activeTab() === 'shortDescription'">
-      <div class="editor-toolbar">
-        <div class="toolbar-group">
-          <button class="toolbar-btn" (click)="onFormatClick('bold')" title="Bold">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M5 3.33333H11.6667C12.5507 3.33333 13.3986 3.68452 14.0237 4.30964C14.6488 4.93476 15 5.78261 15 6.66666C15 7.55072 14.6488 8.39856 14.0237 9.02369C13.3986 9.64881 12.5507 10 11.6667 10H5V3.33333Z" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M5 10H12.5C13.3841 10 14.2319 10.3512 14.857 10.9763C15.4822 11.6014 15.8333 12.4493 15.8333 13.3333C15.8333 14.2174 15.4822 15.0652 14.857 15.6904C14.2319 16.3155 13.3841 16.6667 12.5 16.6667H5V10Z" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('italic')" title="Italic">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15.8333 3.33333H7.5M12.5 16.6667H4.16667M12.5 3.33333L7.5 16.6667" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('underline')" title="Underline">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M5 3.33333V8.33333C5 9.65942 5.52678 10.9312 6.46447 11.8689C7.40215 12.8065 8.67392 13.3333 10 13.3333C11.3261 13.3333 12.5979 12.8065 13.5355 11.8689C14.4732 10.9312 15 9.65942 15 8.33333V3.33333M4.16667 16.6667H15.8333" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="toolbar-separator"></div>
-        <div class="toolbar-group">
-          <button class="toolbar-btn" (click)="onFormatClick('list')" title="Bullet List">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7.5 5H17.5M7.5 10H17.5M7.5 15H17.5M2.5 5H2.50833M2.5 10H2.50833M2.5 15H2.50833" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('orderedList')" title="Numbered List">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M8.33333 5H17.5M8.33333 10H17.5M8.33333 15H17.5M3.33333 5H3.33333M3.33333 6.66667V3.33333L2.5 4.16667M3.33333 10H2.5L3.75 8.33333H2.5M2.5 15V13.3333H4.16667V16.6667H2.5" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="toolbar-separator"></div>
-        <div class="toolbar-group">
-          <button class="toolbar-btn" (click)="onFormatClick('alignLeft')" title="Align Left">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5.83333H2.5M17.5 10H2.5M12.5 14.1667H2.5" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('alignCenter')" title="Align Center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5.83333H5M17.5 10H2.5M14.1667 14.1667H5.83333" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('alignRight')" title="Align Right">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M17.5 5.83333H5M17.5 10H2.5M17.5 14.1667H7.5" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('alignJustify')" title="Justify">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M17.5 5.83333H2.5M17.5 10H2.5M17.5 14.1667H2.5" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="toolbar-separator"></div>
-        <div class="toolbar-group">
-          <button class="toolbar-btn" (click)="onFormatClick('image')" title="Insert Image">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15.8333 2.5H4.16667C3.24619 2.5 2.5 3.24619 2.5 4.16667V15.8333C2.5 16.7538 3.24619 17.5 4.16667 17.5H15.8333C16.7538 17.5 17.5 16.7538 17.5 15.8333V4.16667C17.5 3.24619 16.7538 2.5 15.8333 2.5Z" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M7.08333 8.33333C7.77369 8.33333 8.33333 7.77369 8.33333 7.08333C8.33333 6.39298 7.77369 5.83333 7.08333 5.83333C6.39298 5.83333 5.83333 6.39298 5.83333 7.08333C5.83333 7.77369 6.39298 8.33333 7.08333 8.33333Z" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M17.5 12.5L13.3333 8.33333L4.16667 17.5" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('link')" title="Insert Link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M8.33333 10.8333C8.69119 11.3118 9.14779 11.7077 9.67211 11.994C10.1964 12.2803 10.7764 12.4503 11.3724 12.4925C11.9683 12.5347 12.5665 12.4481 13.1258 12.2387C13.6852 12.0292 14.1927 11.7019 14.6167 11.2783L17.1167 8.77833C17.8757 7.99359 18.2958 6.94254 18.2862 5.85117C18.2766 4.7598 17.8381 3.71631 17.0651 2.94487C16.2921 2.17343 15.2478 1.73654 14.1564 1.72845C13.0651 1.72036 12.0148 2.14166 11.2308 2.90166L9.79166 4.33333" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M11.6667 9.16667C11.3088 8.68821 10.8522 8.29228 10.3279 8.00601C9.80357 7.71974 9.2236 7.54971 8.62765 7.50749C8.0317 7.46527 7.43349 7.55191 6.87416 7.76135C6.31483 7.9708 5.80733 8.29813 5.38333 8.72167L2.88333 11.2217C2.12433 12.0064 1.70423 13.0575 1.71378 14.1488C1.72332 15.2402 2.16185 16.2837 2.93489 17.0551C3.70793 17.8266 4.75219 18.2635 5.84356 18.2716C6.93493 18.2796 7.98522 17.8583 8.76916 17.0983L10.2 15.6667" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="toolbar-btn" (click)="onFormatClick('expand')" title="Expand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M12.5 2.5H17.5V7.5M7.5 17.5H2.5V12.5M17.5 2.5L11.6667 8.33333M2.5 17.5L8.33333 11.6667" stroke="#232323" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="toolbar-separator"></div>
-        <button class="toolbar-dropdown">
-          <span>{{ textFormat() }}</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="toolbar-separator"></div>
-        <button class="toolbar-dropdown">
-          <span>{{ textSize() }}</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div
-          class="editor-content"
-          contenteditable="true"
-          data-placeholder="Start typing..."
-          (input)="onEditorInput($event)"
-        ></div>
+        <app-text-editor
+          [initialContent]="product().shortDescription"
+          placeholder="Enter short description..."
+          (contentChange)="onEditorInput($event)">
+        </app-text-editor>
       </div>
 
       <!-- Gallery Tab Content -->
@@ -274,21 +155,15 @@
         <div class="gallery-toolbar">
           <button class="btn btn--secondary" (click)="uploadImage()">
             <span>Upload image</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3.33333V12.6667M3.33333 8H12.6667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="plus" size="sm"></ui-icon>
           </button>
           <button class="btn btn--outline" (click)="downloadAllImages()">
             <span>Download all images</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M14 10V12.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="download" size="sm"></ui-icon>
           </button>
           <button class="btn btn--outline" (click)="deleteAllImages()">
             <span>Delete all images</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 4h12M5.333 4V2.667A1.333 1.333 0 016.667 1.333h2.666A1.333 1.333 0 0110.667 2.667V4m2 0v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334zM6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="trash" size="sm"></ui-icon>
           </button>
         </div>
         <div class="gallery-grid">
@@ -296,36 +171,23 @@
             <div class="gallery-item__header">
               <span class="gallery-item__name">{{ image.name }}</span>
               <button class="gallery-item__menu-btn" (click)="toggleImageDropdown(image.id, $event)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <circle cx="10" cy="4" r="1.5" fill="#232323"/>
-                  <circle cx="10" cy="10" r="1.5" fill="#232323"/>
-                  <circle cx="10" cy="16" r="1.5" fill="#232323"/>
-          </svg>
-        </button>
+                <ui-icon name="more-vertical" size="md"></ui-icon>
+              </button>
               <div class="gallery-item__dropdown" *ngIf="activeImageDropdown() === image.id" (click)="$event.stopPropagation()">
                 <button class="gallery-item__dropdown-item" (click)="makeImagePrimary(image.id)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="5" stroke="#09090B" stroke-width="1.33"/>
-                    <circle cx="8" cy="8" r="2" fill="#09090B"/>
-                  </svg>
+                  <ui-icon name="circle-dot" size="sm"></ui-icon>
                   <span>Make primary</span>
                 </button>
                 <button class="gallery-item__dropdown-item" (click)="renameImage(image.id)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M11.333 2a1.414 1.414 0 012 2L4.667 12.667l-2.667.666.667-2.666L11.333 2z" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <ui-icon name="edit" size="sm"></ui-icon>
                   <span>Rename</span>
                 </button>
                 <button class="gallery-item__dropdown-item" (click)="downloadImage(image.id)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M14 10V12.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <ui-icon name="download" size="sm"></ui-icon>
                   <span>Download</span>
                 </button>
                 <button class="gallery-item__dropdown-item" (click)="deleteImage(image.id)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M2 4h12M5.333 4V2.667A1.333 1.333 0 016.667 1.333h2.666A1.333 1.333 0 0110.667 2.667V4m2 0v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <ui-icon name="trash" size="sm"></ui-icon>
                   <span>Delete</span>
                 </button>
               </div>
@@ -387,10 +249,7 @@
         </div>
         <div class="section-title-header__right">
           <div class="search-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M7.33333 12.6667C10.2789 12.6667 12.6667 10.2789 12.6667 7.33333C12.6667 4.38781 10.2789 2 7.33333 2C4.38781 2 2 4.38781 2 7.33333C2 10.2789 4.38781 12.6667 7.33333 12.6667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M14 14L11.1 11.1" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="search" size="sm" class="search-icon"></ui-icon>
             <input
               type="text"
               class="search-input"
@@ -398,11 +257,9 @@
               [value]="searchQuery()"
               (input)="onSearch($any($event.target).value)">
           </div>
-        <button *ngIf="selectedProductIds().size > 0" class="btn btn--primary" (click)="addSelectedProducts()">
+        <button *ngIf="selectedProductIds().size > 0" class="btn btn--secondary" (click)="addSelectedProducts()">
             <span>Add selected</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3.33333V12.6667M3.33333 8H12.6667" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon name="plus" size="sm"></ui-icon>
           </button>
         </div>
       </div>
@@ -418,15 +275,12 @@
         </ui-data-table>
       </div>
 
-      <div class="table-footer">
-        <span class="table-footer__info">Showing {{ showingFrom() }} to {{ showingTo() }} from {{ totalItems() }} results</span>
-        <ui-pagination
-          [currentPage]="currentPage()"
-          [totalItems]="totalItems()"
-          [itemsPerPage]="itemsPerPage"
-          (pageChange)="onPageChange($event)">
-        </ui-pagination>
-      </div>
+      <ui-table-footer
+        [currentPage]="currentPage()"
+        [totalItems]="totalItems()"
+        [itemsPerPage]="itemsPerPage"
+        (pageChange)="onPageChange($event)">
+      </ui-table-footer>
     </div>
 
     <!-- Related Products Section -->
@@ -437,7 +291,7 @@
           <span class="section-title-header__count">{{ relatedProducts().length }}</span>
         </div>
         <div class="section-title-header__right" *ngIf="selectedRelatedProductIds().size > 0">
-          <button class="btn btn--primary" (click)="removeSelectedRelatedProducts()">
+          <button class="btn btn--secondary" (click)="removeSelectedRelatedProducts()">
             <span>Remove selected</span>
           </button>
         </div>
@@ -460,11 +314,7 @@
 <ng-template #checkboxHeaderTemplate>
   <div class="checkbox-header-cell">
     <button class="checkbox-menu-btn" (click)="toggleHeaderDropdown($event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-      </svg>
+      <ui-icon name="more-vertical" size="sm"></ui-icon>
     </button>
     <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
       <button class="header-dropdown__item" (click)="selectAllProducts()">Select all</button>
@@ -498,9 +348,7 @@
 <ng-template #actionsTemplate let-row>
   <button class="btn btn--outline btn--sm" (click)="addProduct(row)">
     <span>Related</span>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M8 3.33333V12.6667M3.33333 8H12.6667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <ui-icon name="plus" size="sm"></ui-icon>
   </button>
 </ng-template>
 
@@ -508,11 +356,7 @@
 <ng-template #relatedCheckboxHeaderTemplate>
   <div class="checkbox-header-cell">
     <button class="checkbox-menu-btn" (click)="toggleRelatedHeaderDropdown($event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-      </svg>
+      <ui-icon name="more-vertical" size="sm"></ui-icon>
     </button>
     <div class="header-dropdown" *ngIf="isRelatedHeaderDropdownOpen()" (click)="$event.stopPropagation()">
       <button class="header-dropdown__item" (click)="selectAllRelatedProducts()">Select all</button>
@@ -536,9 +380,7 @@
 <ng-template #removeActionsTemplate let-row>
   <button class="btn btn--outline btn--sm" (click)="removeProduct(row)">
     <span>Remove</span>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M4 8H12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <ui-icon name="minus" size="sm"></ui-icon>
   </button>
 </ng-template>
 
@@ -546,11 +388,7 @@
 <ng-template #docCheckboxHeaderTemplate>
   <div class="checkbox-header-cell">
     <button class="checkbox-menu-btn" (click)="toggleDocHeaderDropdown($event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-      </svg>
+      <ui-icon name="more-vertical" size="sm"></ui-icon>
     </button>
     <div class="header-dropdown" *ngIf="isDocHeaderDropdownOpen()" (click)="$event.stopPropagation()">
       <button class="header-dropdown__item" (click)="selectAllDocuments()">Select all</button>
@@ -572,32 +410,19 @@
 <ng-template #docActionsTemplate let-row>
   <div class="doc-actions">
     <button class="doc-actions__btn" (click)="toggleDocAction($event, row.id)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-      </svg>
+      <ui-icon name="more-vertical" size="sm"></ui-icon>
     </button>
     <div class="doc-actions__dropdown" *ngIf="activeDocActionId() === row.id" (click)="$event.stopPropagation()">
       <button class="doc-actions__dropdown-item" (click)="renameDocument(row.id)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M11.3333 2.00004C11.5084 1.82494 11.7163 1.68605 11.9451 1.59129C12.1739 1.49653 12.4191 1.44775 12.6667 1.44775C12.9143 1.44775 13.1595 1.49653 13.3883 1.59129C13.617 1.68605 13.825 1.82494 14 2.00004C14.1751 2.17513 14.314 2.383 14.4088 2.61178C14.5035 2.84055 14.5523 3.08575 14.5523 3.33337C14.5523 3.58099 14.5035 3.82619 14.4088 4.05497C14.314 4.28374 14.1751 4.49161 14 4.66671L5 13.6667L1.33333 14.6667L2.33333 11L11.3333 2.00004Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="edit" size="sm"></ui-icon>
         <span>Rename</span>
       </button>
       <button class="doc-actions__dropdown-item" (click)="downloadDocument(row.id)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4.66667 6.66663L8 9.99996L11.3333 6.66663" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 10V2" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="download" size="sm"></ui-icon>
         <span>Download</span>
       </button>
       <button class="doc-actions__dropdown-item doc-actions__dropdown-item--danger" (click)="deleteDocument(row.id)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5.33333 4.00004V2.66671C5.33333 2.31309 5.47381 1.97395 5.72386 1.7239C5.97391 1.47385 6.31304 1.33337 6.66667 1.33337H9.33333C9.68696 1.33337 10.0261 1.47385 10.2761 1.7239C10.5262 1.97395 10.6667 2.31309 10.6667 2.66671V4.00004M12.6667 4.00004V13.3334C12.6667 13.687 12.5262 14.0261 12.2761 14.2762C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2762C3.47381 14.0261 3.33333 13.687 3.33333 13.3334V4.00004H12.6667Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="trash" size="sm"></ui-icon>
         <span>Delete</span>
       </button>
     </div>
@@ -615,9 +440,7 @@
     <div class="rename-modal__header">
       <h3 class="rename-modal__title">Rename</h3>
       <button class="rename-modal__close" (click)="cancelRename()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M15 5L5 15M5 5L15 15" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="x" size="md"></ui-icon>
       </button>
     </div>
     <div class="rename-modal__body">
@@ -633,9 +456,7 @@
       <button class="btn btn--ghost" (click)="cancelRename()">Cancel</button>
       <button class="btn btn--primary" (click)="confirmRename()">
         <span>OK</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M13.3333 4L6.00001 11.3333L2.66667 8" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="check" size="sm"></ui-icon>
       </button>
     </div>
   </div>

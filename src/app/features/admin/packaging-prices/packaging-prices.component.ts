@@ -4,6 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { PackagingPrice } from '@core/models/packaging-price.model';
 
 @Component({
@@ -13,7 +21,12 @@ import { PackagingPrice } from '@core/models/packaging-price.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent
   ],
   templateUrl: './packaging-prices.component.html',
   styleUrls: ['./packaging-prices.component.scss'],
@@ -55,6 +68,12 @@ export class PackagingPricesComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Data
   packagingPrices = signal<PackagingPrice[]>([]);
 
@@ -91,7 +110,8 @@ export class PackagingPricesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -104,8 +124,7 @@ export class PackagingPricesComponent implements AfterViewInit {
     this.router.navigate(['/admin/packaging-prices/new']);
   }
 
-  toggleDropdown(packagingPriceId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(packagingPriceId: string): void {
     if (this.openDropdownId() === packagingPriceId) {
       this.openDropdownId.set(null);
     } else {
@@ -116,6 +135,18 @@ export class PackagingPricesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const packagingPrice = event.row as PackagingPrice;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(packagingPrice);
+        break;
+      case 'delete':
+        this.onDelete(packagingPrice);
+        break;
+    }
   }
 
   onEdit(packagingPrice: PackagingPrice): void {
@@ -136,24 +167,23 @@ export class PackagingPricesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.packagingPrices().map(pp => ({ ...pp, selected: true }));
     this.packagingPrices.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.packagingPrices().map(pp => ({ ...pp, selected: false }));
     this.packagingPrices.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   togglePackagingPriceSelection(packagingPrice: PackagingPrice): void {
@@ -172,4 +202,3 @@ export class PackagingPricesComponent implements AfterViewInit {
     return value.toFixed(2).replace('.', ',') + ' €';
   }
 }
-

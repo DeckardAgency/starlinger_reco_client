@@ -4,6 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { AdminUser } from '@core/models/admin-user.model';
 
 @Component({
@@ -13,7 +21,12 @@ import { AdminUser } from '@core/models/admin-user.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
@@ -54,6 +67,12 @@ export class UsersComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Data
   users = signal<AdminUser[]>([]);
 
@@ -89,7 +108,8 @@ export class UsersComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -102,8 +122,10 @@ export class UsersComponent implements AfterViewInit {
     this.router.navigate(['/admin/users/new']);
   }
 
-  toggleDropdown(userId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(userId: string, event: Event | void): void {
+    if (event) {
+      (event as Event).stopPropagation();
+    }
     if (this.openDropdownId() === userId) {
       this.openDropdownId.set(null);
     } else {
@@ -114,6 +136,18 @@ export class UsersComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const user = event.row as AdminUser;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(user);
+        break;
+      case 'delete':
+        this.onDelete(user);
+        break;
+    }
   }
 
   onEdit(user: AdminUser): void {
@@ -134,24 +168,23 @@ export class UsersComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.users().map(u => ({ ...u, selected: true }));
     this.users.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.users().map(u => ({ ...u, selected: false }));
     this.users.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   toggleUserSelection(user: AdminUser): void {

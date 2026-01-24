@@ -4,6 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { FuelSurcharge } from '@core/models/fuel-surcharge.model';
 
 @Component({
@@ -13,7 +21,12 @@ import { FuelSurcharge } from '@core/models/fuel-surcharge.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent
   ],
   templateUrl: './fuel-surcharges.component.html',
   styleUrls: ['./fuel-surcharges.component.scss'],
@@ -53,6 +66,12 @@ export class FuelSurchargesComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Data
   fuelSurcharges = signal<FuelSurcharge[]>([]);
 
@@ -88,7 +107,8 @@ export class FuelSurchargesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -101,8 +121,7 @@ export class FuelSurchargesComponent implements AfterViewInit {
     this.router.navigate(['/admin/fuel-surcharges/new']);
   }
 
-  toggleDropdown(fuelSurchargeId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(fuelSurchargeId: string): void {
     if (this.openDropdownId() === fuelSurchargeId) {
       this.openDropdownId.set(null);
     } else {
@@ -113,6 +132,18 @@ export class FuelSurchargesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const fuelSurcharge = event.row as FuelSurcharge;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(fuelSurcharge);
+        break;
+      case 'delete':
+        this.onDelete(fuelSurcharge);
+        break;
+    }
   }
 
   onEdit(fuelSurcharge: FuelSurcharge): void {
@@ -133,24 +164,23 @@ export class FuelSurchargesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.fuelSurcharges().map(fs => ({ ...fs, selected: true }));
     this.fuelSurcharges.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.fuelSurcharges().map(fs => ({ ...fs, selected: false }));
     this.fuelSurcharges.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   toggleFuelSurchargeSelection(fuelSurcharge: FuelSurcharge): void {

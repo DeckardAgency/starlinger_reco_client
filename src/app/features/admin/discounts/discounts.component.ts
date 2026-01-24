@@ -5,26 +5,31 @@ import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
+import { mockAdminDiscounts, AdminDiscount } from '@core/mocks/mock-data';
 
-interface Discount {
-  id: string;
-  name: string;
-  status: 'active' | 'inactive';
-  priority: number;
-  dateValidFrom: string;
-  dateValidTo: string;
-  selected?: boolean;
-}
+// Consolidated components
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { ListHeaderComponent } from '@app/ui-kit/molecules/list-header/list-header.component';
+import { TableActionsDropdownComponent, TableAction } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TableCheckboxSelectionComponent } from '@app/ui-kit/molecules/table-checkbox-selection/table-checkbox-selection.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
+
+type Discount = AdminDiscount;
 
 @Component({
-    selector: 'app-discounts',
-    standalone: true,
+  selector: 'app-discounts',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterModule,
     DataTableComponent,
-    BadgeComponent
+    BadgeComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent,
+    TableFooterComponent
   ],
   templateUrl: './discounts.component.html',
   styleUrls: ['./discounts.component.scss'],
@@ -67,13 +72,15 @@ export class DiscountsComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
-  // Mock data
-  discounts = signal<Discount[]>([
-    { id: '0001', name: 'ET -30%', status: 'active', priority: 0, dateValidFrom: '25/10/2024 00:00:25', dateValidTo: '01/11/2024 00:00:25' },
-    { id: '0002', name: 'Black Friday -50%', status: 'active', priority: 3, dateValidFrom: '25/11/2024 00:00:11', dateValidTo: '10/11/2024 00:00:11' },
-    { id: '0003', name: 'Spring -25%', status: 'active', priority: 2, dateValidFrom: '01/02/2025 00:00:19', dateValidTo: '25/02/2025 00:00:19' },
-    { id: '0004', name: 'Special -50%', status: 'inactive', priority: 0, dateValidFrom: '15/03/2025 00:05:42', dateValidTo: '15/03/2025 00:05:45' }
-  ]);
+  // Table actions
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'clone', label: 'Clone', icon: 'copy' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
+  // Data from centralized mock data
+  discounts = signal<Discount[]>(mockAdminDiscounts.map(d => ({ ...d })));
 
   // Total count
   totalCount = computed(() => this.discounts().length);
@@ -96,6 +103,11 @@ export class DiscountsComponent implements AfterViewInit {
     ];
   }
 
+  onSearchQueryChange(query: string): void {
+    this.searchQuery = query;
+    this.onSearch();
+  }
+
   onSearch(): void {
     console.log('Searching:', this.searchQuery);
   }
@@ -110,8 +122,7 @@ export class DiscountsComponent implements AfterViewInit {
     this.router.navigate(['/admin/discounts/new']);
   }
 
-  toggleDropdown(discountId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(discountId: string): void {
     if (this.openDropdownId() === discountId) {
       this.openDropdownId.set(null);
     } else {
@@ -124,18 +135,15 @@ export class DiscountsComponent implements AfterViewInit {
     this.isHeaderDropdownOpen.set(false);
   }
 
-  onEdit(discount: Discount): void {
-    this.router.navigate(['/admin/discounts', discount.id]);
-    this.closeDropdown();
-  }
-
-  onClone(discount: Discount): void {
-    console.log('Clone discount:', discount);
-    this.closeDropdown();
-  }
-
-  onDelete(discount: Discount): void {
-    console.log('Delete discount:', discount);
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const discount = event.row as Discount;
+    if (event.action.id === 'edit') {
+      this.router.navigate(['/admin/discounts', discount.id]);
+    } else if (event.action.id === 'clone') {
+      console.log('Clone discount:', discount);
+    } else if (event.action.id === 'delete') {
+      console.log('Delete discount:', discount);
+    }
     this.closeDropdown();
   }
 
@@ -148,28 +156,23 @@ export class DiscountsComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null); // Close any row dropdowns
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    this.openDropdownId.set(null);
   }
-
-  closeHeaderDropdown(): void {
-    this.isHeaderDropdownOpen.set(false);
-            }
 
   onSelectAll(): void {
     const updated = this.discounts().map(d => ({ ...d, selected: true }));
     this.discounts.set(updated);
     this.selectAll.set(true);
-    this.closeHeaderDropdown();
+    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.discounts().map(d => ({ ...d, selected: false }));
     this.discounts.set(updated);
     this.selectAll.set(false);
-    this.closeHeaderDropdown();
+    this.isHeaderDropdownOpen.set(false);
   }
 
   toggleDiscountSelection(discount: Discount): void {

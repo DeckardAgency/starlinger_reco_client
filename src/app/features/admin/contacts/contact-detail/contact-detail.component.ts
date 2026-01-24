@@ -1,11 +1,15 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 
 // Contact detail interface
 interface ContactDetail {
@@ -58,7 +62,11 @@ const EMPTY_CONTACT: ContactDetail = {
     FormsModule,
     RouterModule,
     ToggleComponent,
-    FormFieldComponent
+    IconComponent,
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent
   ],
   templateUrl: './contact-detail.component.html',
   styleUrls: ['./contact-detail.component.scss'],
@@ -68,7 +76,6 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private location = inject(Location);
   private destroy$ = new Subject<void>();
 
   // Mode tracking
@@ -136,8 +143,8 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  goBack(): void {
-    this.location.back();
+  onBack(): void {
+    this.router.navigate(['/admin/contacts']);
   }
 
   onBillingChange(checked: boolean): void {
@@ -162,4 +169,3 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     return value || '–';
   }
 }
-

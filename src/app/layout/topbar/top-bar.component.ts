@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { SearchComponent } from '@shared/components/ui/search/search.component';
+import { SearchComponent, SearchSuggestion } from '@app/ui-kit/molecules/search/search.component';
 import { MobileMenuService } from '@services/mobile-menu.service';
 import { InfoRequestNotificationService } from '@core/services/info-request-notification.service';
 import { CartService } from '@core/services/cart.service';
@@ -18,6 +18,8 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class TopBarComponent implements OnInit, OnDestroy {
     showNotificationDropdown = false;
+    searchSuggestions: SearchSuggestion[] = [];
+    searchLoading = false;
 
     private destroy$ = new Subject<void>();
 
@@ -87,6 +89,26 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
     testNotification(): void {
         this.notificationService.testNotification();
+    }
+
+    onSearch(query: string): void {
+        this.searchLoading = true;
+        // TODO: Replace with actual search service call
+        // For now, simulate search with mock data
+        setTimeout(() => {
+            this.searchSuggestions = [
+                { id: '1', label: 'AIVV-01152 Power Panel T30', description: 'Machine part', type: 'Part' },
+                { id: '2', label: 'AIVV-01210 Power Panel T30', description: 'Machine part', type: 'Part' },
+                { id: '3', label: 'AIVV Machine', description: 'recoSTAR dynamic', type: 'Machine' },
+            ].filter(s => s.label.toLowerCase().includes(query.toLowerCase()));
+            this.searchLoading = false;
+        }, 300);
+    }
+
+    onSuggestionSelect(suggestion: SearchSuggestion): void {
+        console.log('Selected:', suggestion);
+        // TODO: Navigate to the selected item
+        // this.router.navigate(['/details', suggestion.id]);
     }
 
     viewAllResponses(): void {

@@ -16,6 +16,17 @@ import {
   DropdownMenuItem
 } from '@app/ui-kit';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms';
+import {
+  HistoryItem,
+  HistoryStatus,
+  HistoryType,
+  mockCustomerQuickActions,
+  mockCustomerActiveOrders,
+  mockCustomerHistoryData,
+  ICON_QUICK_ACTIONS,
+  ICON_ACTIVE_ORDERS,
+  ICON_HISTORY
+} from '@core/mocks/mock-data';
 
 // Contact form model
 interface ContactFormData {
@@ -25,18 +36,6 @@ interface ContactFormData {
   machineProduct: string;
   attachment: File | null;
   urgency: string;
-}
-
-export type HistoryStatus = 'completed' | 'cancelled' | 'in-review';
-export type HistoryType = 'order' | 'manual';
-
-export interface HistoryItem {
-  inquiryId: string;
-  type: HistoryType;
-  dateCreated: string;
-  internalReference: string;
-  partsOrdered: number;
-  status: HistoryStatus;
 }
 
 @Component({
@@ -65,26 +64,8 @@ export class CustomerDashboardComponent implements AfterViewInit {
   @ViewChild('actionsCell', { static: true }) actionsCell!: TemplateRef<any>;
 
   // Quick Actions section
-  quickActionsIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <path d="M11.6667 1.66675L3.33334 11.6667H10L8.33334 18.3334L16.6667 8.33341H10L11.6667 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`;
-
-  quickActions: QuickActionCardData[] = [
-    {
-      type: 'new-order',
-      title: 'New order',
-      description: 'Initiate a spare part request by completing our custom tailored ordering solutions.',
-      buttonLabel: 'Create',
-      routerLink: '/customer/shop'
-    },
-    {
-      type: 'contact-sales',
-      title: 'Contact Sales Manager',
-      description: 'Access direct communication channel for expert support, technical consultations and inquiry status.',
-      buttonLabel: 'Contact'
-      // No routerLink - will trigger buttonClick event
-    }
-  ];
+  quickActionsIcon = ICON_QUICK_ACTIONS;
+  quickActions: QuickActionCardData[] = mockCustomerQuickActions;
 
   // Contact Modal state
   showContactModal = signal(false);
@@ -99,41 +80,11 @@ export class CustomerDashboardComponent implements AfterViewInit {
   selectedFileName = signal<string>('');
 
   // Active Orders section
-  activeOrdersIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <path d="M10 7.50008V10.8334M10 14.1667H10.0083M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`;
-
-  activeOrders: OrderCardData[] = [
-    {
-      id: '#0001',
-      type: 'order',
-      internalReference: '000123-ABC',
-      dateCreated: '14-03-2024',
-      partsOrdered: 12,
-      status: 'submitted'
-    },
-    {
-      id: '#0002',
-      type: 'order',
-      internalReference: '000987-EAD',
-      dateCreated: '14-03-2024',
-      partsOrdered: 12,
-      status: 'confirmed'
-    },
-    {
-      id: '#0003',
-      type: 'inquiry',
-      internalReference: '004231-UGR',
-      dateCreated: '14-03-2024',
-      partsOrdered: 12,
-      status: 'in-review'
-    }
-  ];
+  activeOrdersIcon = ICON_ACTIVE_ORDERS;
+  activeOrders: OrderCardData[] = mockCustomerActiveOrders;
 
   // History section
-  historyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <path d="M11.6667 1.66675V5.00008C11.6667 5.44211 11.8423 5.86603 12.1548 6.17859C12.4674 6.49115 12.8913 6.66675 13.3333 6.66675H16.6667M7.5 12.5001L9.16667 14.1667L12.5 10.8334M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`;
+  historyIcon = ICON_HISTORY;
 
   activeTab = signal('latest');
   sortColumn = signal<string | null>('dateCreated');
@@ -148,64 +99,7 @@ export class CustomerDashboardComponent implements AfterViewInit {
 
   columns = signal<TableColumn[]>([]);
 
-  historyData: HistoryItem[] = [
-    {
-      inquiryId: '0001',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '000123-ABC',
-      partsOrdered: 12,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0002',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '000987-EAD',
-      partsOrdered: 192,
-      status: 'cancelled'
-    },
-    {
-      inquiryId: '0003',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '004231-UGR',
-      partsOrdered: 48,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0004',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '001456-ZXY',
-      partsOrdered: 36,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0005',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '002789-WPQ',
-      partsOrdered: 24,
-      status: 'cancelled'
-    },
-    {
-      inquiryId: '0006',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '005678-MNB',
-      partsOrdered: 60,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0007',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '003234-LJK',
-      partsOrdered: 72,
-      status: 'completed'
-    }
-  ];
+  historyData: HistoryItem[] = mockCustomerHistoryData;
 
   ngAfterViewInit(): void {
     // Set columns without Customer column for Customer view
@@ -254,7 +148,7 @@ export class CustomerDashboardComponent implements AfterViewInit {
       'in-review': 'warning'
     };
     return variants[status];
-            }
+  }
 
   getStatusLabel(status: HistoryStatus): string {
     const labels: Record<HistoryStatus, string> = {
@@ -300,8 +194,8 @@ export class CustomerDashboardComponent implements AfterViewInit {
       case 'archive':
         // Archive the item
         break;
-            }
-        }
+    }
+  }
 
   // Quick Action handlers
   onQuickActionClick(type: QuickActionType): void {

@@ -6,7 +6,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
-import { Country, DHL_ZONES, DhlZone } from '@core/models/country.model';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { DHL_ZONES, DhlZone } from '@core/models/country.model';
+import { mockCountryDetail } from '@core/mocks/mock-data';
 
 interface CountryDetail {
   id: string;
@@ -33,7 +38,11 @@ const EMPTY_COUNTRY: CountryDetail = {
     CommonModule,
     FormsModule,
     RouterModule,
-    FormFieldComponent
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    IconComponent
   ],
   templateUrl: './country-detail.component.html',
   styleUrls: ['./country-detail.component.scss'],
@@ -81,16 +90,9 @@ export class CountryDetailComponent implements OnInit, OnDestroy {
   private loadCountry(id: string): void {
     this.isLoading.set(true);
     
-    // Mock data - in real app this would be an API call
+    // In real app this would be an API call
     setTimeout(() => {
-      this.country.set({
-        id: id,
-        name: 'Afghanistan',
-        code: 'AF',
-        iso31661Alpha3Code: '-',
-        dhlZone: 'zone8',
-        defaultTaxPercent: 0
-      });
+      this.country.set({ ...mockCountryDetail, id } as CountryDetail);
       this.isLoading.set(false);
       this.cdr.markForCheck();
     }, 100);
@@ -147,4 +149,3 @@ export class CountryDetailComponent implements OnInit, OnDestroy {
     console.log('Save and continue:', this.country());
   }
 }
-

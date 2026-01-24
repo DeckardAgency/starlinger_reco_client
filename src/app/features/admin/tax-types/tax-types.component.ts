@@ -4,7 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { TaxType } from '@core/models/tax-type.model';
 
 @Component({
@@ -15,7 +22,11 @@ import { TaxType } from '@core/models/tax-type.model';
     FormsModule,
     RouterModule,
     DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent
   ],
   templateUrl: './tax-types.component.html',
   styleUrls: ['./tax-types.component.scss'],
@@ -59,6 +70,12 @@ export class TaxTypesComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Pagination
   currentPage = signal(1);
   itemsPerPage = signal(17);
@@ -99,22 +116,21 @@ export class TaxTypesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
   onSortChange(event: SortEvent): void {
     this.sortColumn = event.column;
     this.sortDirection = event.direction;
-    console.log('Sorting by:', event.column, event.direction);
   }
 
   onAddTaxType(): void {
     this.router.navigate(['/admin/tax-types/new']);
   }
 
-  toggleDropdown(taxTypeId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(taxTypeId: string): void {
     if (this.openDropdownId() === taxTypeId) {
       this.openDropdownId.set(null);
     } else {
@@ -125,6 +141,18 @@ export class TaxTypesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const taxType = event.row as TaxType;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(taxType);
+        break;
+      case 'delete':
+        this.onDelete(taxType);
+        break;
+    }
   }
 
   onEdit(taxType: TaxType): void {
@@ -145,28 +173,23 @@ export class TaxTypesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
-  }
-
-  closeHeaderDropdown(): void {
-    this.isHeaderDropdownOpen.set(false);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.taxTypes().map(t => ({ ...t, selected: true }));
     this.taxTypes.set(updated);
     this.selectAll.set(true);
-    this.closeHeaderDropdown();
   }
 
   onSelectNone(): void {
     const updated = this.taxTypes().map(t => ({ ...t, selected: false }));
     this.taxTypes.set(updated);
     this.selectAll.set(false);
-    this.closeHeaderDropdown();
   }
 
   toggleTaxTypeSelection(taxType: TaxType): void {
@@ -185,4 +208,3 @@ export class TaxTypesComponent implements AfterViewInit {
     return value.toFixed(2).replace('.', ',');
   }
 }
-

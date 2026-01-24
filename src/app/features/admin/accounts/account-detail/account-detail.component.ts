@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, computed, OnInit, OnDestroy, inject, ViewChild, TemplateRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -7,10 +7,15 @@ import { Subject, takeUntil } from 'rxjs';
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
-import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
-import { CardComponent } from '@app/ui-kit/molecules/card/card.component';
-import { InputComponent } from '@app/ui-kit/atoms/input/input.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 import { Account, AccountContact } from '@core/models/account.model';
 
 // Interfaces for tab data
@@ -73,19 +78,43 @@ const EMPTY_ACCOUNT: Account = {
     ToggleComponent,
     TabsComponent,
     BadgeComponent,
-    ButtonComponent,
-    CardComponent,
-    InputComponent,
-    FormFieldComponent
+    IconComponent,
+    AvatarComponent,
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    DataTableComponent,
+    MobileFooterComponent
   ],
   templateUrl: './account-detail.component.html',
   styleUrls: ['./account-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccountDetailComponent implements OnInit, OnDestroy {
+export class AccountDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
+
+  // Template refs for custom cell rendering
+  @ViewChild('contactBillingTemplate') contactBillingTemplate!: TemplateRef<any>;
+  @ViewChild('contactActionsTemplate') contactActionsTemplate!: TemplateRef<any>;
+  @ViewChild('addressBillingTemplate') addressBillingTemplate!: TemplateRef<any>;
+  @ViewChild('addressDeliveryTemplate') addressDeliveryTemplate!: TemplateRef<any>;
+  @ViewChild('addressActionsTemplate') addressActionsTemplate!: TemplateRef<any>;
+  @ViewChild('orderTypeTemplate') orderTypeTemplate!: TemplateRef<any>;
+  @ViewChild('orderCustomerTemplate') orderCustomerTemplate!: TemplateRef<any>;
+  @ViewChild('orderStatusTemplate') orderStatusTemplate!: TemplateRef<any>;
+  @ViewChild('orderActionsTemplate') orderActionsTemplate!: TemplateRef<any>;
+  @ViewChild('machineActionsTemplate') machineActionsTemplate!: TemplateRef<any>;
+
+  // Table column configs
+  contactsColumns: TableColumn[] = [];
+  addressesColumns: TableColumn[] = [];
+  shopOrdersColumns: TableColumn[] = [];
+  manualEntriesColumns: TableColumn[] = [];
+  machinesColumns: TableColumn[] = [];
 
   // Mode tracking
   isEditMode = signal(false);
@@ -126,6 +155,49 @@ export class AccountDetailComponent implements OnInit, OnDestroy {
   isActive = signal(true);
   isLegalEntity = signal(false);
 
+  // Account type options for multi-select
+  accountTypeOptions = [
+    { value: 'client', label: 'Client' },
+    { value: 'supplier', label: 'Supplier' },
+    { value: 'partner', label: 'Partner' },
+    { value: 'distributor', label: 'Distributor' }
+  ];
+  selectedAccountType = '';
+
+  // Add account type
+  onAccountTypeSelect(): void {
+    if (this.selectedAccountType) {
+      const option = this.accountTypeOptions.find(o => o.value === this.selectedAccountType);
+      const currentTypes = this.account().accountType || [];
+      if (option && !currentTypes.includes(option.label)) {
+        this.account.update(a => ({
+          ...a,
+          accountType: [...(a.accountType || []), option.label]
+        }));
+      }
+      this.selectedAccountType = '';
+    }
+  }
+
+  // Remove account type
+  removeAccountType(type: string): void {
+    this.account.update(a => ({
+      ...a,
+      accountType: (a.accountType || []).filter(t => t !== type)
+    }));
+  }
+
+  // Table actions
+  contactActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
+  addressActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   ngOnInit(): void {
     // Subscribe to route param changes to handle navigation between add/edit
     this.route.paramMap
@@ -141,6 +213,66 @@ export class AccountDetailComponent implements OnInit, OnDestroy {
           this.resetForm();
         }
       });
+  }
+
+  ngAfterViewInit(): void {
+    this.initColumns();
+    this.cdr.detectChanges();
+  }
+
+  private initColumns(): void {
+    // Contacts columns
+    this.contactsColumns = [
+      { key: 'id', label: 'Id', sortable: true, width: '88px' },
+      { key: 'fullName', label: 'Full name', sortable: true },
+      { key: 'email', label: 'Email', sortable: true },
+      { key: 'phone', label: 'Phone', width: '160px' },
+      { key: 'isBilling', label: 'Billing', sortable: true, width: '104px', template: this.contactBillingTemplate },
+      { key: 'actions', label: '', width: '64px', template: this.contactActionsTemplate }
+    ];
+
+    // Addresses columns
+    this.addressesColumns = [
+      { key: 'id', label: 'Id', sortable: true, width: '88px' },
+      { key: 'street', label: 'Street', sortable: true },
+      { key: 'city', label: 'City', sortable: true },
+      { key: 'country', label: 'Country', sortable: true },
+      { key: 'isBilling', label: 'Billing', sortable: true, width: '104px', template: this.addressBillingTemplate },
+      { key: 'isDelivery', label: 'Show as delivery', sortable: true, width: '140px', template: this.addressDeliveryTemplate },
+      { key: 'actions', label: '', width: '64px', template: this.addressActionsTemplate }
+    ];
+
+    // Shop orders columns
+    this.shopOrdersColumns = [
+      { key: 'orderId', label: 'Order ID', width: '100px' },
+      { key: 'type', label: 'Type', width: '80px', template: this.orderTypeTemplate },
+      { key: 'dateCreated', label: 'Date Created', width: '140px' },
+      { key: 'internalRef', label: 'Internal reference number' },
+      { key: 'customer', label: 'Customer', width: '200px', template: this.orderCustomerTemplate },
+      { key: 'partsOrdered', label: 'Parts ordered', width: '120px' },
+      { key: 'status', label: 'Status', width: '120px', template: this.orderStatusTemplate },
+      { key: 'actions', label: '', width: '64px', template: this.orderActionsTemplate }
+    ];
+
+    // Manual entries columns (same as shop orders)
+    this.manualEntriesColumns = [
+      { key: 'orderId', label: 'Order ID', width: '100px' },
+      { key: 'type', label: 'Type', width: '80px', template: this.orderTypeTemplate },
+      { key: 'dateCreated', label: 'Date Created', width: '140px' },
+      { key: 'internalRef', label: 'Internal reference number' },
+      { key: 'customer', label: 'Customer', width: '200px', template: this.orderCustomerTemplate },
+      { key: 'partsOrdered', label: 'Parts ordered', width: '120px' },
+      { key: 'status', label: 'Status', width: '120px', template: this.orderStatusTemplate },
+      { key: 'actions', label: '', width: '64px', template: this.orderActionsTemplate }
+    ];
+
+    // Machines columns
+    this.machinesColumns = [
+      { key: 'machineId', label: 'Machine ID', width: '150px' },
+      { key: 'location', label: 'Location', width: '200px' },
+      { key: 'name', label: 'Name' },
+      { key: 'actions', label: '', width: '64px', template: this.machineActionsTemplate }
+    ];
   }
 
   ngOnDestroy(): void {
@@ -291,17 +423,42 @@ export class AccountDetailComponent implements OnInit, OnDestroy {
     this.activeTab.set(tabId);
   }
 
-  toggleDropdown(contactId: number, event: Event): void {
-    event.stopPropagation();
-    if (this.openDropdownId() === contactId) {
+  toggleDropdown(id: number): void {
+    if (this.openDropdownId() === id) {
       this.openDropdownId.set(null);
     } else {
-      this.openDropdownId.set(contactId);
+      this.openDropdownId.set(id);
     }
   }
 
   closeDropdown(): void {
     this.openDropdownId.set(null);
+  }
+
+  onContactActionClick(event: ActionClickEvent): void {
+    const contact = event.row as AccountContact;
+    switch (event.actionId) {
+      case 'edit':
+        this.onEdit(contact);
+        break;
+      case 'delete':
+        this.onDelete(contact);
+        break;
+    }
+  }
+
+  onAddressActionClick(event: ActionClickEvent): void {
+    const address = event.row as Address;
+    switch (event.actionId) {
+      case 'edit':
+        console.log('Edit address:', address);
+        this.closeDropdown();
+        break;
+      case 'delete':
+        console.log('Delete address:', address);
+        this.closeDropdown();
+        break;
+    }
   }
 
   onEdit(contact: AccountContact): void {
@@ -335,4 +492,3 @@ export class AccountDetailComponent implements OnInit, OnDestroy {
     return `€ ${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 }
-

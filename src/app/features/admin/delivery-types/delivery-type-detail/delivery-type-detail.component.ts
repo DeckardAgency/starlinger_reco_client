@@ -8,6 +8,15 @@ import { takeUntil } from 'rxjs/operators';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
 import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { ModalComponent } from '@app/ui-kit/organisms/modal/modal.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
+import { TableCheckboxSelectionComponent } from '@app/ui-kit/molecules/table-checkbox-selection/table-checkbox-selection.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TextEditorComponent } from '@shared/components/text-editor/text-editor.component';
 import { DeliveryType, DeliveryTypeDocument } from '@core/models/delivery-type.model';
 
 interface DeliveryTypeDetail {
@@ -45,7 +54,16 @@ const EMPTY_DELIVERY_TYPE: DeliveryTypeDetail = {
     RouterModule,
     FormFieldComponent,
     DataTableComponent,
-    ModalComponent
+    ModalComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    ToggleComponent,
+    IconComponent,
+    TabsComponent,
+    TableCheckboxSelectionComponent,
+    TableActionsDropdownComponent,
+    TextEditorComponent
   ],
   templateUrl: './delivery-type-detail.component.html',
   styleUrls: ['./delivery-type-detail.component.scss'],
@@ -87,6 +105,19 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
 
   // Selection state
   selectAll = signal(false);
+
+  // Tabs configuration
+  tabs: TabItem[] = [
+    { id: 'description', label: 'Short description' },
+    { id: 'documents', label: 'Delivery type documents' }
+  ];
+
+  // Document actions
+  documentActions: TableAction[] = [
+    { id: 'rename', label: 'Rename', icon: 'pencil' },
+    { id: 'download', label: 'Download', icon: 'download' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   constructor(
     private router: Router,
@@ -152,8 +183,8 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
     console.log('Save and continue:', this.deliveryType());
   }
 
-  setActiveTab(tab: 'description' | 'documents'): void {
-    this.activeTab.set(tab);
+  setActiveTab(tabId: string): void {
+    this.activeTab.set(tabId as 'description' | 'documents');
   }
 
   // Toggle handlers
@@ -191,9 +222,8 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
     this.deliveryType.update(d => ({ ...d, order: value }));
   }
 
-  onShortDescriptionChange(event: Event): void {
-    const textarea = event.target as HTMLTextAreaElement;
-    this.deliveryType.update(d => ({ ...d, shortDescription: textarea.value }));
+  onShortDescriptionChange(content: string): void {
+    this.deliveryType.update(d => ({ ...d, shortDescription: content }));
   }
 
   formatNumber(value: number): string {
@@ -205,9 +235,8 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
     console.log('Add document');
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
   }
 
   onSelectAllDocuments(): void {
@@ -225,18 +254,36 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
   }
 
   toggleDocumentSelection(doc: DeliveryTypeDocument): void {
-    const updated = this.deliveryType().documents.map(d => 
+    const updated = this.deliveryType().documents.map(d =>
       d.id === doc.id ? { ...d, selected: !d.selected } : d
     );
     this.deliveryType.update(dt => ({ ...dt, documents: updated }));
   }
 
-  toggleDocumentActions(docId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDocumentActions(docId: string): void {
     if (this.activeDocActionId() === docId) {
       this.activeDocActionId.set(null);
     } else {
       this.activeDocActionId.set(docId);
+    }
+  }
+
+  closeDocActionsDropdown(): void {
+    this.activeDocActionId.set(null);
+  }
+
+  onDocumentActionClick(event: ActionClickEvent): void {
+    const doc = event.row as DeliveryTypeDocument;
+    switch (event.action.id) {
+      case 'rename':
+        this.renameDocument(doc.id);
+        break;
+      case 'download':
+        this.downloadDocument(doc.id);
+        break;
+      case 'delete':
+        this.deleteDocument(doc.id);
+        break;
     }
   }
 
@@ -270,7 +317,7 @@ export class DeliveryTypeDetailComponent implements OnInit, OnDestroy, AfterView
   confirmRename(): void {
     const docId = this.renameDocumentId();
     if (docId) {
-      const updated = this.deliveryType().documents.map(d => 
+      const updated = this.deliveryType().documents.map(d =>
         d.id === docId ? { ...d, name: this.renameValue() } : d
       );
       this.deliveryType.update(dt => ({ ...dt, documents: updated }));

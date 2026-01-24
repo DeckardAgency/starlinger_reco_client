@@ -5,6 +5,10 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PackagingPrice } from '@core/models/packaging-price.model';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
 
 const EMPTY_PACKAGING_PRICE: PackagingPrice = {
   id: '',
@@ -20,7 +24,11 @@ const EMPTY_PACKAGING_PRICE: PackagingPrice = {
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    FormFieldComponent
   ],
   templateUrl: './packaging-price-detail.component.html',
   styleUrls: ['./packaging-price-detail.component.scss'],
@@ -35,6 +43,12 @@ export class PackagingPriceDetailComponent implements OnInit {
   packagingPriceId = signal<string | null>(null);
   packagingPrice = signal<PackagingPrice>(EMPTY_PACKAGING_PRICE);
   isLoading = signal(false);
+
+  // Breadcrumb items
+  breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Packaging prices', route: '/admin/packaging-prices' },
+    { label: 'Edit', route: '' }
+  ];
 
   constructor() {
     this.route.params.pipe(takeUntilDestroyed()).subscribe(params => {

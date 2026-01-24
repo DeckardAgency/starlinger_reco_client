@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, OnInit, OnDestroy, inject, ViewChild, TemplateRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +8,9 @@ import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/brea
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { mockShopOrderDetail } from '@core/mocks/mock-data';
 
 // Interfaces
 interface OrderProduct {
@@ -91,17 +94,24 @@ const EMPTY_ORDER: ShopOrderDetail = {
     BreadcrumbsComponent,
     BadgeComponent,
     ToggleComponent,
-    FormFieldComponent
+    FormFieldComponent,
+    IconComponent,
+    DataTableComponent
   ],
   templateUrl: './shop-order-detail.component.html',
   styleUrls: ['./shop-order-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ShopOrderDetailComponent implements OnInit, OnDestroy {
+export class ShopOrderDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
+
+  // Template references for custom cell rendering
+  @ViewChild('unitPriceTemplate') unitPriceTemplate!: TemplateRef<any>;
+  @ViewChild('priceTemplate') priceTemplate!: TemplateRef<any>;
+  @ViewChild('logStatusTemplate') logStatusTemplate!: TemplateRef<any>;
 
   // Breadcrumb items
   breadcrumbItems: BreadcrumbItem[] = [
@@ -110,6 +120,52 @@ export class ShopOrderDetailComponent implements OnInit, OnDestroy {
 
   // Order data
   order = signal<ShopOrderDetail>({ ...EMPTY_ORDER });
+
+  // Products table columns (initialized in ngAfterViewInit)
+  productsColumns: TableColumn[] = [];
+
+  // Log messages table columns (initialized in ngAfterViewInit)
+  logColumns: TableColumn[] = [];
+
+  // Dropdown options
+  contactOptions = [
+    { value: 'martina', label: 'Martina Kemper - Unistrap Gmbh' },
+    { value: 'john', label: 'John Doe - Unistrap Gmbh' },
+    { value: 'jane', label: 'Jane Smith - Unistrap Gmbh' }
+  ];
+
+  billingAddressOptions = [
+    { value: 'wien', label: '1060 Wien, Sonnenuhrgasse 4' },
+    { value: 'graz', label: '8010 Graz, Hauptplatz 1' },
+    { value: 'linz', label: '4020 Linz, Landstraße 15' }
+  ];
+
+  statusOptions = [
+    { value: 'new', label: 'New' },
+    { value: 'in-progress', label: 'In Progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
+
+  paymentTypeOptions = [
+    { value: 'bank-transfer', label: 'Bank transfer' },
+    { value: 'credit-card', label: 'Credit card' },
+    { value: 'paypal', label: 'PayPal' }
+  ];
+
+  deliveryTypeOptions = [
+    { value: 'dhl', label: 'DHL' },
+    { value: 'fedex', label: 'FedEx' },
+    { value: 'ups', label: 'UPS' },
+    { value: 'pickup', label: 'Pickup' }
+  ];
+
+  // Selected values for ngModel
+  selectedContact = '';
+  selectedBillingAddress = '';
+  selectedStatus = '';
+  selectedPaymentType = '';
+  selectedDeliveryType = '';
 
 
 
@@ -124,69 +180,126 @@ export class ShopOrderDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    // Initialize columns with templates
+    this.productsColumns = [
+      { key: 'partNo', label: 'Part no.', width: '140px' },
+      { key: 'productName', label: 'Product name' },
+      { key: 'weight', label: 'Weight', width: '100px' },
+      { key: 'quantity', label: 'Quantity', width: '100px' },
+      { key: 'unitPrice', label: 'Unit price', width: '120px', template: this.unitPriceTemplate },
+      { key: 'discount', label: 'Discount', width: '100px' },
+      { key: 'price', label: 'Price', width: '140px', template: this.priceTemplate }
+    ];
+
+    this.logColumns = [
+      { key: 'status', label: 'Status', width: '180px', template: this.logStatusTemplate },
+      { key: 'dateTime', label: 'Date & Time', width: '160px' },
+      { key: 'user', label: 'User', width: '200px' },
+      { key: 'message', label: 'Message' }
+    ];
+
+    this.cdr.markForCheck();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   private loadOrder(id: string): void {
-    // Mock data - in real app this would be an API call
-    const mockOrder: ShopOrderDetail = {
-      id: '0001',
-      internalRef: '000123-ABC',
-      dateCreated: '14-03-2024',
-      partsOrdered: 12,
-      status: 'new',
-      enableSale: true,
-      account: 'Unistrap Gmbh - finanz.ke@starlinger.com',
-      contact: 'Martina Kemper - Unistrap Gmbh',
-      contactDropdown: 'martina',
-      billingAddress: 'wien',
-      date: '09/04/2025',
-      paymentType: 'bank-transfer',
-      deliveryType: 'dhl',
-      priceWithoutTax: 4764.74,
-      totalPrice: 5724.20,
-      priceTax: 956.40,
-      machineGroups: [
-        {
-          id: 'machine-1',
-          name: '200XE Winding Machine',
-          isExpanded: true,
-          products: [
-            { partNo: 'AIVV-01152', productName: 'Power panel T30 4,3" WQVGA color touch', weight: '0,4 kg', quantity: 2, unitPrice: 556.17, discount: '10 %', price: 1112.34 },
-            { partNo: 'ZME-01171D', productName: 'Modul FU-Stacofil 200XE', weight: '1,4 kg', quantity: 3, unitPrice: 442.46, discount: '20 %', price: 1327.38 },
-            { partNo: 'AEPI-01072', productName: 'ABTASTKOPF f. induktives Winkelmesssystem', weight: '0,263 kg', quantity: 2, unitPrice: 868.10, discount: '–', price: 1736.36 }
-          ]
-        },
-        {
-          id: 'machine-2',
-          name: 'Alpha 6.0 Machine',
-          isExpanded: true,
-          products: [
-            { partNo: 'AIHR-01039', productName: 'Heating element', weight: '1,5 kg', quantity: 3, unitPrice: 1855.01, discount: '10 %', price: 5565.03 },
-            { partNo: 'VYC-00245F', productName: 'SL 6 Shuttle Wheel (6,5°) for Reed 10°', weight: '0,09 kg', quantity: 2, unitPrice: 11.54, discount: '–', price: 23.08 }
-          ]
-        }
-      ],
-      orderTotal: 9764.19,
-      amountPaid: 7811.352,
-      logMessages: [
-        { status: 'Completed', statusVariant: 'success', dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Inquiry completed' },
-        { status: 'In progress', statusVariant: 'warning', dateTime: '19-03-2024 | 16:30', user: 'Starlinger', message: 'Inquiry in progress' },
-        { status: 'Information provided', statusVariant: 'warning', dateTime: '18-03-2024 | 09:15', user: '#username', message: 'Missing information provided by the customer.' },
-        { status: 'More info', statusVariant: 'warning', dateTime: '17-03-2024 | 14:45', user: 'Starlinger', message: 'Missing information requested by the admin.' },
-        { status: 'In review', statusVariant: 'warning', dateTime: '16-03-2024 | 10:00', user: 'Starlinger', message: 'Inquiry in review by the admin.' },
-        { status: 'Submitted', statusVariant: 'info', dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Inquiry submitted by the customer.' }
-      ]
-    };
+    // In real app this would be an API call
+    const orderData = mockShopOrderDetail as ShopOrderDetail;
 
-    this.order.set(mockOrder);
+    this.order.set(orderData);
     this.breadcrumbItems = [
       { label: 'Shop orders', route: '/admin/shop-orders' },
-      { label: `Inquiry #${mockOrder.id}` }
+      { label: `Inquiry #${orderData.id}` }
     ];
+    
+    // Set selected values
+    this.selectedContact = orderData.contactDropdown;
+    this.selectedBillingAddress = orderData.billingAddress;
+    this.selectedStatus = orderData.status;
+    this.selectedPaymentType = orderData.paymentType;
+    this.selectedDeliveryType = orderData.deliveryType;
+    
     this.cdr.markForCheck();
+  }
+
+  // Dropdown change handlers
+  onContactChange(): void {
+    const option = this.contactOptions.find(o => o.value === this.selectedContact);
+    if (option) {
+      this.order.update(o => ({ ...o, contact: option.label, contactDropdown: this.selectedContact }));
+    }
+  }
+
+  onBillingAddressChange(): void {
+    this.order.update(o => ({ ...o, billingAddress: this.selectedBillingAddress }));
+  }
+
+  onStatusChange(): void {
+    this.order.update(o => ({ ...o, status: this.selectedStatus }));
+  }
+
+  onPaymentTypeChange(): void {
+    this.order.update(o => ({ ...o, paymentType: this.selectedPaymentType }));
+  }
+
+  onDeliveryTypeChange(): void {
+    this.order.update(o => ({ ...o, deliveryType: this.selectedDeliveryType }));
+  }
+
+  // Remove pill handlers
+  removeContact(): void {
+    this.selectedContact = '';
+    this.order.update(o => ({ ...o, contact: '', contactDropdown: '' }));
+  }
+
+  removeBillingAddress(): void {
+    this.selectedBillingAddress = '';
+    this.order.update(o => ({ ...o, billingAddress: '' }));
+  }
+
+  removeStatus(): void {
+    this.selectedStatus = '';
+    this.order.update(o => ({ ...o, status: '' }));
+  }
+
+  removePaymentType(): void {
+    this.selectedPaymentType = '';
+    this.order.update(o => ({ ...o, paymentType: '' }));
+  }
+
+  removeDeliveryType(): void {
+    this.selectedDeliveryType = '';
+    this.order.update(o => ({ ...o, deliveryType: '' }));
+  }
+
+  getContactLabel(): string {
+    const option = this.contactOptions.find(o => o.value === this.selectedContact);
+    return option ? option.label : '';
+  }
+
+  getBillingAddressLabel(): string {
+    const option = this.billingAddressOptions.find(o => o.value === this.selectedBillingAddress);
+    return option ? option.label : '';
+  }
+
+  getStatusLabel(): string {
+    const option = this.statusOptions.find(o => o.value === this.selectedStatus);
+    return option ? option.label : '';
+  }
+
+  getPaymentTypeLabel(): string {
+    const option = this.paymentTypeOptions.find(o => o.value === this.selectedPaymentType);
+    return option ? option.label : '';
+  }
+
+  getDeliveryTypeLabel(): string {
+    const option = this.deliveryTypeOptions.find(o => o.value === this.selectedDeliveryType);
+    return option ? option.label : '';
   }
 
   // Event handlers

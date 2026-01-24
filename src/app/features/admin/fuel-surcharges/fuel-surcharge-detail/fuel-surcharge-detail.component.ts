@@ -6,7 +6,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
-import { FuelSurcharge } from '@core/models/fuel-surcharge.model';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 
 interface FuelSurchargeDetail {
   id: string;
@@ -44,7 +47,11 @@ const DELIVERY_TYPE_OPTIONS: SelectOption[] = [
     CommonModule,
     FormsModule,
     RouterModule,
-    FormFieldComponent
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    IconComponent
   ],
   templateUrl: './fuel-surcharge-detail.component.html',
   styleUrls: ['./fuel-surcharge-detail.component.scss'],
@@ -64,6 +71,12 @@ export class FuelSurchargeDetailComponent implements OnInit, OnDestroy {
 
   // Selected value for native select
   selectedDeliveryType = '';
+
+  // Breadcrumb items
+  breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Fuel surcharge', route: '/admin/fuel-surcharges' },
+    { label: 'Edit', route: '' }
+  ];
 
   constructor(
     private router: Router,

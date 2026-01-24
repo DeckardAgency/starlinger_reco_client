@@ -5,6 +5,8 @@ import { Subject, takeUntil } from 'rxjs';
 
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
+import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { mockOrderDetails, mockOrderHistory, OrderDetail, OrderDetailMachineGroup, InquiryDetailPart } from '@core/mocks/mock-data';
 
 @Component({
@@ -14,7 +16,9 @@ import { mockOrderDetails, mockOrderHistory, OrderDetail, OrderDetailMachineGrou
     CommonModule,
     RouterModule,
     BreadcrumbsComponent,
-    BadgeComponent
+    BadgeComponent,
+    ButtonComponent,
+    IconComponent
   ],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.scss'],
@@ -205,11 +209,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   getFileIcon(type: string): string {
     switch (type) {
-      case 'pdf': return 'FileText';
-      case 'image': return 'Image';
-      case 'spreadsheet': return 'FileSpreadsheet';
-      default: return 'File';
+      case 'pdf': return 'file-text';
+      case 'image': return 'image';
+      case 'spreadsheet': return 'file-spreadsheet';
+      default: return 'file';
     }
   }
 }
-

@@ -1,13 +1,11 @@
 <div class="manual-entry-detail">
   <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <ui-breadcrumbs
-      [items]="breadcrumbItems"
-      [showHome]="true"
-      homeRoute="/admin/dashboard"
-      separator="chevron">
-    </ui-breadcrumbs>
-  </div>
+  <ui-breadcrumbs
+    [items]="breadcrumbItems"
+    [showHome]="true"
+    homeRoute="/admin/dashboard"
+    variant="page-header">
+  </ui-breadcrumbs>
 
   <!-- Main Content -->
   <div class="page-content">
@@ -15,17 +13,10 @@
     <div class="section-header">
       <div class="section-header__left">
         <button class="btn btn--icon btn--outline" (click)="goBack()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 8H2M6.667 12.667L2 8l4.667-4.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="arrow-back" size="sm"></ui-icon>
         </button>
         <div class="section-header__title-group">
-          <!-- PackageCheck icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="section-header__icon">
-            <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M7.083 12.917l1.667 1.666 4.167-4.166" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="package-check" size="md" color="#71717A" class="section-header__icon"></ui-icon>
           <h1 class="section-header__title">Inquiry ID: #{{ entry().id }}</h1>
           <ui-badge [variant]="getStatusBadgeVariant(entry().status)">
             {{ entry().status === 'new' ? 'New' : entry().status }}
@@ -34,23 +25,16 @@
       </div>
       <div class="section-header__actions">
         <button class="btn btn--outline" (click)="onExport()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 10v2.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="download" size="sm"></ui-icon>
           <span>Export</span>
         </button>
         <button class="btn btn--outline" (click)="onPrint()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M4 6V1.333h8V6M4 12H2.667A1.333 1.333 0 011.333 10.667V7.333A1.333 1.333 0 012.667 6h10.666a1.333 1.333 0 011.334 1.333v3.334A1.333 1.333 0 0113.333 12H12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 9.333H4v5.334h8V9.333z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="printer" size="sm"></ui-icon>
           <span>Print</span>
         </button>
         <button class="btn btn--primary" (click)="onSave()">
           <span>Save</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10.667 13.333v-4H5.333v4M5.333 2.667V6h4M13.333 6.667V13.333a.667.667 0 01-.666.667H3.333a.667.667 0 01-.666-.667V2.667A.667.667 0 013.333 2h6.667l3.333 3.333v1.334z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="save" size="sm"></ui-icon>
         </button>
       </div>
     </div>
@@ -74,10 +58,10 @@
       <!-- Basic Information Card -->
       <div class="card">
         <h2 class="card__title">Basic information</h2>
-        
+
         <div class="card__toggle">
-          <ui-toggle 
-            label="Enable sale" 
+          <ui-toggle
+            label="Enable sale"
             labelPosition="left"
             [checked]="entry().enableSale"
             (toggleChange)="onEnableSaleChange($event)">
@@ -94,41 +78,53 @@
           </ui-form-field>
 
           <ui-form-field label="Contact" layout="horizontal">
-            <div class="select-with-pills">
-              <div class="pill">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>{{ entry().contact }}</span>
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!selectedContact">Select contact</span>
+              <div class="pill" *ngIf="selectedContact">
+                <button class="pill__remove" (click)="removeContact(); $event.stopPropagation()">
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
+                </button>
+                <span>{{ getContactLabel() }}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <select class="select-field" [(ngModel)]="selectedContact" (change)="onContactChange()">
+                <option value="" disabled>Select contact</option>
+                <option *ngFor="let opt of contactOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
 
           <ui-form-field label="Billing address" layout="horizontal">
-            <div class="select-with-pills">
-              <div class="pill">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>1060 Wien, Sonnenuhrgasse 4</span>
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!selectedBillingAddress">Select address</span>
+              <div class="pill" *ngIf="selectedBillingAddress">
+                <button class="pill__remove" (click)="removeBillingAddress(); $event.stopPropagation()">
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
+                </button>
+                <span>{{ getBillingAddressLabel() }}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <select class="select-field" [(ngModel)]="selectedBillingAddress" (change)="onBillingAddressChange()">
+                <option value="" disabled>Select address</option>
+                <option *ngFor="let opt of billingAddressOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
 
           <ui-form-field label="Status" layout="horizontal">
-            <div class="select-with-badge">
-              <ui-badge [variant]="getStatusBadgeVariant(entry().status)">
-                {{ entry().status === 'new' ? 'New' : entry().status }}
-              </ui-badge>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!selectedStatus">Select status</span>
+              <div class="pill" *ngIf="selectedStatus">
+                <button class="pill__remove" (click)="removeStatus(); $event.stopPropagation()">
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
+                </button>
+                <span>{{ getStatusLabel() }}</span>
+              </div>
+              <select class="select-field" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+                <option value="" disabled>Select status</option>
+                <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
 
@@ -144,30 +140,36 @@
 
         <div class="card__fields">
           <ui-form-field label="Payment type" layout="horizontal">
-            <div class="select-with-pills">
-              <div class="pill">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Bank transfer</span>
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!selectedPaymentType">Select payment type</span>
+              <div class="pill" *ngIf="selectedPaymentType">
+                <button class="pill__remove" (click)="removePaymentType(); $event.stopPropagation()">
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
+                </button>
+                <span>{{ getPaymentTypeLabel() }}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <select class="select-field" [(ngModel)]="selectedPaymentType" (change)="onPaymentTypeChange()">
+                <option value="" disabled>Select payment type</option>
+                <option *ngFor="let opt of paymentTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
 
           <ui-form-field label="Delivery type" layout="horizontal">
-            <div class="select-with-pills">
-              <div class="pill">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3L9 9" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>DHL</span>
+            <div class="select-with-pill">
+              <span class="select-placeholder" *ngIf="!selectedDeliveryType">Select delivery type</span>
+              <div class="pill" *ngIf="selectedDeliveryType">
+                <button class="pill__remove" (click)="removeDeliveryType(); $event.stopPropagation()">
+                  <ui-icon name="x" size="xs" color="#fafafa"></ui-icon>
+                </button>
+                <span>{{ getDeliveryTypeLabel() }}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="select-chevron">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <select class="select-field" [(ngModel)]="selectedDeliveryType" (change)="onDeliveryTypeChange()">
+                <option value="" disabled>Select delivery type</option>
+                <option *ngFor="let opt of deliveryTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <ui-icon name="chevron-down" size="sm" class="select-chevron"></ui-icon>
             </div>
           </ui-form-field>
 
@@ -189,11 +191,7 @@
     <!-- Inquiry Overview Section -->
     <div class="inquiry-section">
       <div class="inquiry-section__header">
-        <!-- ShoppingBag icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M5 1.667L2.5 5v11.667a1.667 1.667 0 001.667 1.666h11.666a1.667 1.667 0 001.667-1.666V5L15 1.667H5z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.5 5h15M13.333 8.333a3.333 3.333 0 01-6.666 0" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="shopping-bag" size="md" color="#71717A"></ui-icon>
         <h2 class="inquiry-section__title">Inquiry overview</h2>
       </div>
 
@@ -203,29 +201,17 @@
           <div class="inquiry-part__header">
             <div class="inquiry-part__title-group">
               <div class="inquiry-part__title">
-                <!-- Bolt icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M10.833 1.667L2.5 11.667h7.5l-.833 6.666 8.333-10h-7.5l.833-6.666z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <ui-icon name="zap" size="md"></ui-icon>
                 <span>{{ part.partNumber }}</span>
               </div>
               <div class="inquiry-part__machine">
-                <!-- Component icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M7.083 4.167L10 1.667l2.917 2.5M7.083 15.833L10 18.333l2.917-2.5M15.833 7.083L18.333 10l-2.5 2.917M4.167 7.083L1.667 10l2.5 2.917" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M10 7.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <ui-icon name="component" size="md"></ui-icon>
                 <span>{{ part.machineName }}</span>
               </div>
             </div>
             <button class="inquiry-part__toggle" (click)="toggleInquiryPart(part.id)">
               <span>{{ part.isExpanded ? 'Close' : 'Open' }}</span>
-              <svg *ngIf="part.isExpanded" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M12 10L8 6L4 10" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <svg *ngIf="!part.isExpanded" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <ui-icon [name]="part.isExpanded ? 'chevron-up' : 'chevron-down'" size="sm"></ui-icon>
             </button>
           </div>
 
@@ -250,21 +236,7 @@
                 <div class="file-item" *ngFor="let file of part.attachedFiles">
                   <div class="file-item__left">
                     <div class="file-item__icon">
-                      <!-- FileText icon (pdf/text) -->
-                      <svg *ngIf="file.type === 'pdf' || file.type === 'text'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9.333 1.333v4h4M10.667 8.667H5.333M10.667 11.333H5.333M6.667 6H5.333" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <!-- Image icon -->
-                      <svg *ngIf="file.type === 'image'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M12.667 2H3.333A1.333 1.333 0 002 3.333v9.334A1.333 1.333 0 003.333 14h9.334A1.333 1.333 0 0014 12.667V3.333A1.333 1.333 0 0012.667 2z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M5.667 6.667a1 1 0 100-2 1 1 0 000 2zM14 10l-3.333-3.333L3.333 14" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <!-- FileSpreadsheet icon -->
-                      <svg *ngIf="file.type === 'spreadsheet'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9.333 1.333v4h4M5.333 8h5.334M5.333 10.667h5.334M5.333 6H6" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                      <ui-icon [name]="getFileIcon(file.type)" size="sm" color="#71717A"></ui-icon>
                     </div>
                     <div class="file-item__info">
                       <span class="file-item__name">{{ file.name }}</span>
@@ -272,10 +244,7 @@
                     </div>
                   </div>
                   <button class="file-item__action" (click)="onViewFile(file)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M.667 8s2.666-5.333 7.333-5.333S15.333 8 15.333 8s-2.666 5.333-7.333 5.333S.667 8 .667 8z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <ui-icon name="eye" size="sm" color="#71717A"></ui-icon>
                     <span>View</span>
                   </button>
                 </div>
@@ -298,12 +267,7 @@
     <!-- Log Messages Section -->
     <div class="log-section">
       <div class="log-section__header">
-        <!-- PackageCheck icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="log-section__icon">
-          <path d="M13.75 8.333L6.25 4.167M17.5 13.333V6.667a1.667 1.667 0 00-.833-1.442l-5.834-3.333a1.667 1.667 0 00-1.666 0L3.333 5.225A1.667 1.667 0 002.5 6.667v6.666a1.667 1.667 0 00.833 1.442l5.834 3.333a1.667 1.667 0 001.666 0l5.834-3.333a1.667 1.667 0 00.833-1.442z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.725 5.833L10 10.008l7.275-4.175M10 18.4V10" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M7.083 12.917l1.667 1.666 4.167-4.166" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="package-check" size="md" color="#71717A" class="log-section__icon"></ui-icon>
         <h2 class="log-section__title">Log messages</h2>
       </div>
 

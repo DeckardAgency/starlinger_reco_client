@@ -1,61 +1,20 @@
-<div class="contacts-page" (click)="closeDropdown()">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="page-header__breadcrumb">
-      <a routerLink="/admin/dashboard" class="page-header__home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="page-header__separator">
-        <svg width="1" height="15" viewBox="0 0 1 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0.5" y1="0" x2="0.5" y2="15" stroke="#E4E4E7"/>
-        </svg>
-      </span>
-      <span class="page-header__current">Contacts</span>
-    </div>
-  </div>
+<div class="contacts-page">
+  <ui-breadcrumbs variant="page-header" separator="line" [items]="[{ label: 'Contacts' }]"></ui-breadcrumbs>
 
-  <!-- Main Content -->
-  <div class="page-content">
-    <!-- List Header -->
-    <div class="list-header">
-      <div class="list-header__title">
-        <h1>All contacts</h1>
-      </div>
-      <div class="list-header__actions">
-        <div class="search-input">
-          <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearch()"
-            placeholder=""
-            class="search-input__field"
-          />
-        </div>
-        <button class="btn btn--icon" (click)="onRefresh()" [class.btn--loading]="isLoading()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 8.66667C13.7572 10.214 12.9686 11.6195 11.7777 12.6304C10.5869 13.6413 9.07364 14.1886 7.51207 14.1735C5.95049 14.1584 4.44825 13.5819 3.27775 12.5475C2.10724 11.5131 1.34693 10.0914 1.13333 8.53999M1.33333 13.3333V8.53999H6.13333M2 7.33333C2.24284 5.78595 3.03136 4.38048 4.22224 3.36954C5.41313 2.3586 6.92636 1.81133 8.48793 1.82645C10.0495 1.84157 11.5518 2.41807 12.7223 3.45246C13.8928 4.48685 14.6531 5.90862 14.8667 7.45999M14.6667 2.66666V7.45999H9.86667" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button class="btn btn--icon" (click)="onExport()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button class="btn btn--primary" (click)="onAddContact()">
-          <span>Add contact</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 3.33334V12.6667M3.33334 8H12.6667" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+  <main class="page-content">
+    <ui-list-header
+      title="All contacts"
+      [searchQuery]="searchQuery"
+      (searchQueryChange)="onSearchQueryChange($event)"
+      addButtonLabel="Add contact"
+      (add)="onAddContact()"
+      [showRefreshButton]="true"
+      [isRefreshLoading]="isLoading()"
+      (refresh)="onRefresh()"
+      [showExportButton]="true"
+      (export)="onExport()"
+    ></ui-list-header>
 
-    <!-- Data Table -->
     <div class="table-container">
       <ui-data-table
         [columns]="columns"
@@ -66,40 +25,27 @@
       </ui-data-table>
     </div>
 
-    <!-- Footer -->
-    <div class="table-footer">
-      <span class="table-footer__info">
-        Showing {{ showingFrom }} to {{ showingTo }} from {{ totalResults }} results
-      </span>
-    </div>
-  </div>
+    <ui-table-footer
+      [showingFrom]="showingFrom"
+      [showingTo]="showingTo"
+      [totalItems]="totalResults"
+    ></ui-table-footer>
+  </main>
 </div>
+
+<!-- Phone Template -->
+<ng-template #phoneTemplate let-row>
+  <span class="table-cell-text">{{ formatPhone(row.phone) }}</span>
+</ng-template>
 
 <!-- Actions Template -->
 <ng-template #actionsTemplate let-row>
-  <div class="actions-cell">
-    <button class="actions-trigger" (click)="toggleDropdown(row.id, $event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 8.66667C8.36819 8.66667 8.66667 8.36819 8.66667 8C8.66667 7.63181 8.36819 7.33333 8 7.33333C7.63181 7.33333 7.33333 7.63181 7.33333 8C7.33333 8.36819 7.63181 8.66667 8 8.66667Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 4C8.36819 4 8.66667 3.70152 8.66667 3.33333C8.66667 2.96514 8.36819 2.66667 8 2.66667C7.63181 2.66667 7.33333 2.96514 7.33333 3.33333C7.33333 3.70152 7.63181 4 8 4Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 13.3333C8.36819 13.3333 8.66667 13.0349 8.66667 12.6667C8.66667 12.2985 8.36819 12 8 12C7.63181 12 7.33333 12.2985 7.33333 12.6667C7.33333 13.0349 7.63181 13.3333 8 13.3333Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="dropdown-menu" *ngIf="openDropdownId === row.id" (click)="$event.stopPropagation()">
-      <button class="dropdown-menu__item" (click)="onEdit(row)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 13.3333H14M11 2.33334C11.2652 2.06812 11.6249 1.91895 12 1.91895C12.1857 1.91895 12.3696 1.95551 12.5412 2.02661C12.7128 2.0977 12.8687 2.20194 13 2.33334C13.1314 2.46473 13.2356 2.62062 13.3067 2.79221C13.3778 2.9638 13.4144 3.14769 13.4144 3.33334C13.4144 3.51899 13.3778 3.70287 13.3067 3.87446C13.2356 4.04605 13.1314 4.20194 13 4.33334L4.66667 12.6667L2 13.3333L2.66667 10.6667L11 2.33334Z" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Edit</span>
-      </button>
-      <button class="dropdown-menu__item" (click)="onDelete(row)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 4H3.33333H14M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.9739 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.9739 5.72386 1.72386C5.9739 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.9739 10.6667 2.31305 10.6667 2.66667V4M6.66667 7.33333V11.3333M9.33333 7.33333V11.3333" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Delete</span>
-      </button>
-    </div>
-  </div>
+  <ui-table-actions-dropdown
+    [isOpen]="openDropdownId === row.id"
+    [row]="row"
+    [actions]="tableActions"
+    (toggle)="toggleDropdown(row.id)"
+    (actionClick)="onActionClick($event)"
+    (close)="closeDropdown()"
+  ></ui-table-actions-dropdown>
 </ng-template>
-
-

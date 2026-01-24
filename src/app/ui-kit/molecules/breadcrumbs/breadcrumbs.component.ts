@@ -18,9 +18,16 @@ export interface BreadcrumbItem {
 })
 export class BreadcrumbsComponent {
   @Input() items: BreadcrumbItem[] = [];
-  @Input() separator: 'chevron' | 'slash' | 'arrow' = 'chevron';
+  @Input() separator: 'chevron' | 'slash' | 'arrow' | 'line' = 'chevron';
   @Input() showHome = true;
-  @Input() homeRoute = '/';
+  @Input() homeRoute = '/admin/dashboard';
+  
+  /**
+   * Variant determines the layout style:
+   * - 'inline': Standard inline breadcrumb (default)
+   * - 'page-header': Full-width page header with border and background
+   */
+  @Input() variant: 'inline' | 'page-header' = 'inline';
 
   trackByIndex(index: number): number {
     return index;

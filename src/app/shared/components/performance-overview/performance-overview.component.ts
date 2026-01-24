@@ -2,6 +2,7 @@ import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDe
 import { CommonModule } from '@angular/common';
 import { DatePickerComponent } from "@shared/components/date-picker/date-picker.component";
 import { ReactiveFormsModule, FormGroup, FormBuilder } from "@angular/forms";
+import { IconComponent, ButtonComponent } from '@app/ui-kit';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import { environment } from "@env/environment";
@@ -41,7 +42,7 @@ interface DashboardResponse {
 
 @Component({
     selector: 'app-performance-overview',
-    imports: [CommonModule, DatePickerComponent, ReactiveFormsModule],
+    imports: [CommonModule, DatePickerComponent, ReactiveFormsModule, IconComponent, ButtonComponent],
     templateUrl: './performance-overview.component.html',
     styleUrls: ['./performance-overview.component.scss']
 })

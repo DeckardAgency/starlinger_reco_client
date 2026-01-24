@@ -1,127 +1,79 @@
 <div class="packaging-prices-page" (click)="closeDropdown()">
-  <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <div class="page-header__breadcrumb">
-      <a routerLink="/admin/dashboard" class="page-header__home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="page-header__separator">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 12L10 8L6 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="page-header__current">Packaging prices</span>
+  <ui-breadcrumbs variant="page-header" separator="line" [items]="[{ label: 'Packaging prices' }]"></ui-breadcrumbs>
+
+  <main class="page-content">
+    <ui-list-header
+      title="Packaging prices"
+      icon="banknote"
+      addButtonLabel="Add option"
+      [showSearch]="true"
+      [showBulkDeleteButton]="true"
+      [isBulkDeleteDisabled]="!hasSelected()"
+      [searchQuery]="searchQuery"
+      (searchQueryChange)="onSearchChange($event)"
+      (add)="onAddPackagingPrice()"
+      (bulkDelete)="onBulkDelete()"
+    ></ui-list-header>
+
+    <div class="table-container">
+      <ui-data-table
+        [columns]="columns"
+        [data]="packagingPrices()"
+        (sort)="onSortChange($event)"
+      ></ui-data-table>
     </div>
-  </div>
 
-  <!-- List Header -->
-  <div class="list-header">
-    <div class="list-header__left">
-      <svg class="list-header__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M16.6667 6.66667L10 10M10 10L3.33333 6.66667M10 10V17.5M17.5 13.3333V6.66667C17.4997 6.37441 17.4225 6.08735 17.2763 5.83426C17.13 5.58117 16.9198 5.37094 16.6667 5.225L10.8333 1.89167C10.5798 1.74529 10.2922 1.66797 10 1.66797C9.70783 1.66797 9.42017 1.74529 9.16667 1.89167L3.33333 5.225C3.08022 5.37094 2.86998 5.58117 2.72372 5.83426C2.57745 6.08735 2.50025 6.37441 2.5 6.66667V13.3333C2.50025 13.6256 2.57745 13.9127 2.72372 14.1657C2.86998 14.4188 3.08022 14.6291 3.33333 14.775L9.16667 18.1083C9.42017 18.2547 9.70783 18.332 10 18.332C10.2922 18.332 10.5798 18.2547 10.8333 18.1083L16.6667 14.775C16.9198 14.6291 17.13 14.4188 17.2763 14.1657C17.4225 13.9127 17.4997 13.6256 17.5 13.3333Z" stroke="#71717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <h1 class="list-header__title">Packaging prices</h1>
-    </div>
-    <div class="list-header__right">
-      <div class="search-input">
-        <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearch()"
-          placeholder=""
-          class="search-input__field"
-        />
-      </div>
-      <button class="btn btn--icon" (click)="onBulkDelete()" *ngIf="hasSelected()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 4h12M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4m2 0V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M6.667 7.333v4M9.333 7.333v4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="btn btn--primary" (click)="onAddPackagingPrice()">
-        <span>Add option</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Table Container -->
-  <div class="table-container">
-    <ui-data-table
-      [columns]="columns"
-      [data]="packagingPrices()"
-      (sort)="onSortChange($event)"
-    ></ui-data-table>
-  </div>
-
-  <!-- Checkbox Header Template -->
-  <ng-template #checkboxHeaderTemplate>
-    <div class="checkbox-header" (click)="toggleHeaderDropdown($event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-        <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-      </svg>
-      <div class="header-dropdown" *ngIf="isHeaderDropdownOpen()" (click)="$event.stopPropagation()">
-        <button class="header-dropdown__item" (click)="onSelectAll()">Select all</button>
-        <button class="header-dropdown__item" (click)="onSelectNone()">None</button>
-      </div>
-    </div>
-  </ng-template>
-
-  <!-- Checkbox Template -->
-  <ng-template #checkboxTemplate let-row>
-    <div class="checkbox-cell" (click)="$event.stopPropagation()">
-      <input 
-        type="checkbox" 
-        [checked]="row.selected" 
-        (change)="togglePackagingPriceSelection(row)"
-        class="checkbox"
-      />
-    </div>
-  </ng-template>
-
-  <!-- Size From Template -->
-  <ng-template #sizeFromTemplate let-row>
-    <span>{{ formatSize(row.sizeFrom) }}</span>
-  </ng-template>
-
-  <!-- Size To Template -->
-  <ng-template #sizeToTemplate let-row>
-    <span>{{ formatSize(row.sizeTo) }}</span>
-  </ng-template>
-
-  <!-- Price Template -->
-  <ng-template #priceTemplate let-row>
-    <span>{{ formatPrice(row.priceBase) }}</span>
-  </ng-template>
-
-  <!-- Actions Template -->
-  <ng-template #actionsTemplate let-row>
-    <div class="actions-cell">
-      <button class="actions-btn" (click)="toggleDropdown(row.id, $event)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="3" r="1.5" fill="#71717A"/>
-          <circle cx="8" cy="8" r="1.5" fill="#71717A"/>
-          <circle cx="8" cy="13" r="1.5" fill="#71717A"/>
-        </svg>
-      </button>
-      <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
-        <button class="dropdown-menu__item" (click)="onEdit(row)">Edit</button>
-        <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onDelete(row)">Delete</button>
-      </div>
-    </div>
-  </ng-template>
-
-  <!-- Table Footer -->
-  <div class="table-footer">
-    <span class="table-footer__info">Showing 1 to {{ packagingPrices().length }} from {{ totalItems() }} results</span>
-  </div>
+    <ui-table-footer
+      [showingFrom]="1"
+      [showingTo]="packagingPrices().length"
+      [totalItems]="totalItems()"
+    ></ui-table-footer>
+  </main>
 </div>
 
+<!-- Checkbox Header Template -->
+<ng-template #checkboxHeaderTemplate>
+  <ui-table-checkbox-selection
+    [isHeader]="true"
+    [isDropdownOpen]="isHeaderDropdownOpen()"
+    (dropdownToggle)="onHeaderDropdownToggle($event)"
+    (selectAll)="onSelectAll()"
+    (selectNone)="onSelectNone()"
+  ></ui-table-checkbox-selection>
+</ng-template>
+
+<!-- Checkbox Template -->
+<ng-template #checkboxTemplate let-row>
+  <ui-table-checkbox-selection
+    [isHeader]="false"
+    [checked]="row.selected"
+    (change)="togglePackagingPriceSelection(row)"
+  ></ui-table-checkbox-selection>
+</ng-template>
+
+<!-- Size From Template -->
+<ng-template #sizeFromTemplate let-row>
+  <span>{{ formatSize(row.sizeFrom) }}</span>
+</ng-template>
+
+<!-- Size To Template -->
+<ng-template #sizeToTemplate let-row>
+  <span>{{ formatSize(row.sizeTo) }}</span>
+</ng-template>
+
+<!-- Price Template -->
+<ng-template #priceTemplate let-row>
+  <span>{{ formatPrice(row.priceBase) }}</span>
+</ng-template>
+
+<!-- Actions Template -->
+<ng-template #actionsTemplate let-row>
+  <ui-table-actions-dropdown
+    [isOpen]="openDropdownId() === row.id"
+    [row]="row"
+    [actions]="tableActions"
+    (toggle)="toggleDropdown(row.id)"
+    (actionClick)="onActionClick($event)"
+    (close)="closeDropdown()"
+  ></ui-table-actions-dropdown>
+</ng-template>

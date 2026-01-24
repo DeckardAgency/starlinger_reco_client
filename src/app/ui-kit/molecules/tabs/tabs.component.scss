@@ -1,6 +1,15 @@
 .ui-tabs {
   display: flex;
   gap: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  // Hide scrollbar but keep functionality
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   &--full-width {
     .ui-tabs__tab {
@@ -94,6 +103,11 @@
       text-align: center;
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
+
+      @media (max-width: 768px) {
+        flex: 0 0 auto;
+        padding: 6px 16px;
+      }
 
       &:focus {
         outline: none;

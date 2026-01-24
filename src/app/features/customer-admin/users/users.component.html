@@ -1,279 +1,206 @@
 <div class="users-page" (click)="closeDropdown()">
   <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <div class="page-header__breadcrumb">
-      <a routerLink="/customer-admin/users" class="page-header__home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="page-header__separator">
-        <svg width="1" height="15" viewBox="0 0 1 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0.5" y1="0" x2="0.5" y2="15" stroke="#E4E4E7"/>
-        </svg>
-      </span>
-      <span class="page-header__current">Users</span>
-    </div>
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="line"
+    [items]="[{ label: 'Users' }]"
+    homeRoute="/customer-admin/users"
+  ></ui-breadcrumbs>
+
+  <!-- List Header -->
+  <ui-list-header
+    title="Users"
+    [count]="totalCount()"
+    addButtonLabel="Add user"
+    [showSearch]="true"
+    [searchQuery]="searchQuery"
+    (searchQueryChange)="onSearchChange($event)"
+    (add)="onAddUser()"
+  ></ui-list-header>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <ui-data-table
+      [columns]="columns"
+      [data]="users()"
+      [sortColumn]="sortColumn"
+      [sortDirection]="sortDirection"
+      (sort)="onSortChange($event)"
+    ></ui-data-table>
   </div>
 
-  <!-- Main Content -->
-  <div class="page-content">
-    <!-- List Header -->
-    <div class="list-header">
-      <div class="list-header__title">
-        <h1>Users</h1>
-      </div>
-      <div class="list-header__actions">
-        <div class="search-input">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="search-input__icon">
-            <path d="M7.333 12.667A5.333 5.333 0 107.333 2a5.333 5.333 0 000 10.667zM14 14l-2.9-2.9" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <input 
-            type="text" 
-            [(ngModel)]="searchQuery" 
-            (ngModelChange)="onSearch()"
-            placeholder="" 
-            class="search-input__field"
-          />
-        </div>
-        <button class="btn btn--primary" (click)="onAddUser()">
-          <span>Add user</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
+  <!-- Name Template -->
+  <ng-template #nameTemplate let-row>
+    <div class="user-cell">
+      <ui-avatar 
+        [name]="row.name" 
+        [src]="row.avatar"
+        size="sm">
+      </ui-avatar>
+      <span class="user-cell__name">{{ row.name }}</span>
     </div>
+  </ng-template>
 
-    <!-- Table -->
-    <div class="table-container">
-      <ui-data-table
-        [columns]="columns"
-        [data]="users()"
-        [sortColumn]="sortColumn"
-        [sortDirection]="sortDirection"
-        (sort)="onSortChange($event)"
-      >
-      </ui-data-table>
-    </div>
-  </div>
+  <!-- Role Template -->
+  <ng-template #roleTemplate let-row>
+    <ui-badge [variant]="getRoleVariant(row.role)">{{ getRoleLabel(row.role) }}</ui-badge>
+  </ng-template>
+
+  <!-- Status Template -->
+  <ng-template #statusTemplate let-row>
+    <ui-badge [variant]="getStatusVariant(row.status)">{{ getStatusLabel(row.status) }}</ui-badge>
+  </ng-template>
+
+  <!-- Actions Template -->
+  <ng-template #actionsTemplate let-row>
+    <ui-table-actions-dropdown
+      [isOpen]="openDropdownId() === row.id"
+      [row]="row"
+      [actions]="tableActions"
+      (toggle)="toggleDropdown(row.id)"
+      (actionClick)="onActionClick($event)"
+      (close)="closeDropdown()"
+    ></ui-table-actions-dropdown>
+  </ng-template>
+
+  <!-- Table Footer -->
+  <ui-table-footer
+    [showingFrom]="1"
+    [showingTo]="users().length"
+    [totalItems]="totalCount()"
+  ></ui-table-footer>
 </div>
 
-<!-- Custom cell templates -->
-<ng-template #nameTemplate let-row>
-  <div class="user-cell">
-    <ui-avatar 
-      [name]="row.name" 
-      [src]="row.avatar"
-      size="sm">
-    </ui-avatar>
-    <span class="user-cell__name">{{ row.name }}</span>
-  </div>
-</ng-template>
-
-<ng-template #roleTemplate let-row>
-  <ui-badge [variant]="getRoleVariant(row.role)">{{ getRoleLabel(row.role) }}</ui-badge>
-</ng-template>
-
-<ng-template #statusTemplate let-row>
-  <ui-badge [variant]="getStatusVariant(row.status)">{{ getStatusLabel(row.status) }}</ui-badge>
-</ng-template>
-
-<ng-template #actionsTemplate let-row>
-  <div class="actions-cell">
-    <button class="actions-btn" (click)="toggleDropdown(row.id, $event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 8.667a.667.667 0 100-1.334.667.667 0 000 1.334zM8 4a.667.667 0 100-1.333A.667.667 0 008 4zM8 13.333A.667.667 0 108 12a.667.667 0 000 1.333z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
-    @if (openDropdownId() === row.id) {
-      <div class="dropdown-menu" (click)="$event.stopPropagation()">
-        <button class="dropdown-menu__item" (click)="onEdit(row)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M11.333 2A1.886 1.886 0 0114 4.667l-9 9-3.667 1 1-3.667 9-9z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Edit</span>
-        </button>
-        <button class="dropdown-menu__item" (click)="onDeactivate(row)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 14A6 6 0 108 2a6 6 0 000 12zM10 6l-4 4M6 6l4 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>{{ row.status === 'active' ? 'Deactivate' : 'Activate' }}</span>
-        </button>
-        <button class="dropdown-menu__item dropdown-menu__item--danger" (click)="onDelete(row)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2 4h12M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4m2 0V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Delete</span>
-        </button>
+<!-- Add User Drawer -->
+<ui-drawer
+  [isOpen]="showAddUserDrawer()"
+  position="right"
+  size="lg"
+  title="Add user"
+  (close)="onCloseDrawer()"
+>
+  <div class="drawer-content">
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <div class="info-banner__icon">
+        <ui-icon name="info" size="md"></ui-icon>
       </div>
-    }
-  </div>
-</ng-template>
-
-<!-- Add User Modal -->
-@if (showAddUserModal()) {
-  <div class="modal-overlay" (click)="onCloseModal()">
-    <div class="modal-sheet" (click)="$event.stopPropagation()">
-      <div class="modal-sheet__header">
-        <div class="modal-sheet__title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10.667 14v-1.333A2.667 2.667 0 008 10H4a2.667 2.667 0 00-2.667 2.667V14M6 7.333A2.667 2.667 0 106 2a2.667 2.667 0 000 5.333zM13.333 5.333v4M11.333 7.333h4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Add user</span>
-        </div>
-        <button class="modal-sheet__close" (click)="onCloseModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="modal-sheet__content">
-        <!-- Info Banner -->
-        <div class="info-banner">
-          <div class="info-banner__icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="info-banner__text">
-            <span>{{ 5 - activeUsersCount() }}/5 active user slots available. If you need more active users send request to </span>
-            <a href="mailto:info@starlinger.com">info&#64;starlinger.com</a>
-          </div>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-fields">
-          <div class="form-field form-field--toggle">
-            <div class="toggle">
-              <input type="checkbox" id="isActiveAdd" [(ngModel)]="formData.isActive">
-              <label for="isActiveAdd" class="toggle__slider"></label>
-            </div>
-            <label class="toggle-label">Is active</label>
-          </div>
-
-          <div class="form-field">
-            <label class="form-field__label">Full name</label>
-            <input type="text" class="form-field__input" [(ngModel)]="formData.fullName" placeholder="Type full name of the user">
-          </div>
-
-          <div class="form-field">
-            <label class="form-field__label">E-mail address</label>
-            <input type="email" class="form-field__input" [(ngModel)]="formData.email" placeholder="Type users email address">
-          </div>
-
-          <div class="form-field">
-            <label class="form-field__label">Role</label>
-            <select class="form-field__select" [(ngModel)]="formData.role">
-              <option value="" disabled>Choose role</option>
-              <option value="viewer">Viewer</option>
-              <option value="standard">Regular</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-sheet__footer">
-        <button class="btn btn--outline" (click)="onCloseModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Cancel</span>
-        </button>
-        <button class="btn btn--primary" (click)="onSaveUser()">
-          <span>Add user</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M13.333 4L6 11.333 2.667 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+      <div class="info-banner__text">
+        <span>{{ 5 - activeUsersCount() }}/5 active user slots available. If you need more active users send request to </span>
+        <a href="mailto:info@starlinger.com">info&#64;starlinger.com</a>
       </div>
     </div>
-  </div>
-}
 
-<!-- Edit User Modal -->
-@if (showEditUserModal()) {
-  <div class="modal-overlay" (click)="onCloseModal()">
-    <div class="modal-sheet" (click)="$event.stopPropagation()">
-      <div class="modal-sheet__header">
-        <div class="modal-sheet__title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M11.333 2A1.886 1.886 0 0114 4.667l-9 9-3.667 1 1-3.667 9-9z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Edit user</span>
-        </div>
-        <button class="modal-sheet__close" (click)="onCloseModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+    <!-- Form Fields -->
+    <div class="form-fields">
+      <div class="form-field form-field--toggle">
+        <ui-toggle
+          [checked]="formData.isActive"
+          (toggleChange)="onToggleActive($event)"
+        ></ui-toggle>
+        <label class="toggle-label">Is active</label>
       </div>
 
-      <div class="modal-sheet__content">
-        <!-- Info Banner -->
-        <div class="info-banner">
-          <div class="info-banner__icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="info-banner__text">
-            <span>{{ 5 - activeUsersCount() }}/5 active user slots available. If you need more active users send request to </span>
-            <a href="mailto:info@starlinger.com">info&#64;starlinger.com</a>
-          </div>
-        </div>
+      <ui-form-field label="Full name">
+        <ui-input
+          [(ngModel)]="formData.fullName"
+          placeholder="Type full name of the user"
+        ></ui-input>
+      </ui-form-field>
 
-        <!-- Form Fields -->
-        <div class="form-fields">
-          <div class="form-field form-field--toggle">
-            <div class="toggle">
-              <input type="checkbox" id="isActiveEdit" [(ngModel)]="formData.isActive">
-              <label for="isActiveEdit" class="toggle__slider"></label>
-            </div>
-            <label class="toggle-label">Is active</label>
-          </div>
+      <ui-form-field label="E-mail address">
+        <ui-input
+          type="email"
+          [(ngModel)]="formData.email"
+          placeholder="Type users email address"
+        ></ui-input>
+      </ui-form-field>
 
-          <div class="form-field">
-            <label class="form-field__label">Full name</label>
-            <input type="text" class="form-field__input" [(ngModel)]="formData.fullName" placeholder="Type full name of the user">
-          </div>
-
-          <div class="form-field">
-            <label class="form-field__label">E-mail address</label>
-            <input type="email" class="form-field__input" [(ngModel)]="formData.email" placeholder="Type users email address">
-          </div>
-
-          <div class="form-field">
-            <label class="form-field__label">Role</label>
-            <select class="form-field__select" [(ngModel)]="formData.role">
-              <option value="" disabled>Choose role</option>
-              <option value="viewer">Viewer</option>
-              <option value="standard">Regular</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-sheet__footer">
-        <button class="btn btn--outline" (click)="onCloseModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Cancel</span>
-        </button>
-        <button class="btn btn--primary" (click)="onSaveUser()">
-          <span>Save changes</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M13.333 4L6 11.333 2.667 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
+      <ui-form-field label="Role">
+        <ui-select
+          [(ngModel)]="formData.role"
+          [options]="roleOptions"
+          placeholder="Choose role"
+        ></ui-select>
+      </ui-form-field>
     </div>
   </div>
-}
+
+  <div drawerFooter class="drawer-footer">
+    <ui-button variant="outline" (click)="onCloseDrawer()">
+      <ui-icon name="close" size="sm"></ui-icon>
+      Cancel
+    </ui-button>
+    <ui-button variant="primary" (click)="onSaveUser()">
+      Add user
+      <ui-icon name="check" size="sm"></ui-icon>
+    </ui-button>
+  </div>
+</ui-drawer>
+
+<!-- Edit User Drawer -->
+<ui-drawer
+  [isOpen]="showEditUserDrawer()"
+  position="right"
+  size="lg"
+  title="Edit user"
+  (close)="onCloseDrawer()"
+>
+  <div class="drawer-content">
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <div class="info-banner__icon">
+        <ui-icon name="info" size="md"></ui-icon>
+      </div>
+      <div class="info-banner__text">
+        <span>{{ 5 - activeUsersCount() }}/5 active user slots available. If you need more active users send request to </span>
+        <a href="mailto:info@starlinger.com">info&#64;starlinger.com</a>
+      </div>
+    </div>
+
+    <!-- Form Fields -->
+    <div class="form-fields">
+      <div class="form-field form-field--toggle">
+        <ui-toggle
+          [checked]="formData.isActive"
+          (toggleChange)="onToggleActive($event)"
+        ></ui-toggle>
+        <label class="toggle-label">Is active</label>
+      </div>
+
+      <ui-form-field label="Full name">
+        <ui-input
+          [(ngModel)]="formData.fullName"
+          placeholder="Type full name of the user"
+        ></ui-input>
+      </ui-form-field>
+
+      <ui-form-field label="E-mail address">
+        <ui-input
+          type="email"
+          [(ngModel)]="formData.email"
+          placeholder="Type users email address"
+        ></ui-input>
+      </ui-form-field>
+
+      <ui-form-field label="Role">
+        <ui-select
+          [(ngModel)]="formData.role"
+          [options]="roleOptions"
+          placeholder="Choose role"
+        ></ui-select>
+      </ui-form-field>
+    </div>
+  </div>
+
+  <div drawerFooter class="drawer-footer">
+    <ui-button variant="outline" (click)="onCloseDrawer()">
+      <ui-icon name="close" size="sm"></ui-icon>
+      Cancel
+    </ui-button>
+    <ui-button variant="primary" (click)="onSaveUser()">
+      Save changes
+      <ui-icon name="check" size="sm"></ui-icon>
+    </ui-button>
+  </div>
+</ui-drawer>

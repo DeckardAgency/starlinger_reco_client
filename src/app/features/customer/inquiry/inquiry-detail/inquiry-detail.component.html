@@ -1,13 +1,11 @@
 <div class="order-detail-page" *ngIf="order()">
   <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <ui-breadcrumbs
-      [items]="breadcrumbItems"
-      [showHome]="true"
-      homeRoute="/customer/dashboard"
-      separator="chevron">
-    </ui-breadcrumbs>
-  </div>
+  <ui-breadcrumbs
+    [items]="breadcrumbItems"
+    [showHome]="true"
+    homeRoute="/customer/dashboard"
+    variant="page-header">
+  </ui-breadcrumbs>
 
   <!-- Main Content -->
   <div class="page-content">

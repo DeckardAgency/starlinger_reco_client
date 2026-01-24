@@ -6,7 +6,13 @@ import { RouterModule, Router } from '@angular/router';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { ListHeaderComponent } from '@app/ui-kit/molecules/list-header/list-header.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { mockShopOrders } from '@core/mocks/mock-data';
 
 interface ShopOrder {
   id: string;
@@ -32,7 +38,12 @@ interface ShopOrder {
     DataTableComponent,
     BadgeComponent,
     AvatarComponent,
-    TabsComponent
+    IconComponent,
+    TabsComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent
   ],
   templateUrl: './shop-orders.component.html',
   styleUrls: ['./shop-orders.component.scss'],
@@ -73,26 +84,14 @@ export class ShopOrdersComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
-  // Mock data
-  allOrders = signal<ShopOrder[]>([
-    { id: '0001', type: 'order', dateCreated: '14-03-2024', internalRef: '000123-ABC', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 12, status: 'completed' },
-    { id: '0002', type: 'order', dateCreated: '14-03-2024', internalRef: '000987-EAD', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 192, status: 'completed' },
-    { id: '0003', type: 'order', dateCreated: '14-03-2024', internalRef: '004231-UGR', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 48, status: 'completed' },
-    { id: '0004', type: 'order', dateCreated: '14-03-2024', internalRef: '001456-ZXY', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 36, status: 'completed' },
-    { id: '0005', type: 'order', dateCreated: '14-03-2024', internalRef: '002789-WPQ', customer: { name: 'Anes Kapetanovic', initials: 'AK', avatar: 'assets/avatars/anes.jpg' }, partsOrdered: 24, status: 'cancelled' },
-    { id: '0006', type: 'order', dateCreated: '14-03-2024', internalRef: '005678-MNB', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 60, status: 'completed' },
-    { id: '0007', type: 'order', dateCreated: '14-03-2024', internalRef: '003234-LJK', customer: { name: 'Ivan Jozic', initials: 'IJ' }, partsOrdered: 72, status: 'completed' },
-    { id: '0008', type: 'order', dateCreated: '14-03-2024', internalRef: '007890-QWE', customer: { name: 'Mira Kulic', initials: 'MK' }, partsOrdered: 15, status: 'completed' },
-    { id: '0009', type: 'order', dateCreated: '14-03-2024', internalRef: '009876-RYT', customer: { name: 'Sofia Lichtenstein', initials: 'SL' }, partsOrdered: 84, status: 'completed' },
-    { id: '0010', type: 'order', dateCreated: '14-03-2024', internalRef: '006543-PLM', customer: { name: 'Tommy Barlow', initials: 'TB' }, partsOrdered: 30, status: 'cancelled' },
-    { id: '0011', type: 'order', dateCreated: '14-03-2024', internalRef: '008765-VBN', customer: { name: 'Yara Nasr', initials: 'YN' }, partsOrdered: 99, status: 'cancelled' },
-    { id: '0012', type: 'order', dateCreated: '14-03-2024', internalRef: '010101-XYZ', customer: { name: 'Diana Patel', initials: 'DP' }, partsOrdered: 57, status: 'completed' },
-    { id: '0013', type: 'order', dateCreated: '14-03-2024', internalRef: '011213-ABC', customer: { name: 'Roger Lee', initials: 'RL' }, partsOrdered: 81, status: 'completed' },
-    { id: '0014', type: 'order', dateCreated: '14-03-2024', internalRef: '012345-DEF', customer: { name: 'Sara Wong', initials: 'SW' }, partsOrdered: 40, status: 'cancelled' },
-    { id: '0015', type: 'order', dateCreated: '14-03-2024', internalRef: '013456-GHI', customer: { name: 'Jack Monroe', initials: 'JM' }, partsOrdered: 22, status: 'cancelled' },
-    { id: '0016', type: 'order', dateCreated: '14-03-2024', internalRef: '014567-JKL', customer: { name: 'Clara Thompson', initials: 'CT' }, partsOrdered: 66, status: 'cancelled' },
-    { id: '0017', type: 'order', dateCreated: '14-03-2024', internalRef: '015678-MNO', customer: { name: 'Zara Nguyen', initials: 'ZN' }, partsOrdered: 3, status: 'completed' }
-  ]);
+  // Table actions
+  tableActions: TableAction[] = [
+    { id: 'view', label: 'View', icon: 'eye' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
+  // Data from centralized mock file
+  allOrders = signal<ShopOrder[]>(mockShopOrders as ShopOrder[]);
 
   // Filtered orders based on active tab
   orders = computed(() => {
@@ -133,7 +132,8 @@ export class ShopOrdersComponent implements AfterViewInit {
     this.activeTab.set(tabId);
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -147,8 +147,7 @@ export class ShopOrdersComponent implements AfterViewInit {
     console.log('Exporting data...');
   }
 
-  toggleDropdown(orderId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(orderId: string): void {
     if (this.openDropdownId() === orderId) {
       this.openDropdownId.set(null);
     } else {
@@ -158,6 +157,18 @@ export class ShopOrdersComponent implements AfterViewInit {
 
   closeDropdown(): void {
     this.openDropdownId.set(null);
+  }
+
+  onActionClick(event: ActionClickEvent): void {
+    const order = event.row as ShopOrder;
+    switch (event.actionId) {
+      case 'view':
+        this.onView(order);
+        break;
+      case 'delete':
+        this.onDelete(order);
+        break;
+    }
   }
 
   onView(order: ShopOrder): void {

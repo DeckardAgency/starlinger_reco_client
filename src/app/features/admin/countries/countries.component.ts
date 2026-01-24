@@ -5,7 +5,14 @@ import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { Country } from '@core/models/country.model';
 
 @Component({
@@ -17,7 +24,11 @@ import { Country } from '@core/models/country.model';
     RouterModule,
     DataTableComponent,
     BadgeComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent
   ],
   templateUrl: './countries.component.html',
   styleUrls: ['./countries.component.scss'],
@@ -59,6 +70,12 @@ export class CountriesComponent implements AfterViewInit {
 
   // Table columns
   columns: TableColumn[] = [];
+
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   // Pagination
   currentPage = signal(1);
@@ -102,7 +119,8 @@ export class CountriesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -116,8 +134,10 @@ export class CountriesComponent implements AfterViewInit {
     this.router.navigate(['/admin/countries/new']);
   }
 
-  toggleDropdown(countryId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(countryId: string, event: Event | void): void {
+    if (event) {
+      (event as Event).stopPropagation();
+    }
     if (this.openDropdownId() === countryId) {
       this.openDropdownId.set(null);
     } else {
@@ -128,6 +148,18 @@ export class CountriesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const country = event.row as Country;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(country);
+        break;
+      case 'delete':
+        this.onDelete(country);
+        break;
+    }
   }
 
   onEdit(country: Country): void {
@@ -148,28 +180,23 @@ export class CountriesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
-  }
-
-  closeHeaderDropdown(): void {
-    this.isHeaderDropdownOpen.set(false);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.countries().map(c => ({ ...c, selected: true }));
     this.countries.set(updated);
     this.selectAll.set(true);
-    this.closeHeaderDropdown();
   }
 
   onSelectNone(): void {
     const updated = this.countries().map(c => ({ ...c, selected: false }));
     this.countries.set(updated);
     this.selectAll.set(false);
-    this.closeHeaderDropdown();
   }
 
   toggleCountrySelection(country: Country): void {
@@ -184,4 +211,3 @@ export class CountriesComponent implements AfterViewInit {
     this.currentPage.set(page);
   }
 }
-

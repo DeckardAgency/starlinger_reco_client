@@ -16,6 +16,7 @@ export class SectionHeaderComponent {
   @Input() icon?: string;
   @Input() viewAllLink?: string;
   @Input() viewAllLabel: string = 'View all';
+  @Input() mobileViewAllLabel: string = 'All';
 
   constructor(private sanitizer: DomSanitizer) {}
 

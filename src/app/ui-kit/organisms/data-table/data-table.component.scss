@@ -1,15 +1,18 @@
 .data-table {
   width: 100%;
   overflow-x: auto;
-  border-left: 1px solid #E4E4E7;
-  border-right: 1px solid #E4E4E7;
-  border-bottom: 1px solid #E4E4E7;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  -webkit-overflow-scrolling: touch;
+  background: transparent;
 
   &__table {
     width: 100%;
     border-collapse: collapse;
+
+    // Mobile: prevent table from shrinking, allow natural width
+    @media screen and (max-width: 768px) {
+      width: max-content;
+      min-width: 100%;
+    }
   }
 
   &__header-row {
@@ -33,6 +36,12 @@
         background: #FAFAFA;
       }
     }
+
+    // Mobile: ensure cells don't compress too much
+    @media screen and (max-width: 768px) {
+      min-width: 100px;
+      white-space: nowrap;
+    }
   }
 
   &__header-content {
@@ -47,6 +56,7 @@
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
+    white-space: nowrap;
   }
 
   &__sort-icon {
@@ -68,6 +78,20 @@
     &:hover {
       background: #FAFAFA;
     }
+
+    &--empty {
+      background: transparent !important;
+
+      &:hover {
+        background: transparent !important;
+      }
+
+      .data-table__cell,
+      .data-table__cell--empty {
+        background: transparent !important;
+        border-bottom: none;
+      }
+    }
   }
 
   &__cell {
@@ -76,6 +100,11 @@
     padding: 16px;
     border-bottom: 1px solid #E4E4E7;
     vertical-align: middle;
+
+    // Mobile: ensure cells don't compress too much
+    @media screen and (max-width: 768px) {
+      min-width: 100px;
+    }
   }
 
   &__cell-text {
@@ -86,5 +115,13 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
+  }
+
+  &__cell--empty {
+    text-align: left;
+    color: #71717a;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: transparent;
   }
 }

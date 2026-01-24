@@ -8,7 +8,16 @@ import { takeUntil } from 'rxjs/operators';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
 import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { ModalComponent } from '@app/ui-kit/organisms/modal/modal.component';
-import { Warehouse, WarehouseDocument } from '@core/models/warehouse.model';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
+import { TableCheckboxSelectionComponent } from '@app/ui-kit/molecules/table-checkbox-selection/table-checkbox-selection.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TextEditorComponent } from '@shared/components/text-editor/text-editor.component';
+import { WarehouseDocument } from '@core/models/warehouse.model';
 
 interface WarehouseDetail {
   id: string;
@@ -51,7 +60,16 @@ const EMPTY_WAREHOUSE: WarehouseDetail = {
     RouterModule,
     FormFieldComponent,
     DataTableComponent,
-    ModalComponent
+    ModalComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    IconComponent,
+    ToggleComponent,
+    TabsComponent,
+    TableCheckboxSelectionComponent,
+    TableActionsDropdownComponent,
+    TextEditorComponent
   ],
   templateUrl: './warehouse-detail.component.html',
   styleUrls: ['./warehouse-detail.component.scss'],
@@ -76,6 +94,12 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
 
   // Active tab
   activeTab = signal<'description' | 'documents'>('description');
+  
+  // Tabs configuration
+  tabs: TabItem[] = [
+    { id: 'description', label: 'Short description' },
+    { id: 'documents', label: 'Warehouse documents' }
+  ];
 
   // Documents table columns
   documentColumns: TableColumn[] = [];
@@ -93,6 +117,13 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
 
   // Selection state
   selectAll = signal(false);
+
+  // Document actions
+  documentActions: TableAction[] = [
+    { id: 'rename', label: 'Rename', icon: 'pencil' },
+    { id: 'download', label: 'Download', icon: 'download' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   constructor(
     private router: Router,
@@ -158,8 +189,8 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
     console.log('Save and continue:', this.warehouse());
   }
 
-  setActiveTab(tab: 'description' | 'documents'): void {
-    this.activeTab.set(tab);
+  setActiveTab(tabId: string): void {
+    this.activeTab.set(tabId as 'description' | 'documents');
   }
 
   // Toggle handlers
@@ -211,9 +242,8 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
     this.warehouse.update(w => ({ ...w, url: input.value }));
   }
 
-  onShortDescriptionChange(event: Event): void {
-    const textarea = event.target as HTMLTextAreaElement;
-    this.warehouse.update(w => ({ ...w, shortDescription: textarea.value }));
+  onShortDescriptionChange(content: string): void {
+    this.warehouse.update(w => ({ ...w, shortDescription: content }));
   }
 
   // Document handlers
@@ -221,9 +251,8 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
     console.log('Add document');
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
   }
 
   onSelectAllDocuments(): void {
@@ -247,12 +276,30 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
     this.warehouse.update(w => ({ ...w, documents: updated }));
   }
 
-  toggleDocumentActions(docId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDocumentActions(docId: string): void {
     if (this.activeDocActionId() === docId) {
       this.activeDocActionId.set(null);
     } else {
       this.activeDocActionId.set(docId);
+    }
+  }
+
+  closeDocActionsDropdown(): void {
+    this.activeDocActionId.set(null);
+  }
+
+  onDocumentActionClick(event: ActionClickEvent): void {
+    const doc = event.row as WarehouseDocument;
+    switch (event.actionId) {
+      case 'rename':
+        this.renameDocument(doc.id);
+        break;
+      case 'download':
+        this.downloadDocument(doc.id);
+        break;
+      case 'delete':
+        this.deleteDocument(doc.id);
+        break;
     }
   }
 
@@ -305,4 +352,3 @@ export class WarehouseDetailComponent implements OnInit, OnDestroy, AfterViewIni
     this.activeDocActionId.set(null);
   }
 }
-

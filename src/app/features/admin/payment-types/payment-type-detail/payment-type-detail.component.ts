@@ -8,6 +8,15 @@ import { takeUntil } from 'rxjs/operators';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
 import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { ModalComponent } from '@app/ui-kit/organisms/modal/modal.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
+import { TableCheckboxSelectionComponent } from '@app/ui-kit/molecules/table-checkbox-selection/table-checkbox-selection.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TextEditorComponent } from '@shared/components/text-editor/text-editor.component';
 import { PaymentType, PaymentTypeDocument } from '@core/models/payment-type.model';
 
 interface PaymentTypeDetail {
@@ -53,7 +62,16 @@ const EMPTY_PAYMENT_TYPE: PaymentTypeDetail = {
     RouterModule,
     FormFieldComponent,
     DataTableComponent,
-    ModalComponent
+    ModalComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    ToggleComponent,
+    IconComponent,
+    TabsComponent,
+    TableCheckboxSelectionComponent,
+    TableActionsDropdownComponent,
+    TextEditorComponent
   ],
   templateUrl: './payment-type-detail.component.html',
   styleUrls: ['./payment-type-detail.component.scss'],
@@ -95,6 +113,20 @@ export class PaymentTypeDetailComponent implements OnInit, OnDestroy, AfterViewI
 
   // Selection state
   selectAll = signal(false);
+
+  // Tabs configuration
+  tabs: TabItem[] = [
+    { id: 'description', label: 'Short description' },
+    { id: 'details', label: 'Details' },
+    { id: 'documents', label: 'Payment type documents' }
+  ];
+
+  // Document actions
+  documentActions: TableAction[] = [
+    { id: 'rename', label: 'Rename', icon: 'pencil' },
+    { id: 'download', label: 'Download', icon: 'download' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   constructor(
     private router: Router,
@@ -160,8 +192,8 @@ export class PaymentTypeDetailComponent implements OnInit, OnDestroy, AfterViewI
     console.log('Save and continue:', this.paymentType());
   }
 
-  setActiveTab(tab: 'description' | 'details' | 'documents'): void {
-    this.activeTab.set(tab);
+  setActiveTab(tabId: string): void {
+    this.activeTab.set(tabId as 'description' | 'details' | 'documents');
   }
 
   // Toggle handlers
@@ -220,9 +252,8 @@ export class PaymentTypeDetailComponent implements OnInit, OnDestroy, AfterViewI
     this.paymentType.update(p => ({ ...p, maxCartTotalBase: value }));
   }
 
-  onShortDescriptionChange(event: Event): void {
-    const textarea = event.target as HTMLTextAreaElement;
-    this.paymentType.update(p => ({ ...p, shortDescription: textarea.value }));
+  onShortDescriptionChange(content: string): void {
+    this.paymentType.update(p => ({ ...p, shortDescription: content }));
   }
 
   formatNumber(value: number): string {
@@ -254,19 +285,41 @@ export class PaymentTypeDetailComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   toggleDocumentSelection(doc: PaymentTypeDocument): void {
-    const updated = this.paymentType().documents.map(d => 
+    const updated = this.paymentType().documents.map(d =>
       d.id === doc.id ? { ...d, selected: !d.selected } : d
     );
     this.paymentType.update(p => ({ ...p, documents: updated }));
   }
 
-  toggleDocumentActions(docId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDocumentActions(docId: string): void {
     if (this.activeDocActionId() === docId) {
       this.activeDocActionId.set(null);
     } else {
       this.activeDocActionId.set(docId);
     }
+  }
+
+  closeDocActionsDropdown(): void {
+    this.activeDocActionId.set(null);
+  }
+
+  onDocumentActionClick(event: ActionClickEvent): void {
+    const doc = event.row as PaymentTypeDocument;
+    switch (event.action.id) {
+      case 'rename':
+        this.renameDocument(doc.id);
+        break;
+      case 'download':
+        this.downloadDocument(doc.id);
+        break;
+      case 'delete':
+        this.deleteDocument(doc.id);
+        break;
+    }
+  }
+
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
   }
 
   renameDocument(docId: string): void {
@@ -299,7 +352,7 @@ export class PaymentTypeDetailComponent implements OnInit, OnDestroy, AfterViewI
   confirmRename(): void {
     const docId = this.renameDocumentId();
     if (docId) {
-      const updated = this.paymentType().documents.map(d => 
+      const updated = this.paymentType().documents.map(d =>
         d.id === docId ? { ...d, name: this.renameValue() } : d
       );
       this.paymentType.update(p => ({ ...p, documents: updated }));

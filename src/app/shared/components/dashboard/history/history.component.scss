@@ -1,3 +1,5 @@
+@use '../../../../ui-kit/admin-shared' as admin;
+
 :host {
   display: block;
   width: 100%;
@@ -8,50 +10,21 @@
   flex-direction: column;
   gap: 16px;
 
+  &__table-container {
+    @include admin.tabs-table-container;
+  }
+
   ui-tabs {
-    border-left: 1px solid #E4E4E7;
-    border-right: 1px solid #E4E4E7;
-    border-top: 1px solid #E4E4E7;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    overflow: hidden;
-    width: 100%;
-
-    ::ng-deep .ui-tabs__tab {
-      min-width: 221px;
-
-      &:focus {
-        outline: none;
-        box-shadow: none;
-      }
-    }
+    @include admin.tabs-table-tabs;
   }
 
-  ui-data-table {
-    margin-top: -16px;
-  }
+  @include admin.tabs-table-data-table;
 
   &__customer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    align-self: stretch;
+    @include admin.customer-cell;
   }
 
   &__customer-name {
-    overflow: hidden;
-    color: #232323;
-    text-overflow: ellipsis;
-    font-family: Inter;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-  }
-
-  &__actions {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    @include admin.customer-name;
   }
 }

@@ -5,6 +5,13 @@ import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { Contact } from '@core/models/account.model';
+import { mockAdminContacts } from '@core/mocks/mock-data';
+
+// Consolidated components
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { ListHeaderComponent } from '@app/ui-kit/molecules/list-header/list-header.component';
+import { TableActionsDropdownComponent, TableAction } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
 
 @Component({
   selector: 'app-contacts',
@@ -13,7 +20,11 @@ import { Contact } from '@core/models/account.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableActionsDropdownComponent,
+    TableFooterComponent
   ],
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.scss'],
@@ -24,34 +35,25 @@ export class ContactsComponent implements AfterViewInit {
   private router = inject(Router);
 
   @ViewChild('actionsTemplate') actionsTemplate!: TemplateRef<any>;
+  @ViewChild('phoneTemplate') phoneTemplate!: TemplateRef<any>;
 
   searchQuery = '';
   isLoading = signal(false);
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
-
-  // Dropdown state
   openDropdownId: number | null = null;
 
   // Table columns - will be set after view init to use templates
   columns: TableColumn[] = [];
 
-  // Mock contacts data matching Figma
-  contacts: Contact[] = [
-    { id: 147144, firstName: 'Alexander', lastName: 'Pas', account: 'Alexander Pas', email: 'grafit.pas@grafit.net', phone: undefined },
-    { id: 147145, firstName: 'Anja', lastName: 'Makas', account: 'Kuga Repora SL', email: 'emanuel@company.com', phone: undefined },
-    { id: 147146, firstName: 'Paola', lastName: 'Alvarez', account: 'PET Recycling team Gmbh', email: 'eroghan@company.com', phone: '+34942835040' },
-    { id: 147147, firstName: 'Christian', lastName: 'Jovanovic', account: 'Unistrap Gmbh', email: 'linda@company.com', phone: '+4366488903488' },
-    { id: 147148, firstName: 'Christopher', lastName: 'Cenga', account: 'Rymoplast n.v.', email: 'allen@company.com', phone: '+4366460595847' },
-    { id: 147149, firstName: 'David', lastName: 'Aerts', account: 'Unistrap Gmbh', email: 'dupton@company.com', phone: '098123456' },
-    { id: 147160, firstName: 'Davor', lastName: 'Kemper', account: 'PET Recycling team', email: 'marissa@company.com', phone: undefined },
-    { id: 147166, firstName: 'Erika', lastName: 'Gutierrez', account: 'Rymoplast n.v.', email: 'jason@company.com', phone: undefined },
-    { id: 147142, firstName: 'Francesco', lastName: 'Lissak', account: 'Kuga Repora SL', email: 'carmen@company.com', phone: '0048533734241' },
-    { id: 147131, firstName: 'Irfan', lastName: 'Nussbaumer', account: 'Kuga Repora SL', email: 'thomas@company.com', phone: '+32470595840' },
-    { id: 147155, firstName: 'Lander', lastName: 'Dekkers', account: 'Unistrap Gmbh', email: 'natalie@company.com', phone: undefined },
-    { id: 147189, firstName: 'Nancy', lastName: 'Roth', account: 'PET Recycling team Gmbh', email: 'paul@company.com', phone: undefined }
+  // Table actions
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
   ];
 
+  // Data from centralized mock data
+  contacts: Contact[] = mockAdminContacts as Contact[];
   filteredContacts: Contact[] = [...this.contacts];
 
   ngAfterViewInit(): void {
@@ -66,9 +68,14 @@ export class ContactsComponent implements AfterViewInit {
       { key: 'lastName', label: 'Last name', sortable: true },
       { key: 'account', label: 'Account', sortable: true },
       { key: 'email', label: 'Email', sortable: true },
-      { key: 'phone', label: 'Phone', sortable: false, width: '160px' },
+      { key: 'phone', label: 'Phone', sortable: false, width: '160px', template: this.phoneTemplate },
       { key: 'actions', label: '', sortable: false, width: '64px', template: this.actionsTemplate }
     ];
+  }
+
+  onSearchQueryChange(query: string): void {
+    this.searchQuery = query;
+    this.onSearch();
   }
 
   onSearch(): void {
@@ -130,8 +137,7 @@ export class ContactsComponent implements AfterViewInit {
     this.router.navigate(['/admin/contacts/new']);
   }
 
-  toggleDropdown(contactId: number, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(contactId: number): void {
     this.openDropdownId = this.openDropdownId === contactId ? null : contactId;
     this.cdr.markForCheck();
   }
@@ -141,13 +147,13 @@ export class ContactsComponent implements AfterViewInit {
     this.cdr.markForCheck();
   }
 
-  onEdit(contact: Contact): void {
-    this.closeDropdown();
-    this.router.navigate(['/admin/contacts', contact.id]);
-  }
-
-  onDelete(contact: Contact): void {
-    console.log('Delete contact:', contact);
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const contact = event.row as Contact;
+    if (event.action.id === 'edit') {
+      this.router.navigate(['/admin/contacts', contact.id]);
+    } else if (event.action.id === 'delete') {
+      console.log('Delete contact:', contact);
+    }
     this.closeDropdown();
   }
 

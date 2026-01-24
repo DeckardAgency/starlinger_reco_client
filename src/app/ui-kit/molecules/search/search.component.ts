@@ -62,6 +62,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   @Input() maxSuggestions = 10;
   @Input() emptyMessage = 'No results found';
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() variant: 'light' | 'dark' = 'light';
 
   @Output() search = new EventEmitter<string>();
   @Output() queryChange = new EventEmitter<string>();

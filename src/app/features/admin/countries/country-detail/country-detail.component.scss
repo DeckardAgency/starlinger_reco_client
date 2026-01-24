@@ -1,186 +1,37 @@
+@use '../../../../ui-kit/admin-shared' as admin;
+
+// =============================================================================
+// Base Layout
+// =============================================================================
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @include admin.admin-host;
+  min-height: 100%;
 }
 
 .country-detail-page {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: #f4f4f5;
-}
-
-.page-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  height: 64px;
-  padding: 0 16px;
-  justify-content: center;
-  background: #f4f4f5;
-  border-bottom: 1px solid #e4e4e7;
-
-  &__breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &__home {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    color: #232323;
-    text-decoration: none;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-  }
-
-  &__separator {
-    display: flex;
-    align-items: center;
-  }
-
-  &__link {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #71717a;
-    text-decoration: none;
-    transition: color 0.2s;
-
-    &:hover {
-      color: #232323;
-    }
-  }
-
-  &__current {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #232323;
-  }
+  @include admin.detail-page;
+  min-height: 100%;
 }
 
 .page-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
+  @include admin.detail-page-content;
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: #f4f4f5;
-  border-bottom: 1px solid #e4e4e7;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  &__title {
-    font-family: 'Inter', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1;
-    color: #232323;
-    margin: 0;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  @media (max-width: 768px) {
+    padding-bottom: 80px;
   }
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 8px 16px;
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  background: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: #232323;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-
-  &:hover {
-    background-color: #f4f4f5;
-  }
-
-  &--icon {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-
-    svg {
-      flex-shrink: 0;
-    }
-  }
-
-  &--outline {
-    background: white;
-    border: 1px solid #e4e4e7;
-    color: #232323;
-
-    &:hover {
-      background-color: #f4f4f5;
-    }
-  }
-
-  &--primary {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: white;
-
-    &:hover {
-      background: #b91c1c;
-      border-color: #b91c1c;
-    }
-
-    svg {
-      stroke: currentColor;
-    }
-  }
-}
-
+// =============================================================================
+// Form Card
+// =============================================================================
 .form-card {
-  padding: 16px;
-  background: #f4f4f5;
-}
-
-.card {
-  background: white;
-  border-radius: 6px;
-  padding: 16px;
+  @include admin.form-card;
 
   &__title {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
-    font-weight: 600;
-    line-height: 18px;
+    font-weight: 500;
+    line-height: 20px;
     color: #232323;
     margin: 0 0 16px 0;
   }
@@ -192,97 +43,15 @@
   }
 }
 
-// Form field overrides
-::ng-deep .ui-form-field {
-  &--horizontal {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: 16px;
+@include admin.detail-form-styles;
 
-    .ui-form-field__label {
-      margin-bottom: 0;
-      font-weight: 400;
-      font-size: 14px;
-      color: #232323;
-      white-space: nowrap;
-    }
-
-    .ui-form-field__wrapper {
-      width: 100%;
-    }
-  }
-}
-
-// Select with pill
+// =============================================================================
+// Select with Pill Styling
+// =============================================================================
 .select-with-pill {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  background: white;
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  box-sizing: border-box;
-
-  .select-placeholder {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #71717a;
-    pointer-events: none;
-  }
-
-  .pill {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: #18181b;
-    border-radius: 9999px;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: #fafafa;
-
-    &__remove {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      opacity: 0.8;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-  }
-
-  .select-field {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .select-chevron {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
+  @include admin.select-with-pill;
 }
 
+::ng-deep .select-with-pill .select-field {
+  @include admin.select-with-pill-field;
+}

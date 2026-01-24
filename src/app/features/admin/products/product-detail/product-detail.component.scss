@@ -1,166 +1,54 @@
+@use '../../../../ui-kit/admin-shared' as admin;
+
+// =============================================================================
+// Base Layout
+// =============================================================================
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @include admin.admin-host;
 }
 
 .product-detail-page {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: #f4f4f5;
+  @include admin.detail-page;
 }
 
-// Page Header
-.page-header {
-  display: flex;
-  flex-direction: column;
-  height: 64px;
-  padding: 0 16px 0 24px;
-  justify-content: center;
-  background: #f4f4f5;
-  border-bottom: 1px solid #e4e4e7;
-
-  &__breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &__home {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    color: #71717a;
-    text-decoration: none;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-  }
-
-  &__separator {
-    display: flex;
-    align-items: center;
-  }
-
-  &__link {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #71717a;
-    text-decoration: none;
-
-    &:hover {
-      color: #09090b;
-    }
-  }
-
-  &__current {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    color: #09090b;
-  }
-}
-
-// Page Content
 .page-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 16px;
-  padding: 0 16px 16px 16px;
+  @include admin.detail-page-content;
 }
 
+// =============================================================================
 // Section Header
+// =============================================================================
 .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0 16px 8px;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  &__title {
-    font-family: 'Inter', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1;
-    color: #09090b;
-    margin: 0;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  @include admin.detail-header;
 }
 
+// =============================================================================
 // Buttons
+// =============================================================================
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 8px 16px;
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  background: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: #09090b;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-
-  &:hover {
-    background-color: #f4f4f5;
-  }
+  @include admin.btn-base;
 
   &--icon {
-    width: 40px;
-    padding: 0;
+    @include admin.btn-icon;
   }
 
   &--outline {
-    background: white;
-    border: 1px solid #e4e4e7;
-
-    &:hover {
-      background-color: #f4f4f5;
-    }
+    @include admin.btn-outline;
   }
 
   &--primary {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: white;
+    @include admin.btn-primary;
+  }
+
+  &--secondary {
+    background: #232323;
+    border-color: #232323;
+    color: #fafafa;
     white-space: nowrap;
 
     &:hover {
-      background: #b91c1c;
-      border-color: #b91c1c;
-    }
-
-    &:disabled {
-      background: #fca5a5;
-      border-color: #fca5a5;
-      cursor: not-allowed;
+      background: #18181b;
+      border-color: #18181b;
     }
   }
 
@@ -183,56 +71,68 @@
     font-size: 14px;
   }
 
-  &--danger {
-    color: #dc2626;
+  &--ghost {
+    background: transparent;
+    border: none;
+    color: #71717a;
 
     &:hover {
-      color: #b91c1c;
+      color: #09090b;
     }
   }
 }
 
+// =============================================================================
 // Form Cards
+// =============================================================================
 .form-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  @include admin.detail-form-cards;
 }
 
 .card {
-  background: white;
-  border: 1px solid #e4e4e7;
-  border-radius: 8px;
-  padding: 16px;
-
-  &__title {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 18px;
-    color: #09090b;
-    margin: 0 0 16px 0;
-  }
+  @include admin.form-card;
+  flex: 1;
 
   &__toggles {
     display: flex;
     align-items: center;
     gap: 24px;
     margin-bottom: 16px;
-  }
 
-  &__fields {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
   }
 }
 
+// Mobile form field vertical layout override
+@include admin.form-field-mobile-vertical;
+
+// =============================================================================
+// Select with Pill
+// =============================================================================
+.select-with-pill {
+  @include admin.select-with-pill;
+}
+
+::ng-deep .select-with-pill .select-field {
+  @include admin.select-with-pill-field;
+}
+
+// =============================================================================
+// Pill Tags
+// =============================================================================
+.pill {
+  @include admin.pill;
+}
+
+// =============================================================================
 // Tabbed Section
+// =============================================================================
 .tabbed-section {
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  overflow: hidden;
+  @include admin.tabs-table-container;
 
   &__header {
     display: flex;
@@ -241,15 +141,31 @@
     padding-right: 8px;
     background: transparent;
     border-bottom: 1px solid #e4e4e7;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      padding-right: 0;
+    }
   }
 
   &__tabs {
     flex: 1;
     max-width: 827px;
 
+    @media (max-width: 768px) {
+      max-width: 100%;
+    }
+
     ::ng-deep .ui-tabs {
       background: transparent;
-      border-bottom: none; // Remove tabs component border, use header border instead
+      border-bottom: none;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      @media (max-width: 768px) {
+        flex-wrap: nowrap;
+      }
     }
   }
 
@@ -257,98 +173,42 @@
     display: flex;
     align-items: center;
     gap: 8px;
+
+    @media (max-width: 768px) {
+      padding: 8px 16px;
+      border-top: 1px solid #e4e4e7;
+    }
   }
 }
 
 .tab-content {
+  // No default padding - each tab type handles its own padding
+
   &--no-padding {
     padding: 0;
   }
 }
 
-// Editor Toolbar
-.editor-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: white;
-  padding: 16px;
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.toolbar-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.7;
-  }
-}
-
-.toolbar-separator {
-  width: 1px;
-  height: 24px;
-  background: #e4e4e7;
-  margin: 0 24px;
-}
-
-.toolbar-dropdown {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 96px;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1;
-  color: #232323;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    color: #09090b;
-  }
-}
-
-.editor-content {
-  position: relative;
-  min-height: 164px;
-  padding: 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  line-height: 1;
-  color: #09090b;
-  outline: none;
-
-  &:empty::before {
-    content: attr(data-placeholder);
-    color: #71717a;
-    pointer-events: none;
-  }
-}
-
+// =============================================================================
 // Gallery
+// =============================================================================
 .gallery-toolbar {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px;
   background: white;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    padding: 12px;
+
+    .btn {
+      flex: 1;
+      min-width: calc(50% - 4px);
+    }
+  }
 }
 
 .gallery-grid {
@@ -356,6 +216,11 @@
   flex-wrap: wrap;
   gap: 16px;
   padding: 16px;
+
+  @media (max-width: 480px) {
+    gap: 12px;
+    padding: 12px;
+  }
 }
 
 .gallery-item {
@@ -364,6 +229,10 @@
   border: 1px solid #e4e4e7;
   border-radius: 6px;
   overflow: hidden;
+
+  @media (max-width: 480px) {
+    width: calc(50% - 6px);
+  }
 
   &__header {
     display: flex;
@@ -450,12 +319,18 @@
   }
 }
 
+// =============================================================================
 // Documents Table
+// =============================================================================
 .documents-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
   ::ng-deep .data-table {
     background: transparent;
     border: none;
     border-radius: 0;
+    min-width: 600px;
   }
 
   ::ng-deep .data-table__header-row {
@@ -543,60 +418,97 @@
   }
 }
 
+// =============================================================================
 // Discounts Table
+// =============================================================================
 .discounts-table {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .discount-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Inter', sans-serif;
-
-  th {
-    padding: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    color: #232323;
-    text-align: left;
-    background: white;
-    border-bottom: 1px solid #e4e4e7;
-  }
-
-  td {
-    padding: 16px;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #232323;
-    border-bottom: 1px solid #e4e4e7;
-  }
+  @include admin.inline-data-table;
+  min-width: 800px;
 
   &__row--odd {
     background: #f4f4f5;
   }
 }
 
-// Button secondary variant
-.btn--secondary {
-  background: #232323;
-  border-color: #232323;
-  color: #fafafa;
+// =============================================================================
+// Related Products Section
+// =============================================================================
+.section-title-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  min-height: 40px;
+  margin-bottom: 8px;
 
-  &:hover {
-    background: #18181b;
-    border-color: #18181b;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+    }
+  }
+
+  &__title {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1;
+    color: #232323;
+    margin: 0;
+
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
+  }
+
+  &__count {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    color: #71717a;
   }
 }
 
-// Related Products Section
+.search-wrapper {
+  @include admin.search-input-wrapper;
+
+  .search-icon {
+    @include admin.search-input-icon;
+  }
+
+  .search-input {
+    @include admin.search-input-field;
+  }
+}
+
 .related-section {
   background: transparent;
 
   ::ng-deep .data-table {
-  border: 1px solid #e4e4e7;
-  border-radius: 8px;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
   }
 
   &--compact {
@@ -607,15 +519,16 @@
     }
 
     .table-container {
-      border: 1px solid #e4e4e7;
-      border-radius: 6px;
-      overflow: hidden;
+      @include admin.table-wrapper;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     ::ng-deep .data-table {
       background: transparent;
       border: none;
       border-radius: 0;
+      min-width: 600px;
     }
 
     ::ng-deep .data-table__header-row {
@@ -641,87 +554,13 @@
   }
 }
 
-.section-title-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0;
-  min-height: 40px;
-  margin-bottom: 8px;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  &__title {
-    font-family: 'Inter', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1;
-    color: #232323;
-    margin: 0;
-  }
-
-  &__count {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1;
-    color: #71717a;
-  }
-}
-
-.search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  max-width: 346px;
-  width: 100%;
-
-  svg {
-    position: absolute;
-    left: 12px;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .search-input {
-    width: 100%;
-    height: 40px;
-    padding: 10px 12px 10px 36px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 20px;
-    color: #09090b;
-    background: white;
-    border: 1px solid #e4e4e7;
-    border-radius: 6px;
-    outline: none;
-    box-sizing: border-box;
-
-    &::placeholder {
-      color: #a1a1aa;
-    }
-
-    &:focus {
-      border-color: #dc2626;
-    }
-  }
-}
-
-// Table
 .table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
   ::ng-deep .data-table {
     background: transparent;
+    min-width: 800px;
   }
 
   ::ng-deep .data-table__header-row {
@@ -732,6 +571,7 @@
     min-height: auto;
     height: auto;
     padding: 16px;
+    white-space: nowrap;
   }
 
   ::ng-deep .data-table__row {
@@ -740,32 +580,23 @@
     &:hover {
       background: #fafafa;
     }
+
+    &:has(.checkbox:checked) {
+      background: linear-gradient(0deg, rgba(9, 9, 11, 0.10) 0%, rgba(9, 9, 11, 0.10) 100%), #f4f4f5;
+    }
   }
 
   ::ng-deep .data-table__cell {
     background: transparent;
     height: auto;
     padding: 8px 16px;
+    white-space: nowrap;
   }
 }
 
-.table-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  background: transparent;
-
-  &__info {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #71717a;
-  }
-}
-
+// =============================================================================
 // Checkbox
+// =============================================================================
 .checkbox-cell {
   display: flex;
   align-items: center;
@@ -838,115 +669,48 @@
 }
 
 .checkbox {
+  appearance: none;
+  -webkit-appearance: none;
   width: 16px;
   height: 16px;
   margin: 0;
   cursor: pointer;
-  accent-color: #dc2626;
-}
-
-// Input styling in forms
-::ng-deep ui-form-field {
-  input {
-    width: 100%;
-    height: 40px;
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 20px;
-    color: #09090b;
-    background: white;
-    border: 1px solid #e4e4e7;
-    border-radius: 6px;
-    outline: none;
-    box-sizing: border-box;
-
-    &::placeholder {
-      color: #a1a1aa;
-    }
-
-    &:focus {
-      border-color: #dc2626;
-    }
-
-    &:disabled {
-      background: #fafafa;
-      color: #71717a;
-    }
-  }
-
-  ui-select {
-    width: 100%;
-  }
-}
-
-// Select with pill
-.select-with-pill {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 40px;
-  padding: 8px 12px;
+  border: 1.5px solid #232323;
+  border-radius: 4px;
   background: white;
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  box-sizing: border-box;
+  position: relative;
+  transition: all 0.2s ease;
 
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: #18181b;
-    border-radius: 9999px;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: #fafafa;
+  &:checked {
+    background: white;
+    border-color: #232323;
 
-    &__remove {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      opacity: 0.8;
-
-      &:hover {
-        opacity: 1;
-      }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 4px;
+      width: 4px;
+      height: 7px;
+      border: solid #232323;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
     }
   }
 
-  .select-field {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
+  &:hover {
+    border-color: #18181b;
   }
 
-  .select-chevron {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(35, 35, 35, 0.1);
   }
 }
 
-// Selected row background
-::ng-deep .data-table__row--selected {
-  background-color: transparent !important;
-}
-
+// =============================================================================
 // Rename Modal
+// =============================================================================
 .rename-modal {
   display: flex;
   flex-direction: column;

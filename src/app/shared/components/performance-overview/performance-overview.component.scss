@@ -22,12 +22,6 @@
     }
   }
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   &__date-range {
     form {
       width: 100%;
@@ -48,9 +42,12 @@
       }
     }
 
-    ::ng-deep .calendar-wrapper {
-      right: 0;
-      left: auto;
+    // Desktop only - position calendar to the right
+    @media screen and (min-width: 769px) {
+      ::ng-deep .calendar-wrapper {
+        right: 40px;
+        left: auto;
+      }
     }
 
     ::ng-deep .date-picker-icon {
@@ -101,11 +98,6 @@
     align-items: center;
     justify-content: center;
     cursor: help;
-    
-    svg {
-      width: 16px;
-      height: 16px;
-    }
   }
 
   &__card-value {
@@ -128,11 +120,6 @@
     font-weight: 500;
     color: #09090b;
     line-height: 1;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
 
     &--up {
       color: #09090b;
@@ -205,27 +192,6 @@
     }
   }
 
-  &__retry-button {
-    background-color: #dc2626;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #b91c1c;
-    }
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
-    }
-  }
-
   // Responsive
   @media (max-width: 1200px) {
     &__grid {
@@ -280,7 +246,26 @@
 
   @media (max-width: 480px) {
     &__grid {
-      grid-template-columns: 1fr;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 12px;
+      padding-bottom: 8px;
+
+      // Hide scrollbar
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__card {
+      flex: 0 0 auto;
+      width: 225px;
+      max-width: 225px;
+      scroll-snap-align: start;
     }
   }
 }

@@ -1,65 +1,37 @@
 <div class="manual-entries-page" (click)="closeDropdown()">
   <!-- Page Header with Breadcrumb -->
-  <div class="page-header">
-    <div class="page-header__breadcrumb">
-      <a routerLink="/admin/dashboard" class="page-header__home">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 01-1.333 1.334H3.333A1.334 1.334 0 012 13.333V6z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="page-header__separator">
-        <svg width="1" height="15" viewBox="0 0 1 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0.5" y1="0" x2="0.5" y2="15" stroke="#E4E4E7"/>
-        </svg>
-      </span>
-      <span class="page-header__current">Manual entry</span>
-    </div>
-  </div>
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="line"
+    [items]="[{ label: 'Manual entry' }]"
+  ></ui-breadcrumbs>
 
-  <!-- List Header -->
-  <div class="list-header">
-    <div class="list-header__left">
-      <!-- FileCheck icon -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="list-header__icon">
-        <path d="M12.5 1.667H5a1.667 1.667 0 00-1.667 1.666v13.334A1.667 1.667 0 005 18.333h10a1.667 1.667 0 001.667-1.666V5.833L12.5 1.667z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12.5 1.667v4.166h4.167M7.5 10l1.667 1.667L12.5 8.333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <h1 class="list-header__title">Manual entry</h1>
-      <span class="list-header__count">{{ totalCount() }}</span>
-    </div>
-    <div class="list-header__right">
-      <div class="search-input">
-        <svg class="search-input__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearch()"
-          placeholder=""
-          class="search-input__field"
-        />
-      </div>
-      <button class="btn btn--icon" (click)="onExport()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M14 10v2.667A1.334 1.334 0 0112.667 14H3.333A1.334 1.334 0 012 12.667V10M4.667 6.667L8 10l3.333-3.333M8 10V2" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+  <!-- Page Content -->
+  <main class="page-content">
+    <!-- List Header -->
+    <ui-list-header
+      title="Manual entry"
+      icon="file-check"
+      [count]="totalCount()"
+      [showSearch]="true"
+      [showBulkDeleteButton]="false"
+      [searchQuery]="searchQuery"
+      (searchQueryChange)="onSearchChange($event)"
+    >
+      <button class="btn btn--icon" (click)="onExport()" type="button">
+        <ui-icon name="download" size="sm"></ui-icon>
       </button>
-    </div>
-  </div>
+    </ui-list-header>
 
-  <!-- Table Container -->
-  <div class="table-container">
-    <div class="table-wrapper">
-      <!-- Tabs Header -->
-      <div class="tabs-wrapper">
-        <ui-tabs
-          [tabs]="tabs"
-          [activeTab]="activeTab()"
-          (tabChange)="onTabChange($event)"
-          variant="underline"
-        ></ui-tabs>
-      </div>
+    <!-- Table Container -->
+    <div class="table-container">
+      <!-- Tabs -->
+      <ui-tabs
+        [tabs]="tabs"
+        [activeTab]="activeTab()"
+        (tabChange)="onTabChange($event)"
+        variant="underline"
+      ></ui-tabs>
 
       <!-- Data Table -->
       <ui-data-table
@@ -70,24 +42,14 @@
         (sort)="onSortChange($event)"
       ></ui-data-table>
     </div>
-  </div>
 
-  <!-- Table Footer -->
-  <div class="table-footer">
-    <span class="table-footer__info">Showing 1 to {{ entries().length }} from {{ entries().length }} results</span>
-    <div class="pagination">
-      <button class="pagination__item pagination__item--active">1</button>
-      <button class="pagination__item">2</button>
-      <button class="pagination__item">3</button>
-      <button class="pagination__item pagination__item--ellipsis">...</button>
-      <button class="pagination__item pagination__item--next">
-        <span>Next</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  </div>
+    <!-- Table Footer -->
+    <ui-table-footer
+      [showingFrom]="1"
+      [showingTo]="entries().length"
+      [totalItems]="entries().length"
+    ></ui-table-footer>
+  </main>
 </div>
 
 <!-- Type Template - Inquiry badge (purple) -->
@@ -114,29 +76,12 @@
 
 <!-- Actions Template -->
 <ng-template #actionsTemplate let-row>
-  <div class="actions-cell">
-    <button class="actions-trigger" (click)="toggleDropdown(row.id, $event)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 8.66667C8.36819 8.66667 8.66667 8.36819 8.66667 8C8.66667 7.63181 8.36819 7.33333 8 7.33333C7.63181 7.33333 7.33333 7.63181 7.33333 8C7.33333 8.36819 7.63181 8.66667 8 8.66667Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 4C8.36819 4 8.66667 3.70152 8.66667 3.33333C8.66667 2.96514 8.36819 2.66667 8 2.66667C7.63181 2.66667 7.33333 2.96514 7.33333 3.33333C7.33333 3.70152 7.63181 4 8 4Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 13.3333C8.36819 13.3333 8.66667 13.0349 8.66667 12.6667C8.66667 12.2985 8.36819 12 8 12C7.63181 12 7.33333 12.2985 7.33333 12.6667C7.33333 13.0349 7.63181 13.3333 8 13.3333Z" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <div class="dropdown-menu" *ngIf="openDropdownId() === row.id" (click)="$event.stopPropagation()">
-      <button class="dropdown-menu__item" (click)="onView(row)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M.667 8S3.333 2.667 8 2.667 15.333 8 15.333 8s-2.666 5.333-7.333 5.333S.667 8 .667 8z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>View</span>
-      </button>
-      <button class="dropdown-menu__item" (click)="onDelete(row)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 4H3.33333H14M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.9739 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.9739 5.72386 1.72386C5.9739 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.9739 10.6667 2.31305 10.6667 2.66667V4M6.66667 7.33333V11.3333M9.33333 7.33333V11.3333" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Delete</span>
-      </button>
-    </div>
-  </div>
+  <ui-table-actions-dropdown
+    [isOpen]="openDropdownId() === row.id"
+    [row]="row"
+    [actions]="tableActions"
+    (toggle)="toggleDropdown(row.id)"
+    (actionClick)="onActionClick($event)"
+    (close)="closeDropdown()"
+  ></ui-table-actions-dropdown>
 </ng-template>
-

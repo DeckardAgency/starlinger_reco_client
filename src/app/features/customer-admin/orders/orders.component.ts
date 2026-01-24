@@ -4,22 +4,33 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
 import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
 import { mockOrderHistory, OrderHistoryItem } from '@core/mocks/mock-data';
 
 @Component({
-    selector: 'app-customer-admin-orders',
-    standalone: true,
+  selector: 'app-customer-admin-orders',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterModule,
     DataTableComponent,
+    BreadcrumbsComponent,
     BadgeComponent,
     AvatarComponent,
-    TabsComponent
+    TabsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
@@ -59,6 +70,13 @@ export class OrdersComponent implements AfterViewInit {
 
   // Table columns
   columns: TableColumn[] = [];
+
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'view', label: 'View', icon: 'eye' },
+    { id: 'archive', label: 'Archive', icon: 'archive' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   // Use centralized mock data
   allOrders = signal<OrderHistoryItem[]>([...mockOrderHistory]);
@@ -102,22 +120,24 @@ export class OrdersComponent implements AfterViewInit {
     this.activeTab.set(tabId);
   }
 
-  onSearch(): void {
-    console.log('Searching:', this.searchQuery);
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
+    this.cdr.markForCheck();
   }
 
   onSortChange(event: SortEvent): void {
     this.sortColumn = event.column;
     this.sortDirection = event.direction;
-    console.log('Sorting by:', event.column, event.direction);
   }
 
   onExport(): void {
     console.log('Exporting data...');
   }
 
-  toggleDropdown(orderId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(orderId: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     if (this.openDropdownId() === orderId) {
       this.openDropdownId.set(null);
     } else {
@@ -129,8 +149,22 @@ export class OrdersComponent implements AfterViewInit {
     this.openDropdownId.set(null);
   }
 
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const order = event.row as OrderHistoryItem;
+    switch (event.action.id) {
+      case 'view':
+        this.onView(order);
+        break;
+      case 'archive':
+        this.onArchive(order);
+        break;
+      case 'delete':
+        this.onDelete(order);
+        break;
+    }
+  }
+
   onView(order: OrderHistoryItem): void {
-    console.log('View order:', order);
     this.router.navigate(['/customer-admin/orders', order.id]);
     this.closeDropdown();
   }
@@ -151,7 +185,7 @@ export class OrdersComponent implements AfterViewInit {
 
   getTypeVariant(type: string): 'dark' | 'secondary' {
     return 'dark';
-            }
+  }
 
   getStatusLabel(status: string): string {
     switch (status) {

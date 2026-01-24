@@ -6,6 +6,9 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 import { TaxType } from '@core/models/tax-type.model';
 
 interface TaxTypeDetail {
@@ -29,7 +32,10 @@ const EMPTY_TAX_TYPE: TaxTypeDetail = {
     CommonModule,
     FormsModule,
     RouterModule,
-    FormFieldComponent
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent
   ],
   templateUrl: './tax-type-detail.component.html',
   styleUrls: ['./tax-type-detail.component.scss'],

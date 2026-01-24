@@ -4,7 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { DeliveryType } from '@core/models/delivery-type.model';
 
 @Component({
@@ -15,7 +23,12 @@ import { DeliveryType } from '@core/models/delivery-type.model';
     FormsModule,
     RouterModule,
     DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent,
+    ToggleComponent
   ],
   templateUrl: './delivery-types.component.html',
   styleUrls: ['./delivery-types.component.scss'],
@@ -55,6 +68,12 @@ export class DeliveryTypesComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Pagination
   currentPage = signal(1);
   itemsPerPage = signal(17);
@@ -93,7 +112,8 @@ export class DeliveryTypesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -106,8 +126,10 @@ export class DeliveryTypesComponent implements AfterViewInit {
     this.router.navigate(['/admin/delivery-types/new']);
   }
 
-  toggleDropdown(deliveryTypeId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(deliveryTypeId: string, event: Event | void): void {
+    if (event) {
+      (event as Event).stopPropagation();
+    }
     if (this.openDropdownId() === deliveryTypeId) {
       this.openDropdownId.set(null);
     } else {
@@ -118,6 +140,18 @@ export class DeliveryTypesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const deliveryType = event.row as DeliveryType;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(deliveryType);
+        break;
+      case 'delete':
+        this.onDelete(deliveryType);
+        break;
+    }
   }
 
   onEdit(deliveryType: DeliveryType): void {
@@ -138,24 +172,23 @@ export class DeliveryTypesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.deliveryTypes().map(d => ({ ...d, selected: true }));
     this.deliveryTypes.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.deliveryTypes().map(d => ({ ...d, selected: false }));
     this.deliveryTypes.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   toggleDeliveryTypeSelection(deliveryType: DeliveryType): void {
@@ -166,10 +199,9 @@ export class DeliveryTypesComponent implements AfterViewInit {
     this.selectAll.set(updated.every(d => d.selected));
   }
 
-  toggleActive(deliveryType: DeliveryType, event: Event): void {
-    event.stopPropagation();
+  toggleActive(deliveryType: DeliveryType, value: boolean): void {
     const updated = this.deliveryTypes().map(d => 
-      d.id === deliveryType.id ? { ...d, active: !d.active } : d
+      d.id === deliveryType.id ? { ...d, active: value } : d
     );
     this.deliveryTypes.set(updated);
   }
@@ -178,4 +210,3 @@ export class DeliveryTypesComponent implements AfterViewInit {
     this.currentPage.set(page);
   }
 }
-

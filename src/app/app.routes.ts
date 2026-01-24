@@ -227,11 +227,6 @@ export const routes: Routes = [
         title: 'Reco | User Detail'
       },
       {
-        path: 'ecommerce',
-        loadComponent: () => import('@features/admin/ecommerce/ecommerce.component').then(m => m.EcommerceComponent),
-        title: 'Reco | Ecommerce (Codebook)'
-      },
-      {
         path: 'fuel-surcharges',
         loadComponent: () => import('@features/admin/fuel-surcharges/fuel-surcharges.component').then(m => m.FuelSurchargesComponent),
         title: 'Reco | Fuel Surcharges'

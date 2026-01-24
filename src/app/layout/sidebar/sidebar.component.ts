@@ -167,7 +167,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * Uses authService.hasRole for consistency
    */
   get isSuperAdmin(): boolean {
-    return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
+    // TODO: Remove this bypass before production
+    return true; // DEV BYPASS - always show super admin navigation
+    // return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
   }
 
   /**

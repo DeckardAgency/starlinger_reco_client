@@ -18,7 +18,7 @@ export class FormFieldComponent {
   @Input() required = false;
   @Input() name = '';
   @Input() layout: FormFieldLayout = 'vertical';
-  @Input() labelWidth = '128px';
+  @Input() labelWidth = '133px';
 
   @ContentChild('prefix') prefixTemplate?: TemplateRef<unknown>;
   @ContentChild('suffix') suffixTemplate?: TemplateRef<unknown>;

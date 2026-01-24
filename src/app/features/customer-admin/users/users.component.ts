@@ -4,28 +4,45 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { DrawerComponent } from '@app/ui-kit/organisms/drawer/drawer.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableAction,
+  FormFieldComponent
+} from '@app/ui-kit/molecules';
+import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
+import { InputComponent } from '@app/ui-kit/atoms/input/input.component';
+import { SelectComponent } from '@app/ui-kit/atoms/select/select.component';
 import { mockCustomerAdminUsers, CustomerAdminUser } from '@core/mocks/mock-data';
 
-// Form model for add/edit user
-interface UserFormData {
-  isActive: boolean;
-  fullName: string;
-  email: string;
-  role: string;
-}
-
 @Component({
-    selector: 'app-customer-admin-users',
-    standalone: true,
+  selector: 'app-customer-admin-users',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterModule,
     DataTableComponent,
+    DrawerComponent,
+    BreadcrumbsComponent,
     BadgeComponent,
-    AvatarComponent
+    AvatarComponent,
+    ToggleComponent,
+    IconComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    ButtonComponent,
+    InputComponent,
+    SelectComponent,
+    FormFieldComponent
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
@@ -52,13 +69,13 @@ export class UsersComponent implements AfterViewInit {
   // Dropdown state
   openDropdownId = signal<string | null>(null);
 
-  // Modal state
-  showAddUserModal = signal(false);
-  showEditUserModal = signal(false);
+  // Drawer state
+  showAddUserDrawer = signal(false);
+  showEditUserDrawer = signal(false);
   editingUser = signal<CustomerAdminUser | null>(null);
 
   // Form data
-  formData: UserFormData = {
+  formData = {
     isActive: true,
     fullName: '',
     email: '',
@@ -67,6 +84,20 @@ export class UsersComponent implements AfterViewInit {
 
   // Table columns
   columns: TableColumn[] = [];
+
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'deactivate', label: 'Deactivate', icon: 'x-circle' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
+  // Role options for select
+  roleOptions = [
+    { value: 'viewer', label: 'Viewer' },
+    { value: 'standard', label: 'Regular' },
+    { value: 'admin', label: 'Admin' }
+  ];
 
   // Users data
   allUsers = signal<CustomerAdminUser[]>([...mockCustomerAdminUsers]);
@@ -109,19 +140,20 @@ export class UsersComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
-    // Trigger computed to re-filter
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     this.cdr.markForCheck();
   }
 
   onSortChange(event: SortEvent): void {
     this.sortColumn = event.column;
     this.sortDirection = event.direction;
-    console.log('Sorting by:', event.column, event.direction);
   }
 
-  toggleDropdown(userId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(userId: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     if (this.openDropdownId() === userId) {
       this.openDropdownId.set(null);
     } else {
@@ -135,14 +167,29 @@ export class UsersComponent implements AfterViewInit {
 
   onAddUser(): void {
     this.resetForm();
-    this.showAddUserModal.set(true);
+    this.showAddUserDrawer.set(true);
   }
 
-  onCloseModal(): void {
-    this.showAddUserModal.set(false);
-    this.showEditUserModal.set(false);
+  onCloseDrawer(): void {
+    this.showAddUserDrawer.set(false);
+    this.showEditUserDrawer.set(false);
     this.editingUser.set(null);
     this.resetForm();
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const user = event.row as CustomerAdminUser;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(user);
+        break;
+      case 'deactivate':
+        this.onDeactivate(user);
+        break;
+      case 'delete':
+        this.onDelete(user);
+        break;
+    }
   }
 
   onEdit(user: CustomerAdminUser): void {
@@ -153,13 +200,13 @@ export class UsersComponent implements AfterViewInit {
       email: user.email,
       role: user.role
     };
-    this.showEditUserModal.set(true);
+    this.showEditUserDrawer.set(true);
     this.closeDropdown();
   }
 
   onSaveUser(): void {
     console.log('Saving user:', this.formData);
-    this.onCloseModal();
+    this.onCloseDrawer();
   }
 
   private resetForm(): void {
@@ -195,5 +242,9 @@ export class UsersComponent implements AfterViewInit {
 
   getStatusVariant(status: string): 'success' | 'danger' {
     return status === 'active' ? 'success' : 'danger';
+  }
+
+  onToggleActive(value: boolean): void {
+    this.formData.isActive = value;
   }
 }

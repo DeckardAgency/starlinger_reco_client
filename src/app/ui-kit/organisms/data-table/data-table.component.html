@@ -1,6 +1,6 @@
 <div class="data-table">
   <table class="data-table__table">
-    <thead class="data-table__header">
+    <thead class="data-table__header" *ngIf="showHeaders">
       <tr class="data-table__header-row">
         <th
           *ngFor="let column of columns"
@@ -23,6 +23,11 @@
       </tr>
     </thead>
     <tbody class="data-table__body">
+      <tr *ngIf="data.length === 0" class="data-table__row data-table__row--empty">
+        <td class="data-table__cell data-table__cell--empty" [attr.colspan]="columns.length">
+          {{ emptyMessage }}
+        </td>
+      </tr>
       <tr *ngFor="let row of data" class="data-table__row">
         <td
           *ngFor="let column of columns"

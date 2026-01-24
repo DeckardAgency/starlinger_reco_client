@@ -1,6 +1,7 @@
 :host {
   display: flex;
   flex: 1;
+  width: 100%;
 }
 
 .order-card {
@@ -21,6 +22,13 @@
 
     &--double {
       gap: 17px;
+
+      // Tablet and mobile - stack items
+      @media screen and (max-width: 1024px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
     }
   }
 
@@ -29,6 +37,11 @@
     align-items: center;
     gap: 8px;
     flex: 1;
+
+    // Tablet and mobile - full width
+    @media screen and (max-width: 1024px) {
+      width: 100%;
+    }
   }
 
   &__icon-wrap {

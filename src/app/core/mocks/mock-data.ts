@@ -1,11 +1,14 @@
 /**
  * Mock Data for RECO Client Development
- * 
+ *
  * Test Users:
  * - super@test.com / password123 - Super Admin (Starlinger Admin)
  * - admin@test.com / password123 - Customer Admin
  * - user@test.com / password123 - Customer
  */
+
+import { QuickActionCardData } from '@app/ui-kit/molecules/quick-action-card/quick-action-card.component';
+import { OrderCardData } from '@app/ui-kit/molecules/order-card/order-card.component';
 
 // =============================================================================
 // MOCK USERS
@@ -584,6 +587,44 @@ export const mockContacts = [
 ];
 
 // =============================================================================
+// MOCK ADMIN CONTACTS (for Admin Contacts list page)
+// =============================================================================
+
+export const mockAdminContacts = [
+  { id: 147144, firstName: 'Alexander', lastName: 'Pas', account: 'Alexander Pas', email: 'grafit.pas@grafit.net', phone: undefined },
+  { id: 147145, firstName: 'Anja', lastName: 'Makas', account: 'Kuga Repora SL', email: 'emanuel@company.com', phone: undefined },
+  { id: 147146, firstName: 'Paola', lastName: 'Alvarez', account: 'PET Recycling team Gmbh', email: 'eroghan@company.com', phone: '+34942835040' },
+  { id: 147147, firstName: 'Christian', lastName: 'Jovanovic', account: 'Unistrap Gmbh', email: 'linda@company.com', phone: '+4366488903488' },
+  { id: 147148, firstName: 'Christopher', lastName: 'Cenga', account: 'Rymoplast n.v.', email: 'allen@company.com', phone: '+4366460595847' },
+  { id: 147149, firstName: 'David', lastName: 'Aerts', account: 'Unistrap Gmbh', email: 'dupton@company.com', phone: '098123456' },
+  { id: 147160, firstName: 'Davor', lastName: 'Kemper', account: 'PET Recycling team', email: 'marissa@company.com', phone: undefined },
+  { id: 147166, firstName: 'Erika', lastName: 'Gutierrez', account: 'Rymoplast n.v.', email: 'jason@company.com', phone: undefined },
+  { id: 147142, firstName: 'Francesco', lastName: 'Lissak', account: 'Kuga Repora SL', email: 'carmen@company.com', phone: '0048533734241' },
+  { id: 147131, firstName: 'Irfan', lastName: 'Nussbaumer', account: 'Kuga Repora SL', email: 'thomas@company.com', phone: '+32470595840' },
+  { id: 147155, firstName: 'Lander', lastName: 'Dekkers', account: 'Unistrap Gmbh', email: 'natalie@company.com', phone: undefined },
+  { id: 147189, firstName: 'Nancy', lastName: 'Roth', account: 'PET Recycling team Gmbh', email: 'paul@company.com', phone: undefined }
+];
+
+// =============================================================================
+// MOCK ACCOUNTS (for Admin Accounts list page)
+// =============================================================================
+
+export const mockAccounts = [
+  { id: 317330, code: '408170', oib: 'PL7151954741', name: 'Akpol Recykling Sp.z.o.o.', email: 'anes@company.com', status: 'active' as const, purchaseLimit: undefined, amountSpent: undefined },
+  { id: 317331, code: '', oib: '1262330853', name: 'Alaxe Italia Recycling S.p.A.', email: 'emanuel@company.com', status: 'active' as const, purchaseLimit: undefined, amountSpent: undefined },
+  { id: 317332, code: '542319', oib: 'ESAA3931358', name: 'Kugo Repara SL', email: 'eroghan@company.com', status: 'inactive' as const, purchaseLimit: 15000, amountSpent: 0 },
+  { id: 317333, code: '693192', oib: 'ESAA4941362', name: 'OMT Recycling Project S.L.', email: 'linda@company.com', status: 'inactive' as const, purchaseLimit: 25000, amountSpent: 1500 },
+  { id: 317334, code: '743123', oib: 'ATU72944977', name: 'PRT Rodomska', email: 'allen@company.com', status: 'active' as const, purchaseLimit: 0, amountSpent: 0 },
+  { id: 317335, code: '852374', oib: 'BE043913824', name: 'Rymoplast n.v.', email: 'dupton@company.com', status: 'inactive' as const, purchaseLimit: 15000, amountSpent: 200 },
+  { id: 317336, code: '912845', oib: 'PL7151954742', name: 'EcoCycle Solutions Inc.', email: 'marissa@company.com', status: 'active' as const, purchaseLimit: undefined, amountSpent: undefined },
+  { id: 317337, code: '103672', oib: '1262330854', name: 'GreenTech Waste Management Co.', email: 'jason@company.com', status: 'active' as const, purchaseLimit: undefined, amountSpent: undefined },
+  { id: 317338, code: '114589', oib: 'ESAA3931359', name: 'Reclaim Innovations Ltd.', email: 'carmen@company.com', status: 'inactive' as const, purchaseLimit: 15000, amountSpent: 0 },
+  { id: 317339, code: '125678', oib: 'ESAA4941363', name: 'Sustainable Materials Group LLC', email: 'thomas@company.com', status: 'inactive' as const, purchaseLimit: 25000, amountSpent: 1500 },
+  { id: 317340, code: '136789', oib: 'ATU72944978', name: 'TerraRenew Recycling Partners', email: 'natalie@company.com', status: 'active' as const, purchaseLimit: 0, amountSpent: 0 },
+  { id: 317341, code: '147890', oib: 'BE043913825', name: 'WasteWise Environmental Services', email: 'paul@company.com', status: 'inactive' as const, purchaseLimit: undefined, amountSpent: 200 }
+];
+
+// =============================================================================
 // MOCK DISCOUNTS
 // =============================================================================
 
@@ -621,6 +662,27 @@ export const mockDiscounts = [
     validTo: '2025-12-31',
     isActive: true
   }
+];
+
+// =============================================================================
+// MOCK ADMIN DISCOUNTS (for Admin Discounts list page)
+// =============================================================================
+
+export interface AdminDiscount {
+  id: string;
+  name: string;
+  status: 'active' | 'inactive';
+  priority: number;
+  dateValidFrom: string;
+  dateValidTo: string;
+  selected?: boolean;
+}
+
+export const mockAdminDiscounts: AdminDiscount[] = [
+  { id: '0001', name: 'ET -30%', status: 'active', priority: 0, dateValidFrom: '25/10/2024 00:00:25', dateValidTo: '01/11/2024 00:00:25' },
+  { id: '0002', name: 'Black Friday -50%', status: 'active', priority: 3, dateValidFrom: '25/11/2024 00:00:11', dateValidTo: '10/11/2024 00:00:11' },
+  { id: '0003', name: 'Spring -25%', status: 'active', priority: 2, dateValidFrom: '01/02/2025 00:00:19', dateValidTo: '25/02/2025 00:00:19' },
+  { id: '0004', name: 'Special -50%', status: 'inactive', priority: 0, dateValidFrom: '15/03/2025 00:05:42', dateValidTo: '15/03/2025 00:05:45' }
 ];
 
 // =============================================================================
@@ -986,7 +1048,7 @@ export interface OrderDetail {
   machineGroups?: OrderDetailMachineGroup[];
   totalPrice?: number;
   amountPaid?: number;
-  // Inquiry-specific  
+  // Inquiry-specific
   parts?: InquiryDetailPart[];
   // Common
   logMessages: OrderDetailLogMessage[];
@@ -1242,3 +1304,385 @@ export const mockWishlistItems = [
   }
 ];
 
+
+// =============================================================================
+// MOCK ADMIN PRODUCTS (for Products list page)
+// =============================================================================
+
+export const mockAdminProducts = [
+  { id: '0001', code: 'AIVS-01197', name: 'Analog input module', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083', qty: 9999, qtyStep: 1 },
+  { id: '0002', code: 'AIVS-01199', name: 'Block: Klotz', shortDescription: 'BM11_X20BM11; STANDARD_X20BM11', qty: 9999, qtyStep: 1 },
+  { id: '0003', code: 'AESA-0002', name: 'Bus Controller', shortDescription: '3 - 12 A / 24 VDC_LUCL 12BL; (FU) 3 - 12 A / 24 VDC_LUCL 12BL', qty: 9999, qtyStep: 1 },
+  { id: '0004', code: 'AESA-0001', name: 'Bus Modul', shortDescription: 'T0,15 - 0,6 A / 24 VDC_LUCB X6BL; 0,15 - 0,6 A / 24 VDC_LUCB X6BL', qty: 9999, qtyStep: 1 },
+  { id: '0005', code: 'Z3I-10337A', name: 'Cartridge heater', shortDescription: '36 X D3,4 X 6,0 FT04; 36 X D3,4 X 6,0 FT04', qty: 9999, qtyStep: 1 },
+  { id: '0006', code: 'AESA-0001', name: 'Control unit adjusted', shortDescription: 'DI9371_X20DI9371; DI9371_X20DI9371', qty: 9999, qtyStep: 1 },
+  { id: '0007', code: 'AIVS-01197', name: 'Control unit extension', shortDescription: '24 X D3,4 X 6,0 FT04; 24 X D3,4 X 6,0 FT04', qty: 9999, qtyStep: 1 },
+  { id: '0008', code: 'Z3I-10337A', name: 'Die plate', shortDescription: '1kW, 460V, 20 x 90, IP54; 1kW, 460V, 20 x 90, IP54', qty: 9999, qtyStep: 1 },
+  { id: '0009', code: 'AESA-0001', name: 'Digital input module', shortDescription: 'DO8332_X20DO8332; DO8332_X20DO8332', qty: 9999, qtyStep: 1 },
+  { id: '0010', code: 'AIVS-01197', name: 'Energy measurement module', shortDescription: 'D125,3 / MESH 12; D125,3 / MESH 12 / 1250my', qty: 9999, qtyStep: 1 },
+  { id: '0011', code: 'AESA-0001', name: 'Fill level limit switch', shortDescription: 'D250 / MESH 25; D250 / MESH 25', qty: 9999, qtyStep: 1 },
+  { id: '0012', code: 'AESA-0001', name: 'Filter blank', shortDescription: 'D250 / MESH 50/250 / 50my; D250 / MESH 50/250 / 50my', qty: 9999, qtyStep: 10 },
+  { id: '0013', code: 'AIVS-01197', name: 'Filter blank', shortDescription: '80M3/MIN; AUFSTECKBAR 80M3/MIN', qty: 9999, qtyStep: 10 },
+  { id: '0014', code: 'Z3I-10337A', name: 'Filter blank', shortDescription: 'NR. 618.50; NR. 618.50', qty: 9999, qtyStep: 100 },
+  { id: '0015', code: 'Z3I-10337A', name: 'Filter blank', shortDescription: 'MATERIAL HSS; MATERIAL HSS', qty: 9999, qtyStep: 100 },
+  { id: '0016', code: 'Z3I-10337A', name: 'Filter blank', shortDescription: 'MESSERBESTIGUNG UEBER M12', qty: 9999, qtyStep: 100 },
+  { id: '0017', code: 'AESA-0001', name: 'Granulating knife', shortDescription: 'Fe-CuNi, 1/2-20 UNF, l=1,0m; Fe-CuNi, 1/2-20 UNF, l=1,0m', qty: 9999, qtyStep: 100 }
+];
+
+// =============================================================================
+// MOCK MANUAL ENTRIES
+// =============================================================================
+
+export const mockManualEntries = [
+  { id: '0001', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '000123-ABC', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 12, status: 'completed' },
+  { id: '0002', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '000987-EAD', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 192, status: 'completed' },
+  { id: '0003', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '004231-UGR', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 48, status: 'archived' },
+  { id: '0004', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '001456-ZXY', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 36, status: 'rejected' },
+  { id: '0005', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '002789-WPQ', customer: { name: 'Anes Kapetanovic', initials: 'AK', avatar: 'assets/avatars/anes.jpg' }, partsOrdered: 24, status: 'cancelled' },
+  { id: '0006', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '005678-MNB', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 60, status: 'completed' },
+  { id: '0007', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '003234-LJK', customer: { name: 'Ivan Jozic', initials: 'IJ' }, partsOrdered: 72, status: 'completed' },
+  { id: '0008', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '007890-QWE', customer: { name: 'Mira Kulic', initials: 'MK' }, partsOrdered: 15, status: 'completed' },
+  { id: '0009', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '009876-RYT', customer: { name: 'Sofia Lichtenstein', initials: 'SL' }, partsOrdered: 84, status: 'completed' },
+  { id: '0010', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '006543-PLM', customer: { name: 'Tommy Barlow', initials: 'TB' }, partsOrdered: 30, status: 'archived' },
+  { id: '0011', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '008765-VBN', customer: { name: 'Yara Nasr', initials: 'YN' }, partsOrdered: 99, status: 'rejected' },
+  { id: '0012', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '010101-XYZ', customer: { name: 'Diana Patel', initials: 'DP' }, partsOrdered: 57, status: 'completed' },
+  { id: '0013', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '011213-ABC', customer: { name: 'Roger Lee', initials: 'RL' }, partsOrdered: 81, status: 'completed' },
+  { id: '0014', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '012345-DEF', customer: { name: 'Sara Wong', initials: 'SW' }, partsOrdered: 40, status: 'archived' },
+  { id: '0015', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '013456-GHI', customer: { name: 'Jack Monroe', initials: 'JM' }, partsOrdered: 22, status: 'rejected' },
+  { id: '0016', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '014567-JKL', customer: { name: 'Clara Thompson', initials: 'CT' }, partsOrdered: 66, status: 'cancelled' },
+  { id: '0017', type: 'inquiry', dateCreated: '14-03-2024', internalRef: '015678-MNO', customer: { name: 'Zara Nguyen', initials: 'ZN' }, partsOrdered: 3, status: 'completed' }
+];
+
+// =============================================================================
+// MOCK ACTIVE INQUIRIES / ORDERS
+// =============================================================================
+
+export const mockActiveInquiries = [
+  { id: '#0001', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0002', type: 'order', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0003', type: 'inquiry', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-review' },
+  { id: '#0004', type: 'inquiry', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'more-info' },
+  { id: '#0005', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0006', type: 'order', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'dispatched' },
+  { id: '#0007', type: 'inquiry', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-progress' }
+];
+
+// =============================================================================
+// MOCK SHOP ORDERS
+// =============================================================================
+
+export const mockShopOrders = [
+  { id: '0001', type: 'order', dateCreated: '14-03-2024', internalRef: '000123-ABC', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 12, status: 'completed' },
+  { id: '0002', type: 'order', dateCreated: '14-03-2024', internalRef: '000987-EAD', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 192, status: 'completed' },
+  { id: '0003', type: 'order', dateCreated: '14-03-2024', internalRef: '004231-UGR', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 48, status: 'completed' },
+  { id: '0004', type: 'order', dateCreated: '14-03-2024', internalRef: '001456-ZXY', customer: { name: 'Martin Ertl', initials: 'ME' }, partsOrdered: 36, status: 'completed' },
+  { id: '0005', type: 'order', dateCreated: '14-03-2024', internalRef: '002789-WPQ', customer: { name: 'Anes Kapetanovic', initials: 'AK', avatar: 'assets/avatars/anes.jpg' }, partsOrdered: 24, status: 'cancelled' },
+  { id: '0006', type: 'order', dateCreated: '14-03-2024', internalRef: '005678-MNB', customer: { name: 'Anes Kapetanovic', initials: 'AK' }, partsOrdered: 60, status: 'completed' },
+  { id: '0007', type: 'order', dateCreated: '14-03-2024', internalRef: '003234-LJK', customer: { name: 'Ivan Jozic', initials: 'IJ' }, partsOrdered: 72, status: 'completed' },
+  { id: '0008', type: 'order', dateCreated: '14-03-2024', internalRef: '007890-QWE', customer: { name: 'Mira Kulic', initials: 'MK' }, partsOrdered: 15, status: 'completed' },
+  { id: '0009', type: 'order', dateCreated: '14-03-2024', internalRef: '009876-RYT', customer: { name: 'Sofia Lichtenstein', initials: 'SL' }, partsOrdered: 84, status: 'completed' },
+  { id: '0010', type: 'order', dateCreated: '14-03-2024', internalRef: '006543-PLM', customer: { name: 'Tommy Barlow', initials: 'TB' }, partsOrdered: 30, status: 'cancelled' },
+  { id: '0011', type: 'order', dateCreated: '14-03-2024', internalRef: '008765-VBN', customer: { name: 'Yara Nasr', initials: 'YN' }, partsOrdered: 99, status: 'cancelled' },
+  { id: '0012', type: 'order', dateCreated: '14-03-2024', internalRef: '010101-XYZ', customer: { name: 'Diana Patel', initials: 'DP' }, partsOrdered: 57, status: 'completed' },
+  { id: '0013', type: 'order', dateCreated: '14-03-2024', internalRef: '011213-ABC', customer: { name: 'Roger Lee', initials: 'RL' }, partsOrdered: 81, status: 'completed' },
+  { id: '0014', type: 'order', dateCreated: '14-03-2024', internalRef: '012345-DEF', customer: { name: 'Sara Wong', initials: 'SW' }, partsOrdered: 40, status: 'cancelled' },
+  { id: '0015', type: 'order', dateCreated: '14-03-2024', internalRef: '013456-GHI', customer: { name: 'Jack Monroe', initials: 'JM' }, partsOrdered: 22, status: 'cancelled' },
+  { id: '0016', type: 'order', dateCreated: '14-03-2024', internalRef: '014567-JKL', customer: { name: 'Clara Thompson', initials: 'CT' }, partsOrdered: 66, status: 'cancelled' },
+  { id: '0017', type: 'order', dateCreated: '14-03-2024', internalRef: '015678-MNO', customer: { name: 'Zara Nguyen', initials: 'ZN' }, partsOrdered: 3, status: 'completed' }
+];
+
+// =============================================================================
+// DETAIL PAGE MOCK DATA
+// =============================================================================
+
+export const mockShopOrderDetail = {
+  id: '0001',
+  internalRef: '000123-ABC',
+  dateCreated: '14-03-2024',
+  partsOrdered: 12,
+  status: 'new',
+  enableSale: true,
+  account: 'Unistrap Gmbh - finanz.ke@starlinger.com',
+  contact: 'Martina Kemper - Unistrap Gmbh',
+  contactDropdown: 'martina',
+  billingAddress: 'wien',
+  date: '09/04/2025',
+  paymentType: 'bank-transfer',
+  deliveryType: 'dhl',
+  priceWithoutTax: 4764.74,
+  totalPrice: 5724.20,
+  priceTax: 956.40,
+  machineGroups: [
+    {
+      id: 'machine-1',
+      name: '200XE Winding Machine',
+      isExpanded: true,
+      products: [
+        { partNo: 'AIVV-01152', productName: 'Power panel T30 4,3" WQVGA color touch', weight: '0,4 kg', quantity: 2, unitPrice: 556.17, discount: '10 %', price: 1112.34 },
+        { partNo: 'ZME-01171D', productName: 'Modul FU-Stacofil 200XE', weight: '1,4 kg', quantity: 3, unitPrice: 442.46, discount: '20 %', price: 1327.38 },
+        { partNo: 'AEPI-01072', productName: 'ABTASTKOPF f. induktives Winkelmesssystem', weight: '0,263 kg', quantity: 2, unitPrice: 868.10, discount: '–', price: 1736.36 }
+      ]
+    },
+    {
+      id: 'machine-2',
+      name: 'Alpha 6.0 Machine',
+      isExpanded: true,
+      products: [
+        { partNo: 'AIHR-01039', productName: 'Heating element', weight: '1,5 kg', quantity: 3, unitPrice: 1855.01, discount: '10 %', price: 5565.03 },
+        { partNo: 'VYC-00245F', productName: 'SL 6 Shuttle Wheel (6,5°) for Reed 10°', weight: '0,09 kg', quantity: 2, unitPrice: 11.54, discount: '–', price: 23.08 }
+      ]
+    }
+  ],
+  orderTotal: 9764.19,
+  amountPaid: 7811.352,
+  logMessages: [
+    { status: 'Completed', statusVariant: 'success' as const, dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Inquiry completed' },
+    { status: 'In progress', statusVariant: 'warning' as const, dateTime: '19-03-2024 | 16:30', user: 'Starlinger', message: 'Inquiry in progress' },
+    { status: 'Information provided', statusVariant: 'warning' as const, dateTime: '18-03-2024 | 09:15', user: '#username', message: 'Missing information provided by the customer.' },
+    { status: 'More info', statusVariant: 'warning' as const, dateTime: '17-03-2024 | 14:45', user: 'Starlinger', message: 'Missing information requested by the admin.' },
+    { status: 'In review', statusVariant: 'warning' as const, dateTime: '16-03-2024 | 10:00', user: 'Starlinger', message: 'Inquiry in review by the admin.' },
+    { status: 'Submitted', statusVariant: 'info' as const, dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Inquiry submitted by the customer.' }
+  ]
+};
+
+export const mockManualEntryDetail = {
+  id: '0002',
+  internalRef: '000123-ABC',
+  dateCreated: '14-03-2024',
+  status: 'new',
+  enableSale: true,
+  account: 'Unistrap Gmbh - finanz.ke@starlinger.com',
+  contact: 'Martina Kemper - Unistrap Gmbh',
+  contactDropdown: 'martina',
+  billingAddress: 'wien',
+  date: '09/04/2025',
+  paymentType: 'bank-transfer',
+  deliveryType: 'dhl',
+  priceWithoutTax: 4764.74,
+  totalPrice: 5724.20,
+  priceTax: 956.40,
+  inquiryParts: [
+    {
+      id: 'part-1',
+      partNumber: 'Part 1',
+      machineName: 'ad*StarKON Machine',
+      productName: 'Power panel T30 4,3" WQVGA color touch',
+      detailedDescription: 'Hello! I need a replacement part for my 200XE Winding Machine. Not sure about the exact part needed, please check the attached files for more info.',
+      attachedFiles: [
+        { name: 'electric_response.pdf', size: '3.4 MB', type: 'pdf' },
+        { name: 'machine_side_view_99.jpg', size: '1.2 MB', type: 'image' },
+        { name: 'system_error_report.xls', size: '0.3MB', type: 'spreadsheet' }
+      ],
+      additionalNotes: 'Please get back to us ASAP, we need this part urgent, production stopped!',
+      isExpanded: true
+    },
+    {
+      id: 'part-2',
+      partNumber: 'Part 2',
+      machineName: 'EX200 Weaving Machine',
+      productName: 'Power panel T30 4,3" WQVGA color touch',
+      detailedDescription: 'Hello! I need a replacement part for my 200XE Winding Machine. Not sure about the exact part needed, please check the attached files for more info.',
+      attachedFiles: [
+        { name: 'electric_response.pdf', size: '3.4 MB', type: 'pdf' },
+        { name: 'machine_side_view_99.jpg', size: '1.2 MB', type: 'image' },
+        { name: 'system_error_report.xls', size: '0.3MB', type: 'spreadsheet' }
+      ],
+      additionalNotes: 'Please get back to us ASAP, we need this part urgent, production stopped!',
+      isExpanded: true
+    }
+  ],
+  logMessages: [
+    { status: 'Completed', statusVariant: 'success' as const, dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Inquiry completed' },
+    { status: 'In progress', statusVariant: 'warning' as const, dateTime: '19-03-2024 | 16:30', user: 'Starlinger', message: 'Inquiry in progress' },
+    { status: 'Information provided', statusVariant: 'warning' as const, dateTime: '18-03-2024 | 09:15', user: '#username', message: 'Missing information provided by the customer.' },
+    { status: 'More info', statusVariant: 'warning' as const, dateTime: '17-03-2024 | 14:45', user: 'Starlinger', message: 'Missing information requested by the admin.' },
+    { status: 'In review', statusVariant: 'warning' as const, dateTime: '16-03-2024 | 10:00', user: 'Starlinger', message: 'Inquiry in review by the admin.' },
+    { status: 'Submitted', statusVariant: 'info' as const, dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Inquiry submitted by the customer.' }
+  ]
+};
+
+export const mockCountryDetail = {
+  id: '1',
+  name: 'Afghanistan',
+  code: 'AF',
+  iso31661Alpha3Code: '-',
+  dhlZone: 'zone8',
+  defaultTaxPercent: 0
+};
+
+export const mockProductDetail = {
+  id: '001',
+  code: 'AIVS-01197',
+  name: 'Analog input module',
+  active: true,
+  readyForShop: true,
+  url: 'analog-input-module-a4922-x29a4822',
+  quantity: 9999,
+  quantityStep: 1.00,
+  quoteItemLimit: 2.00,
+  fixedQuantity: 0.00,
+  weight: 'kg 0,0220',
+  productGroup: 'electrical',
+  catalogCode: 'AIVS-01197',
+  basePrice: 284.23,
+  retailPrice: 0.00,
+  taxPercent: 'PDV20',
+  currency: 'EUR',
+  discountPercent: 0.00,
+  discountPrice: 0.00,
+  shortDescription: ''
+};
+
+export const mockProductAvailable = [
+  { id: '1', productId: '0001', code: 'AIVS-01197', name: 'Analog input module', status: 'active', available: true },
+  { id: '2', productId: '0002', code: 'AIVS-01199', name: 'Block: Klotz', status: 'active', available: true },
+  { id: '3', productId: '0003', code: 'AESA-0002', name: 'Bus Controller', status: 'active', available: true },
+  { id: '4', productId: '0004', code: 'AESA-0001', name: 'Bus Modul', status: 'active', available: true },
+  { id: '5', productId: '0005', code: 'Z3I-10337A', name: 'Cartridge heater', status: 'active', available: true },
+  { id: '6', productId: '0006', code: 'AESA-0001', name: 'Control unit adjusted', status: 'active', available: true },
+  { id: '7', productId: '0007', code: 'AIVS-01197', name: 'Control unit extension', status: 'active', available: true },
+  { id: '8', productId: '0008', code: 'Z3I-10337A', name: 'Die plate', status: 'active', available: true },
+  { id: '9', productId: '0009', code: 'AESA-0001', name: 'Digital input module', status: 'active', available: true },
+  { id: '10', productId: '0010', code: 'AIVS-01197', name: 'Energy measurement module', status: 'active', available: true },
+  { id: '11', productId: '0011', code: 'AESA-0001', name: 'Fill level limit switch', status: 'active', available: true }
+];
+
+export const mockProductRelated = [
+  { id: '1', productId: '0001', code: 'AIVS-01197', name: 'Analog input module', status: 'active', available: true, sortOrder: 1 },
+  { id: '2', productId: '0002', code: 'AIVS-01199', name: 'Block: Klotz', status: 'active', available: true, sortOrder: 3 },
+  { id: '3', productId: '0003', code: 'AESA-0002', name: 'Bus Controller', status: 'active', available: true, sortOrder: 2 }
+];
+
+export const mockProductGallery = [
+  { id: '1', name: 'Image-1.jpg', url: '/images/image-placeholder-16-9.jpg', isPrimary: true },
+  { id: '2', name: 'Image-2.jpg', url: '/images/image-placeholder-16-9.jpg' },
+  { id: '3', name: 'Image-truncated-text.jpg', url: '/images/image-placeholder-16-9.jpg' },
+  { id: '4', name: 'Image-4.jpg', url: '/images/image-placeholder-16-9.jpg' }
+];
+
+export const mockProductDocuments = [
+  { id: '1', fileType: 'PDF', name: 'Product brochure.pdf', size: '1.2 MB' },
+  { id: '2', fileType: 'PDF', name: 'Product warranty.pdf', size: '0.7 MB' }
+];
+
+export const mockProductAppliedDiscounts = [
+  { id: '8099336', dateValidFrom: '25/10/2024 00:00:25', dateValidTo: '01/11/2024 00:00:25', discountPriceBase: '€ 198,96', discountPercent: '30,00', appliedTo: 'Recycling team Gmbh' },
+  { id: '8099592', dateValidFrom: '25/11/2024 00:00:11', dateValidTo: '10/11/2024 00:00:11', discountPriceBase: '€ 220,40', discountPercent: '25,00', appliedTo: 'Rodomsko recycling' },
+  { id: '8099905', dateValidFrom: '01/02/2025 00:00:19', dateValidTo: '25/02/2025 00:00:19', discountPriceBase: '€ 1.084,20', discountPercent: '15,00', appliedTo: 'General recycling group' }
+];
+
+export const mockDiscountDetail = {
+  id: '1',
+  name: 'ET -30%',
+  active: true,
+  dateFrom: '01/01/2025',
+  dateTo: '01/01/2025',
+  discountPercent: 30,
+  priority: 0,
+  accountGroups: ['group1'],
+  accounts: ['acc1', 'acc2']
+};
+
+export const mockDiscountProducts = [
+  { id: '1', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '2', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '3', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '4', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '5', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '6', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '7', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '8', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '9', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '10', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '11', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
+  { id: '12', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' }
+];
+
+// =============================================================================
+// CUSTOMER DASHBOARD MOCK DATA
+// =============================================================================
+
+export const mockCustomerQuickActions: QuickActionCardData[] = [
+  {
+    type: 'new-order',
+    title: 'New order',
+    description: 'Initiate a spare part request by completing our custom tailored ordering solutions.',
+    buttonLabel: 'Create',
+    routerLink: '/customer/shop'
+  },
+  {
+    type: 'contact-sales',
+    title: 'Contact Sales Manager',
+    description: 'Access direct communication channel for expert support, technical consultations and inquiry status.',
+    buttonLabel: 'Contact'
+  }
+];
+
+export const mockCustomerActiveOrders: OrderCardData[] = [
+  { id: '#0001', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0002', type: 'order', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'confirmed' },
+  { id: '#0003', type: 'inquiry', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-review' }
+];
+
+export type HistoryStatus = 'completed' | 'cancelled' | 'in-review';
+export type HistoryType = 'order' | 'manual';
+
+export interface HistoryItem {
+  inquiryId: string;
+  type: HistoryType;
+  dateCreated: string;
+  internalReference: string;
+  partsOrdered: number;
+  status: HistoryStatus;
+}
+
+export const mockCustomerHistoryData: HistoryItem[] = [
+  { inquiryId: '0001', type: 'order', dateCreated: '14-03-2024', internalReference: '000123-ABC', partsOrdered: 12, status: 'completed' },
+  { inquiryId: '0002', type: 'order', dateCreated: '14-03-2024', internalReference: '000987-EAD', partsOrdered: 192, status: 'cancelled' },
+  { inquiryId: '0003', type: 'manual', dateCreated: '14-03-2024', internalReference: '004231-UGR', partsOrdered: 48, status: 'completed' },
+  { inquiryId: '0004', type: 'manual', dateCreated: '14-03-2024', internalReference: '001456-ZXY', partsOrdered: 36, status: 'completed' },
+  { inquiryId: '0005', type: 'order', dateCreated: '14-03-2024', internalReference: '002789-WPQ', partsOrdered: 24, status: 'cancelled' },
+  { inquiryId: '0006', type: 'manual', dateCreated: '14-03-2024', internalReference: '005678-MNB', partsOrdered: 60, status: 'completed' },
+  { inquiryId: '0007', type: 'order', dateCreated: '14-03-2024', internalReference: '003234-LJK', partsOrdered: 72, status: 'completed' }
+];
+
+// =============================================================================
+// CUSTOMER INQUIRY PAGE MOCK DATA
+// =============================================================================
+
+export const mockCustomerInquiryActiveOrders: OrderCardData[] = [
+  { id: '#0001', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0002', type: 'order', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'confirmed' },
+  { id: '#0003', type: 'inquiry', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-review' },
+  { id: '#0004', type: 'inquiry', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'more-info' },
+  { id: '#0005', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'submitted' },
+  { id: '#0006', type: 'order', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'dispatched' },
+  { id: '#0007', type: 'inquiry', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-progress' }
+];
+
+export const mockCustomerInquiryHistoryOrders: OrderCardData[] = [
+  { id: '#0008', type: 'order', internalReference: '000555-XYZ', dateCreated: '10-02-2024', partsOrdered: 8, status: 'completed' },
+  { id: '#0009', type: 'inquiry', internalReference: '000666-ABC', dateCreated: '05-02-2024', partsOrdered: 15, status: 'completed' },
+  { id: '#0010', type: 'order', internalReference: '000777-DEF', dateCreated: '01-02-2024', partsOrdered: 6, status: 'cancelled' }
+];
+
+export const mockCustomerInquiryDraftOrders: OrderCardData[] = [
+  { id: '#0011', type: 'inquiry', internalReference: '000888-GHI', dateCreated: '20-03-2024', partsOrdered: 3, status: 'draft' },
+  { id: '#0012', type: 'order', internalReference: '000999-JKL', dateCreated: '18-03-2024', partsOrdered: 20, status: 'draft' }
+];
+
+// =============================================================================
+// COMMON ICONS (SVG strings for reuse)
+// =============================================================================
+
+export const ICON_QUICK_ACTIONS = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <path d="M11.6667 1.66675L3.33334 11.6667H10L8.33334 18.3334L16.6667 8.33341H10L11.6667 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+export const ICON_ACTIVE_ORDERS = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <path d="M10 7.50008V10.8334M10 14.1667H10.0083M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+export const ICON_HISTORY = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <path d="M11.6667 1.66675V5.00008C11.6667 5.44211 11.8423 5.86603 12.1548 6.17859C12.4674 6.49115 12.8913 6.66675 13.3333 6.66675H16.6667M7.5 12.5001L9.16667 14.1667L12.5 10.8334M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;

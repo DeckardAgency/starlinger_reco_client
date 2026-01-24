@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 import { AdminUser, AdminUserRoleType, ADMIN_USER_ROLE_OPTIONS, AdminUserRoleOption } from '@core/models/admin-user.model';
 
 const EMPTY_USER: AdminUser = {
@@ -21,7 +26,12 @@ const EMPTY_USER: AdminUser = {
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    FormFieldComponent,
+    IconComponent,
+    MobileFooterComponent
   ],
   templateUrl: './user-detail.component.html',
   styleUrls: ['./user-detail.component.scss'],
@@ -134,4 +144,3 @@ export class UserDetailComponent implements OnInit {
     this.router.navigate(['/admin/users']);
   }
 }
-

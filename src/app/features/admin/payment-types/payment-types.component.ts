@@ -4,7 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { PaymentType } from '@core/models/payment-type.model';
 
 @Component({
@@ -15,7 +23,12 @@ import { PaymentType } from '@core/models/payment-type.model';
     FormsModule,
     RouterModule,
     DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent,
+    ToggleComponent
   ],
   templateUrl: './payment-types.component.html',
   styleUrls: ['./payment-types.component.scss'],
@@ -55,6 +68,12 @@ export class PaymentTypesComponent implements AfterViewInit {
   // Table columns
   columns: TableColumn[] = [];
 
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
+
   // Pagination
   currentPage = signal(1);
   itemsPerPage = signal(17);
@@ -93,7 +112,8 @@ export class PaymentTypesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -106,8 +126,7 @@ export class PaymentTypesComponent implements AfterViewInit {
     this.router.navigate(['/admin/payment-types/new']);
   }
 
-  toggleDropdown(paymentTypeId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(paymentTypeId: string): void {
     if (this.openDropdownId() === paymentTypeId) {
       this.openDropdownId.set(null);
     } else {
@@ -118,6 +137,18 @@ export class PaymentTypesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const paymentType = event.row as PaymentType;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(paymentType);
+        break;
+      case 'delete':
+        this.onDelete(paymentType);
+        break;
+    }
   }
 
   onEdit(paymentType: PaymentType): void {
@@ -138,24 +169,23 @@ export class PaymentTypesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.paymentTypes().map(p => ({ ...p, selected: true }));
     this.paymentTypes.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.paymentTypes().map(p => ({ ...p, selected: false }));
     this.paymentTypes.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   togglePaymentTypeSelection(paymentType: PaymentType): void {
@@ -166,10 +196,9 @@ export class PaymentTypesComponent implements AfterViewInit {
     this.selectAll.set(updated.every(p => p.selected));
   }
 
-  toggleActive(paymentType: PaymentType, event: Event): void {
-    event.stopPropagation();
+  toggleActive(paymentType: PaymentType, value: boolean): void {
     const updated = this.paymentTypes().map(p =>
-      p.id === paymentType.id ? { ...p, active: !p.active } : p
+      p.id === paymentType.id ? { ...p, active: value } : p
     );
     this.paymentTypes.set(updated);
   }
@@ -178,4 +207,3 @@ export class PaymentTypesComponent implements AfterViewInit {
     this.currentPage.set(page);
   }
 }
-

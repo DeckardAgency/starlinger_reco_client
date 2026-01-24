@@ -18,3 +18,10 @@ export * from './order-card/order-card.component';
 export * from './quick-action-card/quick-action-card.component';
 export * from './section-header/section-header.component';
 export * from './dropdown-menu/dropdown-menu.component';
+
+// Admin page components
+export * from './list-header/list-header.component';
+export * from './table-actions-dropdown/table-actions-dropdown.component';
+export * from './detail-header/detail-header.component';
+export * from './table-footer/table-footer.component';
+export * from './table-checkbox-selection/table-checkbox-selection.component';

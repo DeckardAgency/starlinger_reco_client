@@ -5,7 +5,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
@@ -14,6 +14,17 @@ import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.componen
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
 import { ModalComponent } from '@app/ui-kit/organisms/modal/modal.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
+import { TextEditorComponent } from '@shared/components/text-editor/text-editor.component';
+import { 
+  mockProductDetail, 
+  mockProductAvailable, 
+  mockProductRelated, 
+  mockProductGallery, 
+  mockProductDocuments, 
+  mockProductAppliedDiscounts 
+} from '@core/mocks/mock-data';
 
 interface ProductDetail {
   id: string;
@@ -110,7 +121,10 @@ const EMPTY_PRODUCT: ProductDetail = {
     TabsComponent,
     DataTableComponent,
     PaginationComponent,
-    ModalComponent
+    ModalComponent,
+    IconComponent,
+    TableFooterComponent,
+    TextEditorComponent
   ],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
@@ -123,6 +137,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   product = signal<ProductDetail>(EMPTY_PRODUCT);
   isEditMode = signal(false);
   activeTab = signal('shortDescription');
+
+  // Breadcrumb items
+  breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Products', route: '/admin/products' },
+    { label: 'Product detail', route: '' }
+  ];
 
   // Rich text editor
   editorContent = signal('');
@@ -295,31 +315,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   private loadProduct(id: string): void {
-    // Mock data
-    const productData = {
-      id: id,
-      code: 'AIVS-01197',
-      name: 'Analog input module',
-      active: true,
-      readyForShop: true,
-      url: 'analog-input-module-a4922-x29a4822',
-      quantity: 9999,
-      quantityStep: 1.00,
-      quoteItemLimit: 2.00,
-      fixedQuantity: 0.00,
-      weight: 'kg 0,0220',
-      productGroup: 'electrical',
-      catalogCode: 'AIVS-01197',
-      basePrice: 284.23,
-      retailPrice: 0.00,
-      taxPercent: 'PDV20',
-      currency: 'EUR',
-      discountPercent: 0.00,
-      discountPrice: 0.00,
-      shortDescription: ''
-    };
-
-    this.product.set(productData);
+    // In real app this would be an API call
+    const productData = { ...mockProductDetail, id };
+    this.product.set(productData as ProductDetail);
 
     // Set select values
     this.productGroupValue = productData.productGroup;
@@ -328,56 +326,28 @@ export class ProductDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   private loadAvailableProducts(): void {
-    // Mock data
-    this.availableProducts.set([
-      { id: '1', productId: '0001', code: 'AIVS-01197', name: 'Analog input module', status: 'active', available: true },
-      { id: '2', productId: '0002', code: 'AIVS-01199', name: 'Block: Klotz', status: 'active', available: true },
-      { id: '3', productId: '0003', code: 'AESA-0002', name: 'Bus Controller', status: 'active', available: true },
-      { id: '4', productId: '0004', code: 'AESA-0001', name: 'Bus Modul', status: 'active', available: true },
-      { id: '5', productId: '0005', code: 'Z3I-10337A', name: 'Cartridge heater', status: 'active', available: true },
-      { id: '6', productId: '0006', code: 'AESA-0001', name: 'Control unit adjusted', status: 'active', available: true },
-      { id: '7', productId: '0007', code: 'AIVS-01197', name: 'Control unit extension', status: 'active', available: true },
-      { id: '8', productId: '0008', code: 'Z3I-10337A', name: 'Die plate', status: 'active', available: true },
-      { id: '9', productId: '0009', code: 'AESA-0001', name: 'Digital input module', status: 'active', available: true },
-      { id: '10', productId: '0010', code: 'AIVS-01197', name: 'Energy measurement module', status: 'active', available: true },
-      { id: '11', productId: '0011', code: 'AESA-0001', name: 'Fill level limit switch', status: 'active', available: true }
-    ]);
+    // In real app this would be an API call
+    this.availableProducts.set([...mockProductAvailable] as RelatedProduct[]);
   }
 
   private loadRelatedProducts(): void {
-    // Mock data
-    this.relatedProducts.set([
-      { id: '1', productId: '0001', code: 'AIVS-01197', name: 'Analog input module', status: 'active', available: true, sortOrder: 1 },
-      { id: '2', productId: '0002', code: 'AIVS-01199', name: 'Block: Klotz', status: 'active', available: true, sortOrder: 3 },
-      { id: '3', productId: '0003', code: 'AESA-0002', name: 'Bus Controller', status: 'active', available: true, sortOrder: 2 }
-    ]);
+    // In real app this would be an API call
+    this.relatedProducts.set([...mockProductRelated] as RelatedProduct[]);
   }
 
   private loadGalleryImages(): void {
-    // Mock data
-    this.galleryImages.set([
-      { id: '1', name: 'Image-1.jpg', url: '/images/image-placeholder-16-9.jpg', isPrimary: true },
-      { id: '2', name: 'Image-2.jpg', url: '/images/image-placeholder-16-9.jpg' },
-      { id: '3', name: 'Image-truncated-text.jpg', url: '/images/image-placeholder-16-9.jpg' },
-      { id: '4', name: 'Image-4.jpg', url: '/images/image-placeholder-16-9.jpg' }
-    ]);
+    // In real app this would be an API call
+    this.galleryImages.set([...mockProductGallery] as GalleryImage[]);
   }
 
   private loadProductDocuments(): void {
-    // Mock data
-    this.productDocuments.set([
-      { id: '1', fileType: 'PDF', name: 'Product brochure.pdf', size: '1.2 MB' },
-      { id: '2', fileType: 'PDF', name: 'Product warranty.pdf', size: '0.7 MB' }
-    ]);
+    // In real app this would be an API call
+    this.productDocuments.set([...mockProductDocuments] as ProductDocument[]);
   }
 
   private loadAppliedDiscounts(): void {
-    // Mock data
-    this.appliedDiscounts.set([
-      { id: '8099336', dateValidFrom: '25/10/2024 00:00:25', dateValidTo: '01/11/2024 00:00:25', discountPriceBase: '€ 198,96', discountPercent: '30,00', appliedTo: 'Recycling team Gmbh' },
-      { id: '8099592', dateValidFrom: '25/11/2024 00:00:11', dateValidTo: '10/11/2024 00:00:11', discountPriceBase: '€ 220,40', discountPercent: '25,00', appliedTo: 'Rodomsko recycling' },
-      { id: '8099905', dateValidFrom: '01/02/2025 00:00:19', dateValidTo: '25/02/2025 00:00:19', discountPriceBase: '€ 1.084,20', discountPercent: '15,00', appliedTo: 'General recycling group' }
-    ]);
+    // In real app this would be an API call
+    this.appliedDiscounts.set([...mockProductAppliedDiscounts] as AppliedDiscount[]);
   }
 
   private resetForm(): void {
@@ -640,9 +610,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   // Editor methods
-  onEditorInput(event: Event): void {
-    const target = event.target as HTMLElement;
-    this.editorContent.set(target.innerText || '');
+  onEditorInput(content: string): void {
+    this.editorContent.set(content || '');
+    this.product.update(p => ({ ...p, shortDescription: content }));
   }
 
   makeImagePrimary(imageId: string): void {

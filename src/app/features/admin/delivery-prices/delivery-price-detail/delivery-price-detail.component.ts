@@ -6,6 +6,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { DeliveryPrice } from '@core/models/delivery-price.model';
 
 interface DeliveryPriceDetail {
@@ -63,7 +67,11 @@ const DELIVERY_TYPE_OPTIONS: SelectOption[] = [
     CommonModule,
     FormsModule,
     RouterModule,
-    FormFieldComponent
+    FormFieldComponent,
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    IconComponent
   ],
   templateUrl: './delivery-price-detail.component.html',
   styleUrls: ['./delivery-price-detail.component.scss'],

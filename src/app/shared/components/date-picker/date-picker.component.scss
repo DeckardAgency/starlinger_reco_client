@@ -3,6 +3,11 @@
   display: inline-block;
   width: 100%;
   max-width: 300px;
+  
+  // Ensure calendar can overflow outside container on desktop
+  @media (min-width: 769px) {
+    overflow: visible;
+  }
 }
 
 .date-picker-button {
@@ -66,7 +71,7 @@
 
 .calendar-wrapper {
   position: absolute;
-  z-index: 1000;
+  z-index: 1001;
   margin-top: 8px;
   min-width: 620px;
   right: 0;
@@ -74,15 +79,24 @@
 
   @media (max-width: 768px) {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: auto;
+    bottom: 0;
+    left: 16px !important;
+    right: 16px !important;
+    transform: none;
     margin-top: 0;
-    width: 90%;
-    max-width: 620px;
+    margin-bottom: 16px;
+    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
     min-width: auto;
-    max-height: 90vh;
+    max-height: 80vh;
     overflow-y: auto;
+    overflow-x: hidden;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    box-sizing: border-box;
   }
 }
 
@@ -92,9 +106,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999;
-  background-color: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(2px);
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 // Date range styles for visual feedback

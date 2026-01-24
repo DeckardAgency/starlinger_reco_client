@@ -8,6 +8,8 @@ import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/brea
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { mockManualEntryDetail } from '@core/mocks/mock-data';
 
 // Interfaces
 interface AttachedFile {
@@ -85,7 +87,8 @@ const EMPTY_ENTRY: ManualEntryDetail = {
     BreadcrumbsComponent,
     BadgeComponent,
     ToggleComponent,
-    FormFieldComponent
+    FormFieldComponent,
+    IconComponent
   ],
   templateUrl: './manual-entry-detail.component.html',
   styleUrls: ['./manual-entry-detail.component.scss'],
@@ -105,6 +108,46 @@ export class ManualEntryDetailComponent implements OnInit, OnDestroy {
   // Entry data
   entry = signal<ManualEntryDetail>({ ...EMPTY_ENTRY });
 
+  // Dropdown options
+  contactOptions = [
+    { value: 'martina', label: 'Martina Kemper - Unistrap Gmbh' },
+    { value: 'john', label: 'John Doe - Unistrap Gmbh' },
+    { value: 'jane', label: 'Jane Smith - Unistrap Gmbh' }
+  ];
+
+  billingAddressOptions = [
+    { value: 'wien', label: '1060 Wien, Sonnenuhrgasse 4' },
+    { value: 'graz', label: '8010 Graz, Hauptplatz 1' },
+    { value: 'linz', label: '4020 Linz, Landstraße 15' }
+  ];
+
+  statusOptions = [
+    { value: 'new', label: 'New' },
+    { value: 'in-progress', label: 'In Progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
+
+  paymentTypeOptions = [
+    { value: 'bank-transfer', label: 'Bank transfer' },
+    { value: 'credit-card', label: 'Credit card' },
+    { value: 'paypal', label: 'PayPal' }
+  ];
+
+  deliveryTypeOptions = [
+    { value: 'dhl', label: 'DHL' },
+    { value: 'fedex', label: 'FedEx' },
+    { value: 'ups', label: 'UPS' },
+    { value: 'pickup', label: 'Pickup' }
+  ];
+
+  // Selected values for ngModel
+  selectedContact = '';
+  selectedBillingAddress = '';
+  selectedStatus = '';
+  selectedPaymentType = '';
+  selectedDeliveryType = '';
+
   ngOnInit(): void {
     this.route.paramMap
       .pipe(takeUntil(this.destroy$))
@@ -122,74 +165,103 @@ export class ManualEntryDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadEntry(id: string): void {
-    // Mock data - in real app this would be an API call
-    const mockEntry: ManualEntryDetail = {
-      id: '0002',
-      internalRef: '000123-ABC',
-      dateCreated: '14-03-2024',
-      status: 'new',
-      enableSale: true,
-      account: 'Unistrap Gmbh - finanz.ke@starlinger.com',
-      contact: 'Martina Kemper - Unistrap Gmbh',
-      contactDropdown: 'martina',
-      billingAddress: 'wien',
-      date: '09/04/2025',
-      paymentType: 'bank-transfer',
-      deliveryType: 'dhl',
-      priceWithoutTax: 4764.74,
-      totalPrice: 5724.20,
-      priceTax: 956.40,
-      inquiryParts: [
-        {
-          id: 'part-1',
-          partNumber: 'Part 1',
-          machineName: 'ad*StarKON Machine',
-          productName: 'Power panel T30 4,3" WQVGA color touch',
-          detailedDescription: 'Hello! I need a replacement part for my 200XE Winding Machine. Not sure about the exact part needed, please check the attached files for more info.',
-          attachedFiles: [
-            { name: 'electric_response.pdf', size: '3.4 MB', type: 'pdf' },
-            { name: 'machine_side_view_99.jpg', size: '1.2 MB', type: 'image' },
-            { name: 'system_error_report.xls', size: '0.3MB', type: 'spreadsheet' }
-          ],
-          additionalNotes: 'Please get back to us ASAP, we need this part urgent, production stopped!',
-          isExpanded: true
-        },
-        {
-          id: 'part-2',
-          partNumber: 'Part 2',
-          machineName: 'EX200 Weaving Machine',
-          productName: 'Power panel T30 4,3" WQVGA color touch',
-          detailedDescription: 'Hello! I need a replacement part for my 200XE Winding Machine. Not sure about the exact part needed, please check the attached files for more info.',
-          attachedFiles: [
-            { name: 'electric_response.pdf', size: '3.4 MB', type: 'pdf' },
-            { name: 'machine_side_view_99.jpg', size: '1.2 MB', type: 'image' },
-            { name: 'system_error_report.xls', size: '0.3MB', type: 'spreadsheet' }
-          ],
-          additionalNotes: 'Please get back to us ASAP, we need this part urgent, production stopped!',
-          isExpanded: true
-        }
-      ],
-      logMessages: [
-        { status: 'Completed', statusVariant: 'success', dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Inquiry completed' },
-        { status: 'In progress', statusVariant: 'warning', dateTime: '19-03-2024 | 16:30', user: 'Starlinger', message: 'Inquiry in progress' },
-        { status: 'Information provided', statusVariant: 'warning', dateTime: '18-03-2024 | 09:15', user: '#username', message: 'Missing information provided by the customer.' },
-        { status: 'More info', statusVariant: 'warning', dateTime: '17-03-2024 | 14:45', user: 'Starlinger', message: 'Missing information requested by the admin.' },
-        { status: 'In review', statusVariant: 'warning', dateTime: '16-03-2024 | 10:00', user: 'Starlinger', message: 'Inquiry in review by the admin.' },
-        { status: 'Submitted', statusVariant: 'info', dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Inquiry submitted by the customer.' }
-      ]
-    };
+    // In real app this would be an API call
+    const entryData = mockManualEntryDetail as ManualEntryDetail;
 
-    this.entry.set(mockEntry);
+    this.entry.set(entryData);
     this.breadcrumbItems = [
       { label: 'Manual entry', route: '/admin/manual-entries' },
-      { label: `Inquiry #${mockEntry.id}` }
+      { label: `Inquiry #${entryData.id}` }
     ];
+    
+    // Set selected values
+    this.selectedContact = entryData.contactDropdown;
+    this.selectedBillingAddress = entryData.billingAddress;
+    this.selectedStatus = entryData.status;
+    this.selectedPaymentType = entryData.paymentType;
+    this.selectedDeliveryType = entryData.deliveryType;
+    
     this.cdr.markForCheck();
   }
 
   // Event handlers
   onEnableSaleChange(value: boolean): void {
     this.entry.update(e => ({ ...e, enableSale: value }));
+  }
+
+  // Dropdown change handlers
+  onContactChange(): void {
+    const option = this.contactOptions.find(o => o.value === this.selectedContact);
+    if (option) {
+      this.entry.update(e => ({ ...e, contact: option.label, contactDropdown: this.selectedContact }));
+    }
+  }
+
+  onBillingAddressChange(): void {
+    this.entry.update(e => ({ ...e, billingAddress: this.selectedBillingAddress }));
+  }
+
+  onStatusChange(): void {
+    this.entry.update(e => ({ ...e, status: this.selectedStatus }));
+  }
+
+  onPaymentTypeChange(): void {
+    this.entry.update(e => ({ ...e, paymentType: this.selectedPaymentType }));
+  }
+
+  onDeliveryTypeChange(): void {
+    this.entry.update(e => ({ ...e, deliveryType: this.selectedDeliveryType }));
+  }
+
+  // Remove pill handlers
+  removeContact(): void {
+    this.selectedContact = '';
+    this.entry.update(e => ({ ...e, contact: '', contactDropdown: '' }));
+  }
+
+  removeBillingAddress(): void {
+    this.selectedBillingAddress = '';
+    this.entry.update(e => ({ ...e, billingAddress: '' }));
+  }
+
+  removeStatus(): void {
+    this.selectedStatus = '';
+    this.entry.update(e => ({ ...e, status: '' }));
+  }
+
+  removePaymentType(): void {
+    this.selectedPaymentType = '';
+    this.entry.update(e => ({ ...e, paymentType: '' }));
+  }
+
+  removeDeliveryType(): void {
+    this.selectedDeliveryType = '';
+    this.entry.update(e => ({ ...e, deliveryType: '' }));
+  }
+
+  getContactLabel(): string {
+    const option = this.contactOptions.find(o => o.value === this.selectedContact);
+    return option ? option.label : '';
+  }
+
+  getBillingAddressLabel(): string {
+    const option = this.billingAddressOptions.find(o => o.value === this.selectedBillingAddress);
+    return option ? option.label : '';
+  }
+
+  getStatusLabel(): string {
+    const option = this.statusOptions.find(o => o.value === this.selectedStatus);
+    return option ? option.label : '';
+  }
+
+  getPaymentTypeLabel(): string {
+    const option = this.paymentTypeOptions.find(o => o.value === this.selectedPaymentType);
+    return option ? option.label : '';
+  }
+
+  getDeliveryTypeLabel(): string {
+    const option = this.deliveryTypeOptions.find(o => o.value === this.selectedDeliveryType);
+    return option ? option.label : '';
   }
 
   toggleInquiryPart(partId: string): void {

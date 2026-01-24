@@ -7,9 +7,15 @@ import { takeUntil } from 'rxjs/operators';
 
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { FormFieldComponent } from '@app/ui-kit/molecules/form-field/form-field.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { DetailHeaderComponent } from '@app/ui-kit/molecules/detail-header/detail-header.component';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { TableFooterComponent } from '@app/ui-kit/molecules/table-footer/table-footer.component';
+import { TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit/molecules/table-actions-dropdown/table-actions-dropdown.component';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { mockDiscountDetail, mockDiscountProducts } from '@core/mocks/mock-data';
 
 interface DiscountDetail {
   id: string;
@@ -50,9 +56,14 @@ const EMPTY_DISCOUNT: DiscountDetail = {
     RouterModule,
     BadgeComponent,
     ToggleComponent,
+    IconComponent,
     FormFieldComponent,
-    DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    DetailHeaderComponent,
+    MobileFooterComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    DataTableComponent
   ],
   templateUrl: './discount-detail.component.html',
   styleUrls: ['./discount-detail.component.scss'],
@@ -104,6 +115,11 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
   selectedAccountGroup = '';
   selectedAccount = '';
 
+  // Product actions
+  productActions: TableAction[] = [
+    { id: 'remove', label: 'Remove', icon: 'trash', variant: 'danger' }
+  ];
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -146,44 +162,21 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
   private loadDiscount(id: string): void {
     this.isLoading.set(true);
 
-    // Mock data - in real app this would be an API call
+    // In real app this would be an API call
     setTimeout(() => {
-      this.discount.set({
-        id: id,
-        name: 'ET -30%',
-        active: true,
-        dateFrom: '01/01/2025',
-        dateTo: '01/01/2025',
-        discountPercent: 30,
-        priority: 0,
-        accountGroups: ['group1'],
-        accounts: ['acc1', 'acc2']
-      });
+      this.discount.set({ ...mockDiscountDetail, id } as DiscountDetail);
       this.isLoading.set(false);
       this.cdr.markForCheck();
     }, 100);
   }
 
   private loadProducts(): void {
-    // Mock data - in real app this would be an API call
-    this.products.set([
-      { id: '1', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '2', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '3', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '4', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '5', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '6', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '7', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '8', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '9', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '10', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '11', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' },
-      { id: '12', code: 'BC0083_X20BC0083', shortDescription: 'BC0083_X20BC0083; BC0083_X20BC0083' }
-    ]);
+    // In real app this would be an API call
+    this.products.set([...mockDiscountProducts] as DiscountProduct[]);
   }
 
   // Navigation
-  goBack(): void {
+  onBack(): void {
     this.router.navigate(['/admin/discounts']);
   }
 
@@ -192,29 +185,26 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
     this.discount.update(d => ({ ...d, active }));
   }
 
-  onNameChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  onNameChange(value: string): void {
     this.discount.update(d => ({ ...d, name: value }));
   }
 
-  onDateFromChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  onDateFromChange(value: string): void {
     this.discount.update(d => ({ ...d, dateFrom: value }));
   }
 
-  onDateToChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  onDateToChange(value: string): void {
     this.discount.update(d => ({ ...d, dateTo: value }));
   }
 
-  onDiscountPercentChange(event: Event): void {
-    const value = parseFloat((event.target as HTMLInputElement).value) || 0;
-    this.discount.update(d => ({ ...d, discountPercent: value }));
+  onDiscountPercentChange(value: string): void {
+    const numValue = parseFloat(value) || 0;
+    this.discount.update(d => ({ ...d, discountPercent: numValue }));
   }
 
-  onPriorityChange(event: Event): void {
-    const value = parseInt((event.target as HTMLInputElement).value) || 0;
-    this.discount.update(d => ({ ...d, priority: value }));
+  onPriorityChange(value: string): void {
+    const numValue = parseInt(value) || 0;
+    this.discount.update(d => ({ ...d, priority: numValue }));
   }
 
   onAccountGroupChange(): void {
@@ -275,8 +265,9 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
     this.sortDirection = event.direction;
   }
 
-  onSearch(): void {
-    console.log('Searching:', this.searchQuery);
+  onSearch(query: string): void {
+    this.searchQuery = query;
+    console.log('Searching:', query);
   }
 
   onPageChange(page: number): void {
@@ -284,8 +275,7 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // Dropdown
-  toggleDropdown(productId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(productId: string): void {
     if (this.openDropdownId() === productId) {
       this.openDropdownId.set(null);
     } else {
@@ -298,9 +288,15 @@ export class DiscountDetailComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // Product actions
+  onProductActionClick(event: ActionClickEvent): void {
+    const product = event.row as DiscountProduct;
+    if (event.actionId === 'remove') {
+      this.onRemoveProduct(product);
+    }
+  }
+
   onRemoveProduct(product: DiscountProduct): void {
     this.products.update(list => list.filter(p => p.id !== product.id));
     this.closeDropdown();
   }
 }
-

@@ -28,6 +28,8 @@ export class DataTableComponent {
   @Input({ required: true }) data!: any[];
   @Input() sortColumn: string | null = null;
   @Input() sortDirection: 'asc' | 'desc' | null = null;
+  @Input() showHeaders: boolean = true;
+  @Input() emptyMessage: string = 'No results';
 
   @Output() sort = new EventEmitter<SortEvent>();
 

@@ -4,7 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
-import { PaginationComponent } from '@app/ui-kit/molecules/pagination/pagination.component';
+import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { 
+  ListHeaderComponent,
+  TableFooterComponent,
+  TableActionsDropdownComponent,
+  TableCheckboxSelectionComponent,
+  TableAction
+} from '@app/ui-kit/molecules';
+import { ToggleComponent } from '@app/ui-kit/atoms/toggle/toggle.component';
 import { Warehouse } from '@core/models/warehouse.model';
 
 @Component({
@@ -15,7 +23,12 @@ import { Warehouse } from '@core/models/warehouse.model';
     FormsModule,
     RouterModule,
     DataTableComponent,
-    PaginationComponent
+    BreadcrumbsComponent,
+    ListHeaderComponent,
+    TableFooterComponent,
+    TableActionsDropdownComponent,
+    TableCheckboxSelectionComponent,
+    ToggleComponent
   ],
   templateUrl: './warehouses.component.html',
   styleUrls: ['./warehouses.component.scss'],
@@ -54,6 +67,12 @@ export class WarehousesComponent implements AfterViewInit {
 
   // Table columns
   columns: TableColumn[] = [];
+
+  // Table actions for dropdown
+  tableActions: TableAction[] = [
+    { id: 'edit', label: 'Edit', icon: 'pencil' },
+    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+  ];
 
   // Pagination
   currentPage = signal(1);
@@ -95,7 +114,8 @@ export class WarehousesComponent implements AfterViewInit {
     ];
   }
 
-  onSearch(): void {
+  onSearchChange(query: string): void {
+    this.searchQuery = query;
     console.log('Searching:', this.searchQuery);
   }
 
@@ -108,8 +128,10 @@ export class WarehousesComponent implements AfterViewInit {
     this.router.navigate(['/admin/warehouses/new']);
   }
 
-  toggleDropdown(warehouseId: string, event: Event): void {
-    event.stopPropagation();
+  toggleDropdown(warehouseId: string, event: Event | void): void {
+    if (event) {
+      (event as Event).stopPropagation();
+    }
     if (this.openDropdownId() === warehouseId) {
       this.openDropdownId.set(null);
     } else {
@@ -120,6 +142,18 @@ export class WarehousesComponent implements AfterViewInit {
   closeDropdown(): void {
     this.openDropdownId.set(null);
     this.isHeaderDropdownOpen.set(false);
+  }
+
+  onActionClick(event: { action: TableAction; row: unknown }): void {
+    const warehouse = event.row as Warehouse;
+    switch (event.action.id) {
+      case 'edit':
+        this.onEdit(warehouse);
+        break;
+      case 'delete':
+        this.onDelete(warehouse);
+        break;
+    }
   }
 
   onEdit(warehouse: Warehouse): void {
@@ -140,24 +174,23 @@ export class WarehousesComponent implements AfterViewInit {
     this.selectAll.set(false);
   }
 
-  toggleHeaderDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isHeaderDropdownOpen.set(!this.isHeaderDropdownOpen());
-    this.openDropdownId.set(null);
+  onHeaderDropdownToggle(isOpen: boolean): void {
+    this.isHeaderDropdownOpen.set(isOpen);
+    if (isOpen) {
+      this.openDropdownId.set(null);
+    }
   }
 
   onSelectAll(): void {
     const updated = this.warehouses().map(w => ({ ...w, selected: true }));
     this.warehouses.set(updated);
     this.selectAll.set(true);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   onSelectNone(): void {
     const updated = this.warehouses().map(w => ({ ...w, selected: false }));
     this.warehouses.set(updated);
     this.selectAll.set(false);
-    this.isHeaderDropdownOpen.set(false);
   }
 
   toggleWarehouseSelection(warehouse: Warehouse): void {
@@ -168,10 +201,9 @@ export class WarehousesComponent implements AfterViewInit {
     this.selectAll.set(updated.every(w => w.selected));
   }
 
-  toggleActive(warehouse: Warehouse, event: Event): void {
-    event.stopPropagation();
+  toggleActive(warehouse: Warehouse, value: boolean): void {
     const updated = this.warehouses().map(w => 
-      w.id === warehouse.id ? { ...w, active: !w.active } : w
+      w.id === warehouse.id ? { ...w, active: value } : w
     );
     this.warehouses.set(updated);
   }
@@ -180,4 +212,3 @@ export class WarehousesComponent implements AfterViewInit {
     this.currentPage.set(page);
   }
 }
-
