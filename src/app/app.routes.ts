@@ -506,12 +506,6 @@ export const routes: Routes = [
   // SHARED/UTILITY ROUTES
   // ============================================================================
   {
-    path: 'products',
-    loadComponent: () => import('@features/products/products.component').then(m => m.ProductsComponent),
-    canActivate: [AuthGuard],
-    title: 'Reco | Products'
-  },
-  {
     path: 'ui-kit',
     loadComponent: () => import('@features/ui-kit-docs/ui-kit-docs.component').then(m => m.UiKitDocsComponent),
     canActivate: [AuthGuard],
