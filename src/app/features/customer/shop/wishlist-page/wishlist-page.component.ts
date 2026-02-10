@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { WishlistService } from '@core/services/wishlist.service';
 import { WishlistItem } from '@core/models/wishlist.model';
 import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 
 @Component({
   selector: 'app-wishlist-page',
@@ -11,7 +13,9 @@ import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-tabl
   imports: [
     CommonModule,
     RouterModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbsComponent,
+    IconComponent
   ],
   templateUrl: './wishlist-page.component.html',
   styleUrls: ['./wishlist-page.component.scss'],
@@ -28,6 +32,11 @@ export class WishlistPageComponent implements AfterViewInit {
 
   wishlistItems = this.wishlistService.wishlistItems;
   columns: TableColumn[] = [];
+
+  breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Shop', route: '/customer/shop' },
+    { label: 'Wishlist' }
+  ];
 
   ngAfterViewInit(): void {
     this.columns = [
@@ -56,4 +65,3 @@ export class WishlistPageComponent implements AfterViewInit {
     this.router.navigate(['/customer/shop/cart']);
   }
 }
-

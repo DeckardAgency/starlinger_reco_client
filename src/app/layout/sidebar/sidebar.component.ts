@@ -8,7 +8,7 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
-type SectionKey = 'customer' | 'actions' | 'product' | 'ecommerce' | 'user' | 'machine' | 'shop' | 'inquiries';
+type SectionKey = 'customer' | 'actions' | 'product' | 'ecommerce' | 'user' | 'shop' | 'orders';
 
 @Component({
     selector: 'app-sidebar',
@@ -57,7 +57,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // Section expansion states - all expanded by default
-  private expandedSections = signal<Set<SectionKey>>(new Set(['customer', 'actions', 'product', 'ecommerce', 'user', 'machine', 'shop', 'inquiries']));
+  private expandedSections = signal<Set<SectionKey>>(new Set(['customer', 'actions', 'product', 'ecommerce', 'user', 'shop', 'orders']));
 
   constructor(
     private sidebarService: SidebarService,
@@ -164,28 +164,29 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   /**
    * Check if current user is a Super Admin (Starlinger Admin)
-   * Uses authService.hasRole for consistency
+   * This takes highest priority - if user has SUPER_ADMIN role, show admin UI
    */
   get isSuperAdmin(): boolean {
-    // TODO: Remove this bypass before production
-    return true; // DEV BYPASS - always show super admin navigation
-    // return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
+    return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
   }
 
   /**
    * Check if current user is a Customer Admin (Client Admin)
-   * Uses authService.hasRole for consistency
+   * Only true if user has CLIENT_ADMIN but NOT SUPER_ADMIN
    */
   get isCustomerAdmin(): boolean {
-    return this.authService.hasRole(USER_ROLES.CLIENT_ADMIN);
+    return this.authService.hasRole(USER_ROLES.CLIENT_ADMIN) && 
+           !this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
   }
 
   /**
    * Check if current user is a Customer (Client)
-   * Uses authService.hasRole for consistency
+   * Only true if user has CLIENT but NOT CLIENT_ADMIN or SUPER_ADMIN
    */
   get isCustomer(): boolean {
-    return this.authService.hasRole(USER_ROLES.CLIENT);
+    return this.authService.hasRole(USER_ROLES.CLIENT) && 
+           !this.authService.hasRole(USER_ROLES.CLIENT_ADMIN) &&
+           !this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
   }
 
   /**

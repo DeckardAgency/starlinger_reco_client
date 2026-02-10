@@ -1,0 +1,20 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Warehouse, WarehousesCollection } from '@core/models/warehouse.model';
+import { BaseHttpService } from './base-http.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WarehouseService extends BaseHttpService {
+  private readonly endpoint = `${this.apiUrl}/warehouses`;
+
+  getWarehouses(page: number = 1, itemsPerPage: number = 100): Observable<WarehousesCollection> {
+    const params = this.buildParams({ page, itemsPerPage });
+    return this.getWithJsonLd<WarehousesCollection>(this.endpoint, params);
+  }
+
+  getWarehouseById(id: string): Observable<Warehouse> {
+    return this.getWithJsonLd<Warehouse>(`${this.endpoint}/${id}`);
+  }
+}

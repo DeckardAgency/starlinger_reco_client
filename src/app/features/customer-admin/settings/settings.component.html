@@ -1,0 +1,136 @@
+<div class="settings-page">
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="chevron"
+    [items]="[{ label: 'Settings' }]"
+    homeRoute="/customer-admin/settings"
+  ></ui-breadcrumbs>
+
+  <main class="page-content">
+    @if (!user()) {
+      <div class="loading-state">
+        <p>Loading user settings...</p>
+      </div>
+    } @else {
+      <!-- Profile Section -->
+      <div class="settings-card">
+        <div class="settings-card__header">
+          <div class="header-title">
+            <ui-icon name="user" size="md"></ui-icon>
+            <h2>Profile Information</h2>
+          </div>
+          @if (!isEditing()) {
+            <ui-button variant="secondary" size="sm" (click)="onEditProfile()">
+              <ui-icon name="pencil" size="sm"></ui-icon>
+              Edit
+            </ui-button>
+          }
+        </div>
+
+        <div class="settings-card__content">
+          @if (isEditing()) {
+            <!-- Edit Mode -->
+            <div class="form-grid">
+              <ui-form-field label="First Name">
+                <ui-input [(ngModel)]="profileForm.firstName" placeholder="Enter first name"></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Last Name">
+                <ui-input [(ngModel)]="profileForm.lastName" placeholder="Enter last name"></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Email Address">
+                <ui-input type="email" [(ngModel)]="profileForm.email" placeholder="Enter email" [disabled]="true"></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Phone Number">
+                <ui-input [(ngModel)]="profileForm.phone" placeholder="Enter phone number"></ui-input>
+              </ui-form-field>
+            </div>
+
+            <div class="form-actions">
+              <ui-button variant="ghost" (click)="onCancelEdit()" [disabled]="isSaving()">
+                Cancel
+              </ui-button>
+              <ui-button variant="primary" (click)="onSaveProfile()" [disabled]="isSaving()">
+                @if (isSaving()) {
+                  Saving...
+                } @else {
+                  Save Changes
+                }
+              </ui-button>
+            </div>
+          } @else {
+            <!-- View Mode -->
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name</span>
+                <span class="info-value">{{ user()?.firstName }} {{ user()?.lastName }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user()?.email }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Role</span>
+                <span class="info-value">{{ getRoleDisplay(user()?.roles || []) }}</span>
+              </div>
+
+              @if (user()?.client) {
+                <div class="info-item">
+                  <span class="info-label">Company</span>
+                  <span class="info-value">{{ user()?.client?.name }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Password Section -->
+      <div class="settings-card">
+        <div class="settings-card__header">
+          <div class="header-title">
+            <ui-icon name="lock" size="md"></ui-icon>
+            <h2>Security</h2>
+          </div>
+          <ui-button variant="secondary" size="sm" (click)="onTogglePasswordChange()">
+            @if (showPasswordChange()) {
+              Cancel
+            } @else {
+              Change Password
+            }
+          </ui-button>
+        </div>
+
+        @if (showPasswordChange()) {
+          <div class="settings-card__content">
+            <div class="form-grid">
+              <ui-form-field label="Current Password">
+                <ui-input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password"></ui-input>
+              </ui-form-field>
+
+              <div></div>
+
+              <ui-form-field label="New Password">
+                <ui-input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password"></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Confirm Password">
+                <ui-input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password"></ui-input>
+              </ui-form-field>
+            </div>
+
+            <div class="form-actions">
+              <ui-button variant="primary" (click)="onChangePassword()">
+                Update Password
+              </ui-button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

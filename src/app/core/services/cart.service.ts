@@ -8,12 +8,14 @@ export interface CartItem {
   isFavorite: boolean;
 }
 
+const STORAGE_KEY = 'cart_items';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
   private _isCartOpen = signal(false);
-  private _cartItems = signal<CartItem[]>([]);
+  private _cartItems = signal<CartItem[]>(this.loadFromStorage());
 
   readonly isCartOpen = this._isCartOpen.asReadonly();
   readonly cartItems = this._cartItems.asReadonly();
@@ -36,7 +38,7 @@ export class CartService {
 
   addItem(product: ShopProduct, quantity: number = 1): void {
     const existingItem = this._cartItems().find(item => item.product.id === product.id);
-    
+
     if (existingItem) {
       this._cartItems.update(items =>
         items.map(item =>
@@ -56,6 +58,7 @@ export class CartService {
         }
       ]);
     }
+    this.saveToStorage();
   }
 
   updateQuantity(itemId: string, quantity: number): void {
@@ -69,10 +72,12 @@ export class CartService {
         item.id === itemId ? { ...item, quantity } : item
       )
     );
+    this.saveToStorage();
   }
 
   removeItem(itemId: string): void {
     this._cartItems.update(items => items.filter(item => item.id !== itemId));
+    this.saveToStorage();
   }
 
   toggleFavorite(itemId: string): void {
@@ -81,10 +86,26 @@ export class CartService {
         item.id === itemId ? { ...item, isFavorite: !item.isFavorite } : item
       )
     );
+    this.saveToStorage();
   }
 
   clearCart(): void {
     this._cartItems.set([]);
+    this.saveToStorage();
+  }
+
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._cartItems()));
+    } catch { /* storage unavailable */ }
+  }
+
+  private loadFromStorage(): CartItem[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
   }
 }
-

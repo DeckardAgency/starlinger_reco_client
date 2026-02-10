@@ -3,13 +3,19 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { WishlistService } from '@core/services/wishlist.service';
 import { WishlistItem } from '@core/models/wishlist.model';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
+import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    IconComponent,
+    QuantitySelectorComponent,
+    FavoriteButtonComponent
   ],
   templateUrl: './wishlist.component.html',
   styleUrls: ['./wishlist.component.scss'],
@@ -27,6 +33,10 @@ export class WishlistComponent {
   wishlistItems = this.wishlistService.wishlistItems;
 
   itemCount = computed(() => this.wishlistItems().reduce((sum, item) => sum + item.quantity, 0));
+
+  onQuantityChange(item: WishlistItem, quantity: number): void {
+    this.wishlistService.updateQuantity(item.id, quantity);
+  }
 
   incrementQuantity(item: WishlistItem): void {
     this.wishlistService.updateQuantity(item.id, item.quantity + 1);
@@ -74,4 +84,3 @@ export class WishlistComponent {
     }
   }
 }
-

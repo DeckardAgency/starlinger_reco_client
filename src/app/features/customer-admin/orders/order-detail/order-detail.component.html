@@ -18,8 +18,8 @@
         </ui-button>
         <div class="section-header__title-group">
           <ui-icon name="package" size="md" color="#71717A" class="section-header__icon"></ui-icon>
-          <h1 class="section-header__title">{{ order()?.type === 'order' ? 'Order' : 'Inquiry' }} ID: #{{ order()?.id }}</h1>
-          <ui-badge variant="dark">{{ order()?.type === 'order' ? 'Order' : 'Inquiry' }}</ui-badge>
+          <h1 class="section-header__title">Order ID: #{{ order()?.id }}</h1>
+          <ui-badge variant="dark">Order</ui-badge>
           <ui-badge [variant]="getStatusBadgeVariant(order()?.status || '')">{{ getStatusLabel(order()?.status || '') }}</ui-badge>
         </div>
       </div>
@@ -49,7 +49,7 @@
           <span class="order-info-row__label">Date created: </span>
           <span class="order-info-row__value">{{ order()?.dateCreated }}</span>
         </div>
-        @if (order()?.type === 'order' && order()?.partsOrdered) {
+        @if (order()?.partsOrdered) {
           <div class="order-info-row__item">
             <span class="order-info-row__label">Parts ordered: </span>
             <span class="order-info-row__value">{{ order()?.partsOrdered }}</span>
@@ -58,150 +58,68 @@
       </div>
     </div>
 
-    <!-- ORDER TYPE: Products Ordered Section -->
-    @if (order()?.type === 'order') {
-      <div class="products-section">
-        <div class="products-section__header">
-          <ui-icon name="package" size="md" color="#71717A"></ui-icon>
-          <h2 class="products-section__title">Products ordered</h2>
-        </div>
+    <!-- Products Ordered Section -->
+    <div class="products-section">
+      <div class="products-section__header">
+        <ui-icon name="package" size="md" color="#71717A"></ui-icon>
+        <h2 class="products-section__title">Products ordered</h2>
+      </div>
 
-        <!-- Machine Groups -->
-        <div class="machine-groups">
-          @for (group of order()?.machineGroups; track group.id) {
-            <div class="machine-group">
-              <div class="machine-group__header">
-                <div class="machine-group__title">
-                  <ui-icon name="clipboard-list" size="md"></ui-icon>
-                  <span>{{ group.name }}</span>
-                </div>
-                <button class="machine-group__toggle" (click)="toggleMachineGroup(group.id)">
-                  <span>{{ group.isExpanded ? 'Close' : 'Open' }}</span>
-                  <ui-icon [name]="group.isExpanded ? 'chevron-up' : 'chevron-down'" size="sm"></ui-icon>
-                </button>
+      <!-- Product Groups -->
+      <div class="product-groups">
+        @for (group of order()?.productGroups; track group.id) {
+          <div class="product-group">
+            <div class="product-group__header">
+              <div class="product-group__title">
+                <ui-icon name="clipboard-list" size="md"></ui-icon>
+                <span>{{ group.name }}</span>
               </div>
+              <button class="product-group__toggle" (click)="toggleProductGroup(group.id)">
+                <span>{{ group.isExpanded ? 'Close' : 'Open' }}</span>
+                <ui-icon [name]="group.isExpanded ? 'chevron-up' : 'chevron-down'" size="sm"></ui-icon>
+              </button>
+            </div>
 
-              @if (group.isExpanded) {
-                <div class="machine-group__content">
-                  <table class="products-table">
-                    <thead>
+            @if (group.isExpanded) {
+              <div class="product-group__content">
+                <table class="products-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 140px;">Part no.</th>
+                      <th>Product name</th>
+                      <th style="width: 100px;">Weight</th>
+                      <th style="width: 100px;">Quantity</th>
+                      <th style="width: 120px; text-align: right;">Unit price</th>
+                      <th style="width: 100px;">Discount</th>
+                      <th style="width: 140px; text-align: right;">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (product of group.products; track product.partNo) {
                       <tr>
-                        <th style="width: 140px;">Part no.</th>
-                        <th>Product name</th>
-                        <th style="width: 100px;">Weight</th>
-                        <th style="width: 100px;">Quantity</th>
-                        <th style="width: 120px; text-align: right;">Unit price</th>
-                        <th style="width: 100px;">Discount</th>
-                        <th style="width: 140px; text-align: right;">Price</th>
+                        <td>{{ product.partNo }}</td>
+                        <td>{{ product.productName }}</td>
+                        <td>{{ product.weight }}</td>
+                        <td>{{ product.quantity }}</td>
+                        <td class="text-right">{{ formatCurrency(product.unitPrice) }}</td>
+                        <td>{{ product.discount }}</td>
+                        <td class="text-right">{{ formatCurrency(product.price) }}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      @for (product of group.products; track product.partNo) {
-                        <tr>
-                          <td>{{ product.partNo }}</td>
-                          <td>{{ product.productName }}</td>
-                          <td>{{ product.weight }}</td>
-                          <td>{{ product.quantity }}</td>
-                          <td class="text-right">{{ formatCurrency(product.unitPrice) }}</td>
-                          <td>{{ product.discount }}</td>
-                          <td class="text-right">{{ formatCurrency(product.price) }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <!-- Total Price -->
-        <div class="total-price-row">
-          <span class="total-price-row__label">Total price</span>
-          <span class="total-price-row__value">{{ formatCurrency(order()?.totalPrice || 0) }}</span>
-        </div>
-      </div>
-    }
-
-    <!-- INQUIRY TYPE: Inquiry Overview Section -->
-    @if (order()?.type === 'inquiry') {
-      <div class="inquiry-section-wrapper">
-        <div class="inquiry-section__header">
-          <ui-icon name="file-text" size="md" color="#71717A"></ui-icon>
-          <h2 class="inquiry-section__title">Inquiry overview</h2>
-        </div>
-
-        <!-- Parts -->
-        <div class="inquiry-parts">
-          @for (part of order()?.parts; track part.id) {
-            <div class="inquiry-part">
-              <div class="inquiry-part__header">
-                <div class="inquiry-part__title">
-                  <div class="inquiry-part__number">
-                    <ui-icon name="circle" size="md"></ui-icon>
-                    <span>{{ part.partNumber }}</span>
-                  </div>
-                  <div class="inquiry-part__machine">
-                    <ui-icon name="box" size="md"></ui-icon>
-                    <span>{{ part.machineName }}</span>
-                  </div>
-                </div>
-                <button class="inquiry-part__toggle" (click)="togglePart(part.id)">
-                  <span>{{ part.isExpanded ? 'Close' : 'Open' }}</span>
-                  <ui-icon [name]="part.isExpanded ? 'chevron-up' : 'chevron-down'" size="sm"></ui-icon>
-                </button>
+                    }
+                  </tbody>
+                </table>
               </div>
-
-              @if (part.isExpanded) {
-                <div class="inquiry-part__content">
-                  <!-- Details Section -->
-                  <div class="inquiry-detail-section">
-                    <h3 class="inquiry-detail-section__title">Details</h3>
-                    <div class="inquiry-field">
-                      <span class="inquiry-field__label">Part (product) name</span>
-                      <span class="inquiry-field__value">{{ part.productName }}</span>
-                    </div>
-                    <div class="inquiry-field">
-                      <span class="inquiry-field__label">Detailed description</span>
-                      <span class="inquiry-field__value">{{ part.description }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Attached Files Section -->
-                  <div class="inquiry-detail-section">
-                    <h3 class="inquiry-detail-section__title">Attached files</h3>
-                    <div class="files-list">
-                      @for (file of part.files; track file.id) {
-                        <div class="file-item">
-                          <div class="file-item__icon">
-                            <ui-icon [name]="getFileIcon(file.type)" size="sm" color="#71717A"></ui-icon>
-                          </div>
-                          <span class="file-item__name">{{ file.name }}</span>
-                          <span class="file-item__size">{{ file.size }}</span>
-                          <button class="file-item__view">
-                            <ui-icon name="eye" size="sm"></ui-icon>
-                            <span>View</span>
-                          </button>
-                        </div>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Notes Section -->
-                  <div class="inquiry-detail-section">
-                    <h3 class="inquiry-detail-section__title">Notes</h3>
-                    <div class="inquiry-field">
-                      <span class="inquiry-field__label">Additional notes</span>
-                      <span class="inquiry-field__value">{{ part.notes }}</span>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
-    }
+
+      <!-- Total Price -->
+      <div class="total-price-row">
+        <span class="total-price-row__label">Total price</span>
+        <span class="total-price-row__value">{{ formatCurrency(order()?.totalPrice || 0) }}</span>
+      </div>
+    </div>
 
     <!-- Log Messages Section -->
     <div class="log-section">
@@ -236,4 +154,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Mobile Footer -->
+  <ui-mobile-footer
+    primaryLabel="Export"
+    primaryIcon="export"
+    secondaryLabel="Print"
+    secondaryIcon="printer"
+    (primaryClick)="onExport()"
+    (secondaryClick)="onPrint()"
+  ></ui-mobile-footer>
 </div>

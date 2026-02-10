@@ -3,9 +3,9 @@
  * Represents the decoded JWT token structure from the API
  */
 export interface TokenPayload {
-  // User identification
-  username: string;
-  email?: string;
+  // User identification (JWT claim is 'email', legacy tokens may have 'username')
+  email: string;
+  username?: string;
   roles: string[];
 
   // JWT standard claims (RFC 7519)
@@ -102,8 +102,8 @@ export interface UserMember {
 /**
  * User roles for the RECO application
  * - ROLE_USER: Base role (all authenticated users)
- * - ROLE_CLIENT: Customer role (shop, inquiry, search)
- * - ROLE_CLIENT_ADMIN: Customer Admin role (manages client users & machines)
+ * - ROLE_CLIENT: Customer role (shop, orders, search)
+ * - ROLE_CLIENT_ADMIN: Customer Admin role (manages client users)
  * - ROLE_SUPER_ADMIN: Starlinger Admin role (full system access)
  */
 export const USER_ROLES = {

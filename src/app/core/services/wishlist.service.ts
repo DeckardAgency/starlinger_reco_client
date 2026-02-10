@@ -1,21 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 import { WishlistItem } from '@core/models/wishlist.model';
-import { mockWishlistItems } from '@core/mocks/mock-data';
+
+const STORAGE_KEY = 'wishlist_items';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WishlistService {
   private _isWishlistOpen = signal(false);
-  private _wishlistItems = signal<WishlistItem[]>([]);
+  private _wishlistItems = signal<WishlistItem[]>(this.loadFromStorage());
 
   readonly isWishlistOpen = this._isWishlistOpen.asReadonly();
   readonly wishlistItems = this._wishlistItems.asReadonly();
-
-  constructor() {
-    // Load mock items initially
-    this._wishlistItems.set(mockWishlistItems as WishlistItem[]);
-  }
 
   get itemCount(): number {
     return this._wishlistItems().reduce((sum, item) => sum + item.quantity, 0);
@@ -35,7 +31,7 @@ export class WishlistService {
 
   addItem(item: Omit<WishlistItem, 'id'>, quantity: number = 1): void {
     const existingItem = this._wishlistItems().find(i => i.productCode === item.productCode);
-    
+
     if (existingItem) {
       this._wishlistItems.update(items =>
         items.map(i =>
@@ -55,6 +51,7 @@ export class WishlistService {
         }
       ]);
     }
+    this.saveToStorage();
   }
 
   updateQuantity(itemId: string, quantity: number): void {
@@ -68,14 +65,31 @@ export class WishlistService {
         item.id === itemId ? { ...item, quantity } : item
       )
     );
+    this.saveToStorage();
   }
 
   removeItem(itemId: string): void {
     this._wishlistItems.update(items => items.filter(item => item.id !== itemId));
+    this.saveToStorage();
   }
 
   clearWishlist(): void {
     this._wishlistItems.set([]);
+    this.saveToStorage();
+  }
+
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._wishlistItems()));
+    } catch { /* storage unavailable */ }
+  }
+
+  private loadFromStorage(): WishlistItem[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
   }
 }
-

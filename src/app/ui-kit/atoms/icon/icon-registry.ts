@@ -478,6 +478,59 @@ export const ICON_REGISTRY: Record<string, string> = {
   'code': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
     <path d="M10.667 12l4-4-4-4M5.333 4l-4 4 4 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`,
+
+  // Additional Customer Page Icons
+  'hash': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M2.667 6h10.666M2.667 10h10.666M6.667 2L5.333 14M10.667 2L9.333 14" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'calendar-user': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M11.333 12C11.333 11.4696 11.1226 10.9609 10.7475 10.5858C10.3724 10.2107 9.86377 10 9.33337 10H6.66671C6.1363 10 5.62759 10.2107 5.25252 10.5858C4.87745 10.9609 4.66671 11.4696 4.66671 12M5.33337 1.333V2.667M10.6667 1.333V2.667M3.33337 2.667H12.6667C13.4031 2.667 14 3.264 14 4V13.333C14 14.07 13.4031 14.667 12.6667 14.667H3.33337C2.597 14.667 2 14.07 2 13.333V4C2 3.264 2.597 2.667 3.33337 2.667ZM9.33337 6.667C9.33337 7.403 8.73637 8 8.00004 8C7.26371 8 6.66671 7.403 6.66671 6.667C6.66671 5.93 7.26371 5.333 8.00004 5.333C8.73637 5.333 9.33337 5.93 9.33337 6.667Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'check-circle-large': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" fill="none">
+    <path d="M51.333 25.827v2.206a23.333 23.333 0 11-13.836-21.336" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M51.333 9.333L28 32.69l-7-7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'send': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M14.667 1.333L7.333 8.667M14.667 1.333l-4.667 13.334-3-6.667-6.667-3 13.334-4.667z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'paperclip': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M14.273 7.393l-6.08 6.08a4 4 0 01-5.66-5.66l6.08-6.08a2.667 2.667 0 013.773 3.774l-6.086 6.08a1.333 1.333 0 01-1.887-1.887l5.614-5.607" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'clipboard': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M10.667 2.667H12a1.333 1.333 0 011.333 1.333v9.333A1.333 1.333 0 0112 14.667H4a1.333 1.333 0 01-1.333-1.334V4A1.333 1.333 0 014 2.667h1.333" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10 1.333H6a.667.667 0 00-.667.667v1.333c0 .368.299.667.667.667h4a.667.667 0 00.667-.667V2a.667.667 0 00-.667-.667z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'file-plus': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M9.333 1.333H4a1.333 1.333 0 00-1.333 1.334v10.666A1.333 1.333 0 004 14.667h8a1.333 1.333 0 001.333-1.334V5.333l-4-4z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.333 1.333v4h4M8 7.333v4M6 9.333h4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'dollar-sign': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M8 .667v14.666M11.333 3.333H6.333a2.333 2.333 0 000 4.667h3.334a2.333 2.333 0 010 4.667H4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'map-pin': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M14 6.667c0 4.666-6 8.666-6 8.666s-6-4-6-8.666a6 6 0 1112 0z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="8" cy="6.667" r="2" stroke="currentColor" stroke-width="1.33"/>
+  </svg>`,
+
+  'layers': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M8 1.333L1.333 5.333 8 9.333l6.667-4L8 1.333zM1.333 10.667L8 14.667l6.667-4M1.333 8L8 12l6.667-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'activity': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M14.667 8H12L10 14 6 2 4 8H1.333" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  'bar-chart': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <path d="M12 13.333V6.667M8 13.333V2.667M4 13.333v-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
 };
 
 /**

@@ -2,11 +2,19 @@ export interface Country {
   id: string;
   name: string;
   code: string;
-  iso31661Alpha3Code: string;
-  europeanUnion: boolean;
-  dhlZone: string;
-  defaultTaxPercent: number;
+  iso31661Alpha3Code?: string;
+  europeanUnion?: boolean;
+  dhlZone?: string;
+  defaultTaxPercent?: number;
   selected?: boolean;
+}
+
+export interface CountriesCollection {
+  '@context'?: string;
+  '@id'?: string;
+  '@type'?: string;
+  totalItems: number;
+  member: Country[];
 }
 
 export interface DhlZone {

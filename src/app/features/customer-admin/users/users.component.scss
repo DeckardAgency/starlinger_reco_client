@@ -8,22 +8,22 @@
   @include admin.admin-page;
 }
 
-.table-container {
-  @include admin.table-container;
+.page-content {
+  @include admin.list-page-content;
 }
 
-@include admin.data-table-overrides;
+.table-container {
+  @include admin.tabs-table-container;
+}
+
+@include admin.tabs-table-data-table;
 
 // User Cell
 .user-cell {
   @include admin.avatar-cell;
 
   &__name {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    color: #232323;
+    @include admin.customer-name;
   }
 }
 
@@ -101,4 +101,15 @@
   font-weight: 500;
   line-height: 1;
   color: #232323;
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .page-content {
+    padding-bottom: 76px;
+  }
+
+  ::ng-deep .list-header__right .btn--primary {
+    display: none;
+  }
 }

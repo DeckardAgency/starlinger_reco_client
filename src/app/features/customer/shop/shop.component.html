@@ -3,12 +3,10 @@
   <header class="shop__header">
     <div class="shop__breadcrumb">
       <button class="shop__menu-btn" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M2.5 5h15M2.5 10h15M2.5 15h15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
+        <ui-icon name="menu" size="md"></ui-icon>
       </button>
       <div class="shop__separator"></div>
-      <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard"></ui-breadcrumbs>
+      <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
     </div>
   </header>
 
@@ -25,12 +23,7 @@
         (click)="setViewMode('grid')"
         type="button"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1.333" y="1.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
-          <rect x="9.333" y="1.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
-          <rect x="1.333" y="9.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
-          <rect x="9.333" y="9.333" width="5.333" height="5.333" rx="1" stroke="currentColor" stroke-width="1.33"/>
-        </svg>
+        <ui-icon name="grid" size="sm"></ui-icon>
         <span>Grid view</span>
       </button>
       <button
@@ -39,12 +32,7 @@
         (click)="setViewMode('list')"
         type="button"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M5.333 4H14M5.333 8H14M5.333 12H14" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
-          <circle cx="2" cy="4" r="1" fill="currentColor"/>
-          <circle cx="2" cy="8" r="1" fill="currentColor"/>
-          <circle cx="2" cy="12" r="1" fill="currentColor"/>
-        </svg>
+        <ui-icon name="list" size="sm"></ui-icon>
         <span>List view</span>
       </button>
     </div>
@@ -57,9 +45,7 @@
       <!-- Filters Row -->
       <div class="shop__filters">
         <div class="shop__search">
-          <svg class="shop__search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M7.333 12.667a5.333 5.333 0 100-10.667 5.333 5.333 0 000 10.667zM14 14l-2.9-2.9" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon class="shop__search-icon" name="search" size="sm"></ui-icon>
           <input
             type="text"
             class="shop__search-input"
@@ -71,18 +57,14 @@
 
         <div class="shop__filter-dropdown">
           <button class="shop__filter-btn" type="button" (click)="toggleFilter()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
-            </svg>
+            <ui-icon name="filter" size="sm"></ui-icon>
             <span>{{ getFilterButtonLabel() }}</span>
-            <svg class="shop__filter-chevron" [class.shop__filter-chevron--open]="isFilterOpen()" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <ui-icon class="shop__filter-chevron" [class.shop__filter-chevron--open]="isFilterOpen()" name="chevron-down" size="sm"></ui-icon>
           </button>
 
           @if (isFilterOpen()) {
             <div class="shop__filter-menu">
-              @for (group of productGroups; track group.id) {
+              @for (group of productGroups(); track group.id) {
                 <label class="shop__filter-item" (click)="$event.stopPropagation()">
                   <input
                     type="checkbox"
@@ -92,9 +74,7 @@
                   />
                   <span class="shop__filter-checkmark">
                     @if (isGroupSelected(group.id)) {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                      <ui-icon name="check" size="sm"></ui-icon>
                     }
                   </span>
                   <span class="shop__filter-label">{{ group.label }}</span>
@@ -113,9 +93,7 @@
             <span class="shop__filter-pill">
               <span>{{ filter.label }}</span>
               <button type="button" class="shop__filter-pill-remove" (click)="removeFilter(filter.id)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <ui-icon name="x" size="sm"></ui-icon>
               </button>
             </span>
           }
@@ -134,11 +112,11 @@
           >
             <div class="product-card__image-container">
               <img class="product-card__img" [src]="product.image" [alt]="product.name" />
-              <button class="product-card__favorite" [class.product-card__favorite--active]="product.isFavorite" (click)="toggleFavorite(product, $event)" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M17.367 3.842a4.583 4.583 0 00-6.484 0L10 4.725l-.883-.883a4.584 4.584 0 00-6.484 6.483l.884.883L10 17.692l6.483-6.484.884-.883a4.583 4.583 0 000-6.483z" [attr.stroke]="product.isFavorite ? '#DC2626' : 'currentColor'" [attr.fill]="product.isFavorite ? '#DC2626' : 'none'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
+              <ui-favorite-button
+                class="product-card__favorite"
+                [active]="product.isFavorite"
+                (toggleFavorite)="onFavoriteToggle(product)"
+              ></ui-favorite-button>
             </div>
             <div class="product-card__info">
               <div class="product-card__meta">
@@ -155,16 +133,16 @@
             <!-- Arrow button for selected product in list view -->
             @if (viewMode() === 'list' && isProductSelected(product)) {
               <button class="product-card__arrow" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.333 8h9.334M8.667 4L12.667 8l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <ui-icon name="arrow-right" size="sm"></ui-icon>
               </button>
             }
           </article>
         } @empty {
-          <div class="shop__empty">
-            <p>No products found</p>
-          </div>
+          <ui-empty-state
+            icon="search"
+            title="No products found"
+            size="sm"
+          ></ui-empty-state>
         }
       </div>
     </div>
@@ -175,47 +153,33 @@
         <!-- Header (outside card) -->
         <div class="product-detail__header">
           <div class="product-detail__header-left">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="18.5" cy="15.5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M20.5 17.5L22 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <ui-icon name="package" size="lg"></ui-icon>
             <span class="product-detail__header-title">Product details</span>
           </div>
           <button class="product-detail__wishlist-btn" type="button" (click)="addToWishlist()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
-            </svg>
+            <ui-icon name="plus" size="sm"></ui-icon>
             <span>Add to Wishlist</span>
           </button>
         </div>
 
         <!-- Product Card -->
         <div class="product-detail__card">
-          <!-- Product Content -->
           <!-- Image Carousel -->
           <div class="product-detail__image-wrapper">
-            <img class="product-detail__image" [src]="selectedProduct()!.image" [alt]="selectedProduct()!.name" />
-            <button class="product-detail__carousel-btn product-detail__carousel-btn--prev" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="product-detail__carousel-btn product-detail__carousel-btn--next" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <ui-carousel
+              [slides]="selectedProductImages()"
+              [showArrows]="true"
+              [showDots]="true"
+              [infiniteLoop]="true"
+              [enableSwipe]="true"
+              aspectRatio="4/3"
+            ></ui-carousel>
           </div>
 
           <!-- Product Info -->
           <div class="product-detail__info">
             <div class="product-detail__code">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M10 6v4l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
+              <ui-icon name="clock" size="md"></ui-icon>
               <div class="product-detail__code-text">
                 <span class="product-detail__code-label">Product code</span>
                 <span class="product-detail__code-value">{{ selectedProduct()!.code }}</span>
@@ -225,42 +189,26 @@
             <h2 class="product-detail__name">{{ selectedProduct()!.name }}</h2>
 
             <div class="product-detail__description">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M14.167 2.5H5.833A1.667 1.667 0 004.167 4.167v11.666a1.667 1.667 0 001.666 1.667h8.334a1.667 1.667 0 001.666-1.667V4.167A1.667 1.667 0 0014.167 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M7.5 5.833h5M7.5 9.167h5M7.5 12.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <ui-icon name="file-text" size="md"></ui-icon>
               <div class="product-detail__description-text">
                 <span class="product-detail__description-label">Technical description</span>
                 <span class="product-detail__description-value">{{ selectedProduct()!.technicalDescription }}</span>
               </div>
             </div>
 
-            <div class="product-detail__price-row">
-              <span class="product-detail__price-label">Regular price:</span>
-              <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
-            </div>
           </div>
 
           <!-- Actions -->
           <div class="product-detail__actions">
-            <div class="product-detail__quantity">
-              <button class="product-detail__quantity-btn" type="button" (click)="decrementQuantity()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
-                </svg>
-              </button>
-              <span class="product-detail__quantity-value">{{ quantity() }}</span>
-              <button class="product-detail__quantity-btn" type="button" (click)="incrementQuantity()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 3.333v9.334M3.333 8h9.334" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
-                </svg>
-              </button>
-            </div>
+            <ui-quantity-selector
+              [value]="quantity()"
+              [min]="1"
+              [max]="999"
+              (quantityChange)="onQuantityChange($event)"
+            ></ui-quantity-selector>
             <button class="product-detail__add-btn" type="button" (click)="addToCart()">
               <span>Add to Cart</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3.333 8h9.334M8 3.333l4.667 4.667L8 12.667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <ui-icon name="arrow-right" size="sm"></ui-icon>
             </button>
           </div>
         </div>

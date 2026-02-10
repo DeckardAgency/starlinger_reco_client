@@ -23,12 +23,12 @@ export interface Product {
   technicalDescription: string;
   machineText: string;
   statistic: string;
+  productGroupId: string | null;
   featuredImage: MediaItem | null;
   createdAt: string;
   updatedAt: string;
   imageGallery: MediaItem[];
   documents: string[];
-  machines: string[];
 }
 
 export interface ProductsCollection {

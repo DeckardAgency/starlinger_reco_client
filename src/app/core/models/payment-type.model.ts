@@ -24,3 +24,8 @@ export interface PaymentTypeDocument {
   selected?: boolean;
 }
 
+export interface PaymentTypesCollection {
+  totalItems: number;
+  member: PaymentType[];
+}
+

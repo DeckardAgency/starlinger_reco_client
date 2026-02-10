@@ -7,35 +7,15 @@ import { environment } from '@env/environment';
 import { UserService } from '@services/http/user.service';
 import { AuthResponse } from '@models/api/auth-api.model';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
+import { DUMMY_USER_CREDENTIALS, mockDevelopmentUser } from '@core/mocks/mock-data';
 
 // Re-export for backward compatibility
 export type { AuthResponse };
 
-// Dummy user credentials for development
-const DUMMY_USER_EMAIL = 'recouser@starlinger.com';
-const DUMMY_USER_PASSWORD = 'recouser123!';
-
-// Dummy user data for development
-const DUMMY_USER: User = {
-  id: 'dev-user-001',
-  email: DUMMY_USER_EMAIL,
-  username: DUMMY_USER_EMAIL,
-  roles: ['ROLE_USER', 'ROLE_CLIENT'],
-  firstName: 'Reco',
-  lastName: 'Developer',
-  phoneNumber: '+43 1 234 5678',
-  isActive: true,
-  client: {
-    '@id': '/api/clients/dev-001',
-    '@type': 'Client',
-    id: 'dev-client-001',
-    name: 'Starlinger Development',
-    code: 'STL-DEV',
-    isActive: true,
-    isArchived: false,
-    maxActiveUsers: 10
-  }
-};
+// Use centralized mock data
+const DUMMY_USER_EMAIL = DUMMY_USER_CREDENTIALS.email;
+const DUMMY_USER_PASSWORD = DUMMY_USER_CREDENTIALS.password;
+const DUMMY_USER: User = mockDevelopmentUser as User;
 
 // Dummy token for development (not a real JWT, just for localStorage)
 const DUMMY_TOKEN = 'dev-token-reco-' + Date.now();
@@ -45,6 +25,7 @@ const DUMMY_TOKEN = 'dev-token-reco-' + Date.now();
 })
 export class AuthService {
   private apiUrl = `${environment.apiBaseUrl}/api/login_check`;
+  private apiBaseUrl = environment.apiBaseUrl;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
   private userKey = 'currentUser';
@@ -193,6 +174,19 @@ export class AuthService {
   }
 
   /**
+   * Update the current user in memory and storage
+   * @param updatedUser Partial user data to merge with current user
+   */
+  updateCurrentUser(updatedUser: Partial<User>): void {
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      const mergedUser = { ...currentUser, ...updatedUser };
+      this.setItemInStorage(this.userKey, JSON.stringify(mergedUser));
+      this.currentUserSubject.next(mergedUser);
+    }
+  }
+
+  /**
    * Get current user's full name
    * @returns Full name (first + last) or email if name not available
    */
@@ -231,8 +225,8 @@ export class AuthService {
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const decoded = JSON.parse(window.atob(base64)) as TokenPayload;
 
-      // Validate required fields
-      if (!decoded.username || !decoded.exp || !decoded.iat) {
+      // Validate required fields (email is the primary JWT claim)
+      if (!decoded.email || !decoded.exp || !decoded.iat) {
         this.logger.error('Invalid token payload: missing required fields');
         return null;
       }
@@ -258,8 +252,8 @@ export class AuthService {
 
       // Create a user object
       const user: User = {
-        username: tokenData?.username || email,
-        email: tokenData?.username || email,
+        username: tokenData?.email || email,
+        email: tokenData?.email || email,
         id: '',
         roles: [],
         firstName: '',
@@ -315,6 +309,12 @@ export class AuthService {
     try {
       // Only load user if we have a valid token
       if (!this.hasStoredToken()) {
+        // In development with mocks, auto-authenticate with dummy user
+        if ((environment as any).useMocks) {
+          this.currentUserSubject.next(DUMMY_USER);
+          this.isAuthenticatedSubject.next(true);
+          return;
+        }
         // Clear invalid data
         this.clearAuthData();
         return;

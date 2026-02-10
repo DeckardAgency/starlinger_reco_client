@@ -12,12 +12,9 @@ import {
   mockClients,
   mockProducts,
   mockOrders,
-  mockInquiries,
-  mockMachines,
   mockPerformanceData,
   mockDashboardPerformance,
   mockOrderStatusDistribution,
-  mockInquiryStatusDistribution,
   mockContacts,
   mockDiscounts,
   mockUserList,
@@ -117,10 +114,6 @@ export class MockInterceptor implements HttpInterceptor {
       return mockOrderStatusDistribution;
     }
 
-    if (path.includes('/dashboard/inquiry-status-distribution') && method === 'GET') {
-      return mockInquiryStatusDistribution;
-    }
-
     // ==========================================================================
     // ORDERS
     // ==========================================================================
@@ -131,18 +124,6 @@ export class MockInterceptor implements HttpInterceptor {
     if (path.match(/\/orders\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
       return mockOrders.find(o => o.id === id) || mockOrders[0];
-    }
-
-    // ==========================================================================
-    // INQUIRIES
-    // ==========================================================================
-    if (path.match(/\/inquiries$/) && method === 'GET') {
-      return this.paginatedResponse(mockInquiries, '/api/v1/inquiries');
-    }
-
-    if (path.match(/\/inquiries\/[^\/]+$/) && method === 'GET') {
-      const id = path.split('/').pop();
-      return mockInquiries.find(i => i.id === id) || mockInquiries[0];
     }
 
     // ==========================================================================
@@ -167,18 +148,6 @@ export class MockInterceptor implements HttpInterceptor {
     if (path.match(/\/clients\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
       return mockClients.find(c => c.id === id) || mockClients[0];
-    }
-
-    // ==========================================================================
-    // MACHINES
-    // ==========================================================================
-    if (path.match(/\/machines$/) && method === 'GET') {
-      return this.paginatedResponse(mockMachines, '/api/v1/machines');
-    }
-
-    if (path.match(/\/machines\/[^\/]+$/) && method === 'GET') {
-      const id = path.split('/').pop();
-      return mockMachines.find(m => m.id === id) || mockMachines[0];
     }
 
     // ==========================================================================
@@ -290,24 +259,47 @@ export class MockInterceptor implements HttpInterceptor {
   private handleLogin(body: any): any {
     const { username, password } = body;
 
-    // Check credentials (password is always 'password123' for mock)
-    if (password !== 'password123') {
-      return { error: 'Invalid credentials', code: 401 };
-    }
-
     let user;
-    switch (username) {
-      case 'super@test.com':
-        user = mockUsers.superAdmin;
-        break;
-      case 'admin@test.com':
-        user = mockUsers.customerAdmin;
-        break;
-      case 'user@test.com':
-        user = mockUsers.customer;
-        break;
-      default:
-        return { error: 'Invalid credentials', code: 401 };
+
+    // Standard test password for all RECO test users
+    if (password === 'recouser123!') {
+      switch (username) {
+        case 'super@starlinger.com':
+          user = mockUsers.superAdmin;
+          break;
+        case 'admin@starlinger.com':
+          user = { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+          break;
+        case 'clientadmin@starlinger.com':
+          user = mockUsers.customerAdmin;
+          break;
+        case 'recouser@starlinger.com':
+          user = mockUsers.customer;
+          break;
+        case 'viewer@starlinger.com':
+          user = { ...mockUsers.customer, email: 'viewer@starlinger.com', roles: ['ROLE_VIEWER'] };
+          break;
+        default:
+          return { error: 'Invalid credentials', code: 401 };
+      }
+    }
+    // Legacy test credentials (password is 'password123')
+    else if (password === 'password123') {
+      switch (username) {
+        case 'super@test.com':
+          user = mockUsers.superAdmin;
+          break;
+        case 'admin@test.com':
+          user = mockUsers.customerAdmin;
+          break;
+        case 'user@test.com':
+          user = mockUsers.customer;
+          break;
+        default:
+          return { error: 'Invalid credentials', code: 401 };
+      }
+    } else {
+      return { error: 'Invalid credentials', code: 401 };
     }
 
     // Generate mock JWT token
@@ -353,7 +345,7 @@ export class MockInterceptor implements HttpInterceptor {
   private getCurrentUser(): any {
     // Try to get user from stored token
     const user = this.getStoredUser();
-    return user || mockUsers.superAdmin;
+    return user || mockUsers.customer;
   }
 
   private getStoredUser(): any {
@@ -365,7 +357,13 @@ export class MockInterceptor implements HttpInterceptor {
         const parts = token.split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1]));
-          // Find matching user
+          // Find matching user - new test users
+          if (payload.email === 'super@starlinger.com') return mockUsers.superAdmin;
+          if (payload.email === 'admin@starlinger.com') return { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+          if (payload.email === 'clientadmin@starlinger.com') return mockUsers.customerAdmin;
+          if (payload.email === 'recouser@starlinger.com') return mockUsers.customer;
+          if (payload.email === 'viewer@starlinger.com') return { ...mockUsers.customer, email: 'viewer@starlinger.com', roles: ['ROLE_VIEWER'] };
+          // Legacy test users
           if (payload.email === 'super@test.com') return mockUsers.superAdmin;
           if (payload.email === 'admin@test.com') return mockUsers.customerAdmin;
           if (payload.email === 'user@test.com') return mockUsers.customer;
@@ -385,6 +383,23 @@ export class MockInterceptor implements HttpInterceptor {
     // Find user by email
     let user;
     switch (email) {
+      // New test users
+      case 'super@starlinger.com':
+        user = mockUsers.superAdmin;
+        break;
+      case 'admin@starlinger.com':
+        user = { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+        break;
+      case 'clientadmin@starlinger.com':
+        user = mockUsers.customerAdmin;
+        break;
+      case 'recouser@starlinger.com':
+        user = mockUsers.customer;
+        break;
+      case 'viewer@starlinger.com':
+        user = { ...mockUsers.customer, email: 'viewer@starlinger.com', roles: ['ROLE_VIEWER'] };
+        break;
+      // Legacy test users
       case 'super@test.com':
         user = mockUsers.superAdmin;
         break;

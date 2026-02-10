@@ -1,0 +1,158 @@
+<div class="company-page">
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="chevron"
+    [items]="[{ label: 'My Company' }]"
+    homeRoute="/customer-admin/company"
+  ></ui-breadcrumbs>
+
+  <main class="page-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading company information...</p>
+      </div>
+    } @else if (!client()) {
+      <div class="empty-state">
+        <ui-icon name="building" size="xl"></ui-icon>
+        <h3>No Company Found</h3>
+        <p>Your account is not associated with a company.</p>
+      </div>
+    } @else {
+      <div class="company-card">
+        <div class="company-card__header">
+          <div class="company-card__title">
+            <ui-icon name="building" size="md"></ui-icon>
+            <h2>{{ client()?.name }}</h2>
+            <span class="company-code">{{ client()?.code }}</span>
+          </div>
+          <div class="company-card__actions">
+            @if (!isEditing()) {
+              <ui-button variant="secondary" size="sm" (click)="onEdit()">
+                <ui-icon name="pencil" size="sm"></ui-icon>
+                Edit
+              </ui-button>
+            }
+          </div>
+        </div>
+
+        <div class="company-card__content">
+          @if (isEditing()) {
+            <!-- Edit Mode -->
+            <div class="form-grid">
+              <ui-form-field label="Company Name">
+                <ui-input
+                  [(ngModel)]="formData.name"
+                  placeholder="Enter company name"
+                ></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Email Address">
+                <ui-input
+                  type="email"
+                  [(ngModel)]="formData.email"
+                  placeholder="Enter email address"
+                ></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Phone Number">
+                <ui-input
+                  [(ngModel)]="formData.phoneNumber"
+                  placeholder="Enter phone number"
+                ></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="VAT Number">
+                <ui-input
+                  [(ngModel)]="formData.vatNumber"
+                  placeholder="Enter VAT number"
+                ></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Address" class="full-width">
+                <ui-input
+                  [(ngModel)]="formData.address"
+                  placeholder="Enter address"
+                ></ui-input>
+              </ui-form-field>
+
+              <ui-form-field label="Description" class="full-width">
+                <ui-input
+                  [(ngModel)]="formData.description"
+                  placeholder="Enter description"
+                ></ui-input>
+              </ui-form-field>
+            </div>
+
+            <div class="form-actions">
+              <ui-button variant="ghost" (click)="onCancel()" [disabled]="isSaving()">
+                Cancel
+              </ui-button>
+              <ui-button variant="primary" (click)="onSave()" [disabled]="isSaving()">
+                @if (isSaving()) {
+                  Saving...
+                } @else {
+                  Save Changes
+                }
+              </ui-button>
+            </div>
+          } @else {
+            <!-- View Mode -->
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ client()?.email || '-' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Phone</span>
+                <span class="info-value">{{ client()?.phoneNumber || '-' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">VAT Number</span>
+                <span class="info-value">{{ client()?.vatNumber || '-' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Created</span>
+                <span class="info-value">{{ formatDate(client()?.createdAt || '') }}</span>
+              </div>
+
+              <div class="info-item full-width">
+                <span class="info-label">Address</span>
+                <span class="info-value">{{ client()?.address || '-' }}</span>
+              </div>
+
+              <div class="info-item full-width">
+                <span class="info-label">Description</span>
+                <span class="info-value">{{ client()?.description || '-' }}</span>
+              </div>
+            </div>
+
+            @if (client()?.users && client()?.users?.length) {
+              <div class="users-section">
+                <h3 class="section-title">
+                  <ui-icon name="users" size="sm"></ui-icon>
+                  Team Members ({{ client()?.users?.length }})
+                </h3>
+                <div class="users-list">
+                  @for (user of client()?.users; track user.id) {
+                    <div class="user-item">
+                      <div class="user-avatar">
+                        {{ (user.firstName?.[0] || '') + (user.lastName?.[0] || '') || 'U' }}
+                      </div>
+                      <div class="user-info">
+                        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                        <span class="user-email">{{ user.email }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+  </main>
+</div>

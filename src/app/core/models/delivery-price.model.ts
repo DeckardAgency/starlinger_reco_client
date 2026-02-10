@@ -12,3 +12,8 @@ export interface DeliveryPrice {
   selected?: boolean;
 }
 
+export interface DeliveryPricesCollection {
+  totalItems: number;
+  member: DeliveryPrice[];
+}
+

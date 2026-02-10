@@ -1,10 +1,17 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
+import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
+import { CarouselComponent, CarouselSlide } from '@app/ui-kit/molecules/carousel/carousel.component';
+import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { CartService } from '@core/services/cart.service';
-import { mockShopProducts, ShopProduct } from '@core/mocks/mock-data';
+import { ProductService } from '@core/services/http/product.service';
+import { ShopProduct } from '@core/mocks/mock-data';
+import { Product } from '@core/models';
 
 interface ProductDetail extends ShopProduct {
   technicalDescription?: string;
@@ -17,19 +24,29 @@ interface ProductDetail extends ShopProduct {
     CommonModule,
     RouterModule,
     BreadcrumbsComponent,
-    ToastComponent
+    ToastComponent,
+    QuantitySelectorComponent,
+    CarouselComponent,
+    FavoriteButtonComponent,
+    IconComponent
   ],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductDetailComponent {
+export class ProductDetailComponent implements OnInit {
   private cartService = inject(CartService);
+  private productService = inject(ProductService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   product = signal<ProductDetail | null>(null);
   quantity = signal(1);
-  currentImageIndex = signal(0);
   showToast = signal(false);
+  isLoading = signal(true);
+  
+  // Image carousel slides
+  productImages = signal<CarouselSlide[]>([]);
   
   // Related products
   relatedProducts = signal<ShopProduct[]>([]);
@@ -38,37 +55,101 @@ export class ProductDetailComponent {
     const prod = this.product();
     return [
       { label: 'Shop', route: '/customer/shop' },
-      { label: 'All machines', route: '/customer/shop/products' },
+      { label: 'All products', route: '/customer/shop/products' },
       { label: prod?.name || 'Product' }
     ];
   });
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.loadProduct();
+  ngOnInit(): void {
+    // Subscribe to route params to handle navigation between products
+    this.route.paramMap.subscribe(params => {
+      const productId = params.get('id');
+      if (productId) {
+        this.loadProduct(productId);
+      }
+    });
   }
 
-  private loadProduct(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (productId) {
-      const found = mockShopProducts.find(p => p.id === productId);
-      if (found) {
-        this.product.set({
-          ...found,
-          technicalDescription: '0-400mbar, G1/2", 11-30V DC_PMC11-AA1U1FBWBJA'
-        });
+  private loadProduct(productId: string): void {
+    this.isLoading.set(true);
+
+    // Load the product and related products
+    forkJoin({
+      productResponse: this.productService.getProductById(productId),
+      allProducts: this.productService.getProducts()
+    }).subscribe({
+      next: ({ productResponse, allProducts }) => {
+        // Check if product was found
+        if (!productResponse) {
+          console.error('Product not found:', productId);
+          this.isLoading.set(false);
+          return;
+        }
+        
+        // Map to ProductDetail
+        this.product.set(this.mapProductToDetail(productResponse));
+        
+        // Create image slides using placeholder
+        const imageUrl = this.getProductImageUrl(productResponse, '400x400');
+        this.productImages.set([
+          { id: 1, imageUrl, alt: productResponse.name },
+          { id: 2, imageUrl, alt: `${productResponse.name} - View 2` },
+          { id: 3, imageUrl, alt: `${productResponse.name} - View 3` }
+        ]);
+        
         // Get related products (excluding current)
-        this.relatedProducts.set(
-          mockShopProducts.filter(p => p.id !== productId).slice(0, 4)
-        );
+        const related = allProducts.member
+          .filter(p => p.id !== productId)
+          .slice(0, 4)
+          .map(p => this.mapProductToShopProduct(p));
+        this.relatedProducts.set(related);
+        
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load product:', error);
+        this.isLoading.set(false);
       }
-    }
+    });
+  }
+
+  private mapProductToDetail(product: Product): ProductDetail {
+    return {
+      id: product.id,
+      code: product.partNo,
+      name: product.name,
+      price: product.price,
+      image: this.getProductImageUrl(product, '400x400'),
+      isFavorite: false,
+      group: 'general',
+      technicalDescription: product.technicalDescription || product.shortDescription
+    };
+  }
+
+  private mapProductToShopProduct(product: Product): ShopProduct {
+    return {
+      id: product.id,
+      code: product.partNo,
+      name: product.name,
+      price: product.price,
+      image: this.getProductImageUrl(product),
+      isFavorite: false,
+      group: 'general'
+    };
+  }
+
+  private getProductImageUrl(product: Product, size: string = '200x200'): string {
+    // Use placeholder with product name - images don't exist in dev environment
+    const encodedName = encodeURIComponent(product.shortDescription || product.name);
+    return `https://placehold.co/${size}/f5f5f5/666?text=${encodedName}`;
   }
 
   goBack(): void {
     this.router.navigate(['/customer/shop/products']);
+  }
+
+  onQuantityChange(value: number): void {
+    this.quantity.set(value);
   }
 
   incrementQuantity(): void {
@@ -102,18 +183,16 @@ export class ProductDetailComponent {
     this.relatedProducts.set(updated);
   }
 
+  onFavoriteToggle(product: ShopProduct): void {
+    const updated = this.relatedProducts().map(p =>
+      p.id === product.id ? { ...p, isFavorite: !p.isFavorite } : p
+    );
+    this.relatedProducts.set(updated);
+  }
+
   onRelatedProductClick(product: ShopProduct): void {
     this.router.navigate(['/customer/shop/products', product.id]);
-    // Reload data for new product
-    setTimeout(() => this.loadProduct(), 0);
-  }
-
-  previousImage(): void {
-    this.currentImageIndex.update(i => Math.max(0, i - 1));
-  }
-
-  nextImage(): void {
-    this.currentImageIndex.update(i => i + 1);
+    // Route subscription will handle loading the new product
   }
 
   formatPrice(price: number): string {
@@ -129,4 +208,3 @@ export class ProductDetailComponent {
     this.cartService.openCart();
   }
 }
-

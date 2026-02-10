@@ -7,7 +7,48 @@ import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/brea
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
-import { mockOrderDetails, mockOrderHistory, OrderDetail, OrderDetailMachineGroup, InquiryDetailPart } from '@core/mocks/mock-data';
+import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
+import { OrderService } from '@core/services/http/order.service';
+import { Order } from '@core/models/order.model';
+
+// Display interfaces
+interface OrderDetailProduct {
+  partNo: string;
+  productName: string;
+  weight: string;
+  quantity: number;
+  unitPrice: number;
+  discount: string;
+  price: number;
+}
+
+interface OrderDetailProductGroup {
+  id: string;
+  name: string;
+  products: OrderDetailProduct[];
+  isExpanded: boolean;
+}
+
+interface OrderDetailLogMessage {
+  status: string;
+  statusVariant: 'success' | 'warning' | 'info' | 'secondary' | 'danger';
+  dateTime: string;
+  user: string;
+  message: string;
+}
+
+interface OrderDetail {
+  id: string;
+  type: 'order';
+  internalRef: string;
+  dateCreated: string;
+  partsOrdered?: number;
+  status: string;
+  productGroups?: OrderDetailProductGroup[];
+  totalPrice?: number;
+  amountPaid?: number;
+  logMessages: OrderDetailLogMessage[];
+}
 
 @Component({
   selector: 'app-order-detail',
@@ -18,7 +59,8 @@ import { mockOrderDetails, mockOrderHistory, OrderDetail, OrderDetailMachineGrou
     BreadcrumbsComponent,
     BadgeComponent,
     ButtonComponent,
-    IconComponent
+    IconComponent,
+    MobileFooterComponent
   ],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.scss'],
@@ -28,11 +70,15 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private orderService = inject(OrderService);
   private destroy$ = new Subject<void>();
+
+  // Loading state
+  isLoading = signal(true);
 
   // Breadcrumb items
   breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'My inquiries', route: '/customer-admin/orders' },
+    { label: 'My orders', route: '/customer-admin/orders' },
     { label: 'History', route: '/customer-admin/orders' }
   ];
 
@@ -45,7 +91,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       .subscribe(params => {
         const orderId = params.get('id');
         if (orderId) {
-          this.loadOrder(orderId);
+          this.loadItem(orderId);
         }
       });
   }
@@ -55,84 +101,108 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadOrder(id: string): void {
-    // Try to get from detail data first
-    let orderData = mockOrderDetails[id];
-    
-    // If not in details, get basic info from history and create a mock
-    if (!orderData) {
-      const historyItem = mockOrderHistory.find(o => o.id === id);
-      if (historyItem) {
-        orderData = this.createMockDetail(historyItem);
-      }
-    }
+  private loadItem(id: string): void {
+    this.isLoading.set(true);
 
-    if (orderData) {
-      this.order.set(orderData);
-      this.breadcrumbItems = [
-        { label: 'My inquiries', route: '/customer-admin/orders' },
-        { label: 'History', route: '/customer-admin/orders' },
-        { label: `Inquiry #${orderData.id}` }
-      ];
-    }
-    
-    this.cdr.markForCheck();
+    this.orderService.getOrder(id).subscribe({
+      next: (order) => {
+        if (order) {
+          this.order.set(this.mapOrderToDetail(order));
+          this.updateBreadcrumbs('Order', order.orderNumber || order.id);
+        } else {
+          this.order.set(null);
+        }
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load order:', error);
+        this.order.set(null);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      }
+    });
   }
 
-  private createMockDetail(historyItem: any): OrderDetail {
-    // Generate mock detail based on history item
-    if (historyItem.type === 'order') {
-      return {
-        id: historyItem.id,
-        type: 'order',
-        internalRef: historyItem.internalRef,
-        dateCreated: historyItem.dateCreated,
-        partsOrdered: historyItem.partsOrdered,
-        status: historyItem.status,
-        machineGroups: [
-          {
-            id: 'machine-1',
-            name: '200XE Winding Machine',
-            isExpanded: true,
-            products: [
-              { partNo: 'AIVV-01152', productName: 'Power panel T30 4,3" WQVGA color touch', weight: '0,4 kg', quantity: 2, unitPrice: 556.17, discount: '10 %', price: 1112.34 },
-              { partNo: 'ZME-01171D', productName: 'Modul FU-Stacofil 200XE', weight: '1,4 kg', quantity: 3, unitPrice: 442.46, discount: '20 %', price: 1327.38 }
-            ]
-          }
-        ],
-        totalPrice: 2439.72,
-        logMessages: [
-          { status: 'Completed', statusVariant: 'success', dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Order completed' },
-          { status: 'Submitted', statusVariant: 'info', dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Order submitted by the customer.' }
-        ]
+  private updateBreadcrumbs(type: string, ref: string): void {
+    this.breadcrumbItems = [
+      { label: 'My orders', route: '/customer-admin/orders' },
+      { label: 'History', route: '/customer-admin/orders' },
+      { label: `${type} #${ref}` }
+    ];
+  }
+
+  private mapOrderToDetail(order: Order): OrderDetail {
+    // Group items into product groups
+    const productGroups: OrderDetailProductGroup[] = [];
+    
+    if (order.items && order.items.length > 0) {
+      const defaultGroup: OrderDetailProductGroup = {
+        id: 'default',
+        name: 'Order Items',
+        isExpanded: true,
+        products: order.items.map(item => ({
+          partNo: item.product?.partNo || '',
+          productName: item.product?.name || '',
+          weight: item.product?.weight || '-',
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: '-',
+          price: item.subtotal
+        }))
       };
-    } else {
-      return {
-        id: historyItem.id,
-        type: 'inquiry',
-        internalRef: historyItem.internalRef,
-        dateCreated: historyItem.dateCreated,
-        status: historyItem.status,
-        parts: [
-          {
-            id: 'part-1',
-            partNumber: 'Part 1',
-            machineName: 'ad*StarKON Machine',
-            productName: 'Power panel T30 4,3" WQVGA color touch',
-            description: 'Hello! I need a replacement part for my machine.',
-            files: [
-              { id: 'f1', name: 'request_details.pdf', type: 'pdf', size: '2.1 MB' }
-            ],
-            notes: 'Please respond as soon as possible.',
-            isExpanded: true
-          }
-        ],
-        logMessages: [
-          { status: 'Completed', statusVariant: 'success', dateTime: '19-03-2024 | 16:30', user: '#username', message: 'Inquiry completed' },
-          { status: 'Submitted', statusVariant: 'info', dateTime: '15-03-2024 | 19:30', user: '#username', message: 'Inquiry submitted by the customer.' }
-        ]
-      };
+      productGroups.push(defaultGroup);
     }
+
+    // Map logs
+    const logMessages: OrderDetailLogMessage[] = (order.logs || []).map(log => ({
+      status: this.getStatusLabel(log.newStatus),
+      statusVariant: this.getLogStatusVariant(log.newStatus),
+      dateTime: this.formatDateTime(log.createdAt),
+      user: 'System',
+      message: log.comment || `Status changed from ${log.previousStatus} to ${log.newStatus}`
+    }));
+
+    return {
+      id: order.id,
+      type: 'order',
+      internalRef: order.orderNumber || order.id,
+      dateCreated: this.formatDate(order.createdAt),
+      partsOrdered: order.items?.length || 0,
+      status: order.status,
+      productGroups,
+      totalPrice: order.totalAmount,
+      logMessages
+    };
+  }
+
+  private formatDate(dateStr: string): string {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  private formatDateTime(dateStr: string): string {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}-${month}-${year} | ${hours}:${minutes}`;
+  }
+
+  private getLogStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'danger' {
+    const lowerStatus = (status || '').toLowerCase();
+    if (lowerStatus === 'completed' || lowerStatus === 'delivered') return 'success';
+    if (lowerStatus === 'cancelled' || lowerStatus === 'rejected') return 'danger';
+    if (lowerStatus === 'in_progress' || lowerStatus === 'processing') return 'warning';
+    if (lowerStatus === 'submitted' || lowerStatus === 'pending') return 'info';
+    return 'secondary';
   }
 
   // Navigation
@@ -153,27 +223,14 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     console.log('Delete order...');
   }
 
-  // Toggle machine group expansion
-  toggleMachineGroup(groupId: string): void {
+  // Toggle product group expansion
+  toggleProductGroup(groupId: string): void {
     const current = this.order();
-    if (current?.machineGroups) {
+    if (current?.productGroups) {
       this.order.set({
         ...current,
-        machineGroups: current.machineGroups.map(g =>
+        productGroups: current.productGroups.map(g =>
           g.id === groupId ? { ...g, isExpanded: !g.isExpanded } : g
-        )
-      });
-    }
-  }
-
-  // Toggle inquiry part expansion
-  togglePart(partId: string): void {
-    const current = this.order();
-    if (current?.parts) {
-      this.order.set({
-        ...current,
-        parts: current.parts.map(p =>
-          p.id === partId ? { ...p, isExpanded: !p.isExpanded } : p
         )
       });
     }
@@ -181,7 +238,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   // Helper methods
   getTypeBadgeLabel(): string {
-    return this.order()?.type === 'order' ? 'Order' : 'Inquiry';
+    return 'Order';
   }
 
   getStatusBadgeVariant(status: string): 'success' | 'warning' | 'danger' | 'info' | 'secondary' {
@@ -203,7 +260,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     return `€ ${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
-  calculateGroupTotal(group: OrderDetailMachineGroup): number {
+  calculateGroupTotal(group: OrderDetailProductGroup): number {
     return group.products.reduce((sum, p) => sum + p.price, 0);
   }
 

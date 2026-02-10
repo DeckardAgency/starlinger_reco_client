@@ -1,27 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of, catchError, map } from 'rxjs';
 import { environment } from '@env/environment';
-
-export interface DashboardInquiry {
-    id: string;
-    inquiryNumber: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    user?: {
-        id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        client?: {
-            companyName: string;
-        };
-    };
-    machines?: {
-        products: any[];
-    }[];
-}
 
 export interface DashboardOrder {
     id: string;
@@ -47,13 +27,7 @@ export interface StatusDistribution {
 }
 
 export interface RecentActivityResponse {
-    recentInquiries: DashboardInquiry[];
     recentOrders: DashboardOrder[];
-}
-
-export interface InquiryStatusDistributionResponse {
-    distribution: StatusDistribution[];
-    total: number;
 }
 
 export interface OrderStatusDistributionResponse {
@@ -70,24 +44,6 @@ export class DashboardService {
     constructor(private http: HttpClient) {}
 
     /**
-     * Get recent inquiries for dashboard
-     */
-    getRecentInquiries(limit: number = 5): Observable<DashboardInquiry[]> {
-        const params = new HttpParams()
-            .set('itemsPerPage', limit.toString())
-            .set('order[createdAt]', 'desc')
-            .set('isDraft', 'false');
-
-        return this.http.get<any>(`${this.apiUrl}/api/v1/inquiries`, { params }).pipe(
-            map(response => response.member || []),
-            catchError(error => {
-                console.error('Error fetching recent inquiries:', error);
-                return of([]);
-            })
-        );
-    }
-
-    /**
      * Get recent orders for dashboard
      */
     getRecentOrders(limit: number = 5): Observable<DashboardOrder[]> {
@@ -101,24 +57,6 @@ export class DashboardService {
             catchError(error => {
                 console.error('Error fetching recent orders:', error);
                 return of([]);
-            })
-        );
-    }
-
-    /**
-     * Get inquiry status distribution for dashboard chart
-     */
-    getInquiryStatusDistribution(): Observable<InquiryStatusDistributionResponse> {
-        return this.http.get<InquiryStatusDistributionResponse>(
-            `${this.apiUrl}/api/v1/dashboard/inquiry-status-distribution`
-        ).pipe(
-            catchError(error => {
-                console.error('Error fetching status distribution:', error);
-                // Return mock data if API not available
-                return of({
-                    distribution: [],
-                    total: 0
-                });
             })
         );
     }
@@ -141,11 +79,10 @@ export class DashboardService {
     }
 
     /**
-     * Get all recent activity (inquiries and orders combined)
+     * Get all recent activity (orders)
      */
     getRecentActivity(limit: number = 5): Observable<RecentActivityResponse> {
         return forkJoin({
-            recentInquiries: this.getRecentInquiries(limit),
             recentOrders: this.getRecentOrders(limit)
         });
     }

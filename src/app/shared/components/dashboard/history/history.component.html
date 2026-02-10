@@ -13,13 +13,19 @@
       variant="underline"
     ></ui-tabs>
 
-    <ui-data-table
-      [columns]="columns()"
-      [data]="filteredData"
-      [sortColumn]="sortColumn()"
-      [sortDirection]="sortDirection()"
-      (sort)="onSort($event)"
-    ></ui-data-table>
+    @if (isLoading()) {
+      <p>Loading history...</p>
+    } @else if (filteredData.length === 0) {
+      <p class="empty-state">No history data</p>
+    } @else {
+      <ui-data-table
+        [columns]="columns()"
+        [data]="filteredData"
+        [sortColumn]="sortColumn()"
+        [sortDirection]="sortDirection()"
+        (sort)="onSort($event)"
+      ></ui-data-table>
+    }
   </div>
 </section>
 
@@ -46,8 +52,8 @@
   <ui-table-actions-dropdown
     [actions]="tableActions"
     [row]="row"
-    [isOpen]="openMenuRowId() === row.inquiryId"
-    (toggle)="toggleMenu(row.inquiryId)"
+    [isOpen]="openMenuRowId() === row.orderId"
+    (toggle)="toggleMenu(row.orderId)"
     (actionClick)="onActionClick($event)"
     (close)="closeMenu()"
   ></ui-table-actions-dropdown>

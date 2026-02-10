@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { MobileMenuService } from '@services/mobile-menu.service';
-import { User } from '@core/models';
+import { User, USER_ROLES } from '@core/models';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { filter } from 'rxjs/operators';
 import { signal } from '@angular/core';
@@ -152,5 +152,32 @@ export class MobileMenuComponent implements OnInit {
 
     isMyInquiriesRoute(): boolean {
         return this.router.url.includes('/my-inquiries/');
+    }
+
+    /**
+     * Check if current user is a Super Admin (Starlinger Admin)
+     * This takes highest priority
+     */
+    get isSuperAdmin(): boolean {
+        return this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
+    }
+
+    /**
+     * Check if current user is a Customer Admin (Client Admin)
+     * Only true if user has CLIENT_ADMIN but NOT SUPER_ADMIN
+     */
+    get isCustomerAdmin(): boolean {
+        return this.authService.hasRole(USER_ROLES.CLIENT_ADMIN) && 
+               !this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
+    }
+
+    /**
+     * Check if current user is a Customer (Client)
+     * Only true if user has CLIENT but NOT CLIENT_ADMIN or SUPER_ADMIN
+     */
+    get isCustomer(): boolean {
+        return this.authService.hasRole(USER_ROLES.CLIENT) && 
+               !this.authService.hasRole(USER_ROLES.CLIENT_ADMIN) &&
+               !this.authService.hasRole(USER_ROLES.SUPER_ADMIN);
     }
 }

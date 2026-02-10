@@ -1,13 +1,12 @@
-.customer-dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 16px;
-  min-height: 100%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%),
-              linear-gradient(90deg, #F4F4F5 0%, #F4F4F5 100%);
+@use '../../../ui-kit/admin-shared' as admin;
+@use '../../../ui-kit/customer-shared' as customer;
 
-  @media (max-width: 768px) {
+.customer-dashboard {
+  @include customer.page-container;
+  gap: 32px;
+  padding: 24px;
+
+  @media (max-width: customer.$breakpoint-tablet-sm) {
     padding: 16px;
     gap: 24px;
   }
@@ -15,58 +14,81 @@
 
 // Quick Actions Section
 .quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  @include customer.dashboard-section;
 
   &__cards {
     display: flex;
     gap: 16px;
     align-self: stretch;
 
-    // Make cards fill the space equally
     ui-quick-action-card {
       flex: 1;
+      min-width: 0; // Prevent flex items from overflowing
     }
 
-    @media screen and (max-width: 1024px) {
-      flex-direction: column;
+    @media screen and (max-width: customer.$breakpoint-tablet) {
+      flex-wrap: wrap;
+
+      ui-quick-action-card {
+        flex: 1 1 calc(50% - 8px);
+        min-width: calc(50% - 8px);
+
+        ::ng-deep .quick-action-card__description {
+          min-height: 60px;
+        }
+      }
+    }
+
+    @media screen and (max-width: customer.$breakpoint-mobile) {
+      @include customer.horizontal-scroll-slider;
+      flex-wrap: nowrap;
+
+      ui-quick-action-card {
+        @include customer.scroll-snap-card(calc(100vw - 64px));
+        min-width: calc(100vw - 64px);
+      }
     }
   }
 }
 
 // Active Orders Section
 .active-orders {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  @include customer.dashboard-section;
 
   &__cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    align-self: stretch;
+    width: 100%;
 
-    @media screen and (max-width: 1024px) {
-      flex-direction: column;
+    @media screen and (max-width: customer.$breakpoint-tablet-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media screen and (max-width: customer.$breakpoint-mobile) {
+      @include customer.horizontal-scroll-slider;
+      display: flex;
+
+      ui-order-card {
+        @include customer.scroll-snap-card(calc(100vw - 64px));
+      }
     }
   }
 }
 
 // History Section
 .history {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  @include customer.dashboard-section;
 
   &__content {
-    border: 1px solid #E4E4E7;
-    border-radius: 6px;
-    overflow: hidden;
-    background: white;
+    @include admin.tabs-table-container;
   }
+
+  ui-tabs {
+    @include admin.tabs-table-tabs;
+  }
+
+  @include admin.tabs-table-data-table;
 
   &__actions {
     position: relative;
@@ -85,29 +107,13 @@
 
 // Modal Overlay
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include customer.modal-overlay;
 }
 
 // Modal Dialog (Centered)
 .modal-sheet {
-  width: 420px;
-  max-width: calc(100% - 32px);
-  max-height: calc(100vh - 64px);
-  background: white;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
+  @include customer.modal-dialog-responsive;
   animation: fadeIn 0.2s ease-out;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
   @keyframes fadeIn {
     from {
@@ -120,91 +126,59 @@
     }
   }
 
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 24px 16px;
-    position: relative;
-    margin-bottom: 16px;
+  @media screen and (max-width: customer.$breakpoint-mobile) {
+    animation: slideUp 0.3s ease-out;
 
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 24px;
-      right: 24px;
-      height: 1px;
-      background: #e4e4e7;
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Inter', sans-serif;
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 1;
-    color: #232323;
+  &__header {
+    @include customer.modal-header-responsive;
+  }
 
-    svg {
-      flex-shrink: 0;
+  &__title {
+    @include customer.modal-title;
+
+    @media screen and (max-width: customer.$breakpoint-mobile) {
+      font-size: 18px;
     }
   }
 
   &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include customer.sheet-close-btn;
     width: 24px;
     height: 24px;
-    background: transparent;
-    border: none;
     border-radius: 4px;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 1;
-    }
   }
 
   &__content {
-    flex: 1;
-    padding: 0 24px;
-    overflow-y: auto;
+    @include customer.modal-content-responsive;
   }
 
   &__footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 16px;
-    padding: 16px 24px 24px;
+    @include customer.modal-footer-responsive;
   }
 }
 
 // Form Fields
 .form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  @include customer.form-fields-container;
 }
 
 .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  @include customer.form-field;
 
   &__label {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1;
-    color: #232323;
+    @include customer.form-label;
   }
 
   &__required {
@@ -217,45 +191,16 @@
     color: #a1a1aa;
   }
 
-  &__input,
-  &__select,
-  &__textarea {
-    padding: 8px 12px;
-    background: white;
-    border: 1px solid #e4e4e7;
-    border-radius: 6px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 20px;
-    color: #232323;
-    outline: none;
-    transition: border-color 0.2s;
-
-    &::placeholder {
-      color: #71717a;
-    }
-
-    &:focus {
-      border-color: #dc2626;
-    }
-  }
-
-  &__input,
-  &__select {
-    height: 40px;
-  }
-
-  &__textarea {
-    resize: vertical;
-    min-height: 80px;
+  &__input {
+    @include customer.form-input;
   }
 
   &__select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23232323' stroke-width='1.33' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 40px;
+    @include customer.form-select;
+  }
+
+  &__textarea {
+    @include customer.form-textarea;
   }
 
   &__file {
@@ -275,7 +220,6 @@
     background: #f4f4f5;
     border: 1px solid #e4e4e7;
     border-radius: 4px;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
     color: #232323;
@@ -288,7 +232,6 @@
   }
 
   &__file-name {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #71717a;
   }
@@ -296,41 +239,13 @@
 
 // Button styles
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 8px 16px;
-  border: 1px solid #e4e4e7;
-  border-radius: 6px;
-  background: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: #232323;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-
-  &:hover {
-    background-color: #f4f4f5;
-  }
+  @include admin.btn-base;
 
   &--primary {
-    background: #232323;
-    border-color: #232323;
-    color: white;
-
-    &:hover {
-      background: #18181b;
-      border-color: #18181b;
-    }
+    @include admin.btn-primary;
   }
 
   &--full-width {
     width: 100%;
   }
 }
-

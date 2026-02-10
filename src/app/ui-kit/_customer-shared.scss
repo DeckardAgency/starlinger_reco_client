@@ -1,0 +1,1098 @@
+// =============================================================================
+// CUSTOMER-SHARED MIXINS
+// Shared styles for customer-facing pages (shop, cart, wishlist, checkout, etc.)
+// =============================================================================
+
+// =============================================================================
+// OVERLAY (Scrim)
+// Used by: cart, wishlist
+// =============================================================================
+@mixin sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(35, 35, 35, 0.9);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// =============================================================================
+// SHEET (Slide-in Panel)
+// Used by: cart, wishlist
+// =============================================================================
+@mixin sheet-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 6px 0 0 6px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  overflow: hidden;
+
+  &--open {
+    transform: translateX(0);
+  }
+}
+
+@mixin sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+@mixin sheet-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #232323;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1;
+  }
+}
+
+@mixin sheet-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #232323;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+@mixin sheet-items-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// =============================================================================
+// COUNT BADGE
+// Used by: cart, checkout, wishlist, products-group
+// =============================================================================
+@mixin count-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background: #f4f4f5;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #71717a;
+}
+
+// =============================================================================
+// PRODUCT INFO (Label + Value patterns)
+// Used by: cart-item, wishlist-item, checkout product, related-card, product-card
+// =============================================================================
+@mixin product-label {
+  font-size: 12px;
+  color: #71717a;
+  line-height: 1;
+}
+
+@mixin product-code {
+  font-size: 14px;
+  font-weight: 500;
+  color: #09090b;
+  line-height: 1;
+}
+
+@mixin product-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #09090b;
+  line-height: 20px;
+}
+
+@mixin product-divider {
+  height: 1px;
+  background: #e4e4e7;
+}
+
+@mixin product-price {
+  font-size: 18px;
+  color: #71717a;
+  line-height: 1;
+}
+
+@mixin product-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// =============================================================================
+// QUANTITY SELECTOR
+// Used by: cart, checkout, wishlist, product-detail, products-in-group
+// =============================================================================
+@mixin quantity-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  background: #fff;
+}
+
+@mixin quantity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #232323;
+  cursor: pointer;
+
+  &:hover {
+    color: #71717a;
+  }
+}
+
+@mixin quantity-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #232323;
+  min-width: 16px;
+  text-align: center;
+}
+
+// =============================================================================
+// FAVORITE BUTTON
+// Used by: cart, checkout, wishlist, related-card, product-card
+// =============================================================================
+@mixin favorite-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #e4e4e7;
+  background: #fff;
+  color: #232323;
+  cursor: pointer;
+  border-radius: 50%;
+
+  &:hover {
+    background: #f4f4f5;
+  }
+}
+
+@mixin favorite-btn-positioned {
+  @include favorite-btn;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+// =============================================================================
+// DELETE BUTTON
+// Used by: cart, checkout, wishlist
+// =============================================================================
+@mixin delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #232323;
+  cursor: pointer;
+
+  &:hover {
+    color: #dc2626;
+  }
+}
+
+@mixin delete-btn-large {
+  @include delete-btn;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+
+  &:hover {
+    background: #f4f4f5;
+  }
+}
+
+// =============================================================================
+// REFERENCE INPUT
+// Used by: cart, checkout
+// =============================================================================
+@mixin reference-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #f4f4f5;
+  border-radius: 6px;
+}
+
+@mixin reference-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #232323;
+  line-height: 1;
+}
+
+@mixin reference-input {
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  color: #232323;
+  line-height: 20px;
+
+  &::placeholder {
+    color: #71717a;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #dc2626;
+  }
+}
+
+// =============================================================================
+// SUMMARY ROW
+// Used by: cart, checkout
+// =============================================================================
+@mixin summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@mixin summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin summary-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #232323;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@mixin summary-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #232323;
+
+  &--total {
+    font-weight: 600;
+  }
+}
+
+// =============================================================================
+// PAGE HEADER (with breadcrumbs)
+// Used by: product-detail, product-groups, products-in-group, wishlist-page
+// =============================================================================
+@mixin page-header {
+  display: flex;
+  align-items: center;
+  padding: 18px 16px;
+  background: transparent;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+@mixin page-header-64 {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+@mixin breadcrumb-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@mixin breadcrumb-separator {
+  width: 1px;
+  height: 15px;
+  background: #e4e4e7;
+}
+
+// =============================================================================
+// LIST HEADER
+// Used by: product-groups, products-in-group, wishlist-page
+// =============================================================================
+@mixin list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: transparent;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+@mixin list-header-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #18181b;
+  margin: 0;
+}
+
+// =============================================================================
+// PRODUCT CARD (Grid/List item)
+// Used by: products-in-group, related products
+// =============================================================================
+@mixin product-card-base {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #d4d4d8;
+  }
+}
+
+@mixin product-image-wrapper {
+  position: relative;
+  background: #fafafa;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+// =============================================================================
+// TOAST CONTAINER
+// Used by: product-detail, products-in-group
+// =============================================================================
+@mixin toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  left: auto;
+  z-index: 9999;
+}
+
+// =============================================================================
+// CAROUSEL BUTTON
+// Used by: product-detail, products-in-group detail
+// =============================================================================
+@mixin carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #e4e4e7;
+  background: #fff;
+  color: #232323;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 1;
+
+  &:hover {
+    background: #f4f4f5;
+  }
+}
+
+// =============================================================================
+// ITEM CARD (Cart/Wishlist item)
+// Used by: cart, wishlist
+// =============================================================================
+@mixin item-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+}
+
+@mixin item-image-wrapper($width: 149px, $height: 149px) {
+  position: relative;
+  width: $width;
+  height: $height;
+  flex-shrink: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+@mixin item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@mixin item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@mixin item-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@mixin item-quantity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// =============================================================================
+// PAGE CONTAINER
+// Used by: product-detail, products-in-group, product-groups, wishlist-page, checkout
+// =============================================================================
+@mixin page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #f4f4f5;
+}
+
+// =============================================================================
+// MENU BUTTON (hamburger in header)
+// Used by: product-detail, products-in-group, product-groups
+// =============================================================================
+@mixin menu-btn {
+  width: 28px;
+  height: 28px;
+  min-height: unset;
+  padding: 0;
+  border-radius: 4px;
+}
+
+// =============================================================================
+// ICON BOX (36x36 container with icon)
+// Used by: product-detail, product-groups
+// =============================================================================
+@mixin icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  background: #f4f4f5;
+  border-radius: 6px;
+  flex-shrink: 0;
+  color: #232323;
+}
+
+@mixin icon-box-white {
+  @include icon-box;
+  background: #fff;
+}
+
+// =============================================================================
+// SECTION TITLE (20px with icon)
+// Used by: checkout, product-detail
+// =============================================================================
+@mixin section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #232323;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  span, h1, h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// ACTIONS ROW
+// Used by: cart, wishlist, checkout
+// =============================================================================
+@mixin actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin actions-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+// =============================================================================
+// SHEET FOOTER
+// Used by: cart, wishlist
+// =============================================================================
+@mixin sheet-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding-top: 24px;
+  border-top: 1px solid #e4e4e7;
+}
+
+// =============================================================================
+// DETAILS CONTAINER
+// Used by: cart-item, wishlist-item
+// =============================================================================
+@mixin details-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// =============================================================================
+// MODAL/DIALOG
+// Used by: dashboard (contact modal)
+// =============================================================================
+@mixin modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin modal-dialog {
+  width: 420px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100vh - 64px);
+  background: white;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@mixin modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  position: relative;
+  margin-bottom: 16px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: #e4e4e7;
+  }
+}
+
+@mixin modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  color: #232323;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+@mixin modal-content {
+  flex: 1;
+  padding: 0 24px;
+  overflow-y: auto;
+}
+
+@mixin modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 24px 24px;
+}
+
+// =============================================================================
+// FORM FIELDS
+// Used by: dashboard
+// =============================================================================
+@mixin form-fields-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@mixin form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@mixin form-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: #232323;
+}
+
+@mixin form-input {
+  height: 40px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #232323;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: #71717a;
+  }
+
+  &:focus {
+    border-color: #dc2626;
+  }
+}
+
+@mixin form-textarea {
+  @include form-input;
+  height: auto;
+  resize: vertical;
+  min-height: 80px;
+}
+
+@mixin form-select {
+  @include form-input;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23232323' stroke-width='1.33' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+// =============================================================================
+// EMPTY STATE
+// Used by: products-in-group
+// =============================================================================
+@mixin empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+
+  p {
+    color: #71717a;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE GRID
+// Used by: product-groups
+// =============================================================================
+@mixin responsive-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@mixin responsive-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// =============================================================================
+// CARD BASE
+// Used by: product-groups (group-card), products-in-group (product-card)
+// =============================================================================
+@mixin card-base {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// =============================================================================
+// CONTENT PADDING
+// Used by: multiple pages
+// =============================================================================
+@mixin content-padding {
+  flex: 1;
+  padding: 16px;
+}
+
+// =============================================================================
+// SIDEBAR
+// Used by: checkout, wishlist-page
+// =============================================================================
+@mixin sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 300px;
+  flex-shrink: 0;
+}
+
+// =============================================================================
+// FILTER DROPDOWN
+// Used by: products-in-group
+// =============================================================================
+@mixin filter-dropdown {
+  position: relative;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+@mixin filter-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  padding: 4px 0;
+}
+
+@mixin filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #18181b;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f4f4f5;
+  }
+}
+
+@mixin filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #71717a;
+}
+
+// =============================================================================
+// VIEW TOGGLE BUTTON
+// Used by: products-in-group (grid/list toggle)
+// =============================================================================
+@mixin view-toggle-btn {
+  color: #71717a;
+
+  &:hover {
+    border-color: #d4d4d8;
+    color: #18181b;
+  }
+}
+
+@mixin view-toggle-btn-active {
+  background: #18181b;
+  border-color: #18181b;
+  color: #fff;
+
+  &:hover {
+    background: #27272a;
+    border-color: #27272a;
+    color: #fff;
+  }
+}
+
+// =============================================================================
+// SKELETON LOADING
+// Used by: dashboard
+// =============================================================================
+@mixin skeleton-card($height: 220px) {
+  background: white;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  height: $height;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// =============================================================================
+// BREADCRUMB HOME BUTTON
+// Used by: dashboard, wishlist-page
+// =============================================================================
+@mixin breadcrumb-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #232323;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #e4e4e7;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE BREAKPOINTS
+// =============================================================================
+$breakpoint-desktop: 1200px;
+$breakpoint-tablet: 1024px;
+$breakpoint-tablet-sm: 768px;
+$breakpoint-mobile: 480px;
+
+// =============================================================================
+// HORIZONTAL SCROLL SLIDER (Mobile)
+// Used by: dashboard (quick-actions, active-orders cards)
+// =============================================================================
+@mixin horizontal-scroll-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 12px;
+  padding-bottom: 8px;
+
+  // Hide scrollbar
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@mixin scroll-snap-card($width: calc(100vw - 80px)) {
+  flex: 0 0 auto;
+  width: $width;
+  scroll-snap-align: start;
+}
+
+// =============================================================================
+// DASHBOARD SECTION
+// Used by: customer-dashboard (quick-actions, active-orders, history)
+// =============================================================================
+@mixin dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+@mixin dashboard-cards-row {
+  display: flex;
+  gap: 16px;
+  align-self: stretch;
+
+  > * {
+    flex: 1;
+  }
+
+  @media screen and (max-width: $breakpoint-tablet) {
+    flex-direction: column;
+  }
+}
+
+@mixin dashboard-cards-grid($columns: 3) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: 16px;
+  width: 100%;
+
+  @media screen and (max-width: $breakpoint-tablet-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media screen and (max-width: $breakpoint-mobile) {
+    @include horizontal-scroll-slider;
+    display: flex;
+
+    > * {
+      @include scroll-snap-card;
+    }
+  }
+}
+
+// =============================================================================
+// DATA TABLE RESPONSIVE
+// Used by: dashboard history
+// =============================================================================
+@mixin table-responsive-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @media screen and (max-width: $breakpoint-tablet-sm) {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+}
+
+// =============================================================================
+// MODAL RESPONSIVE
+// Used by: dashboard contact modal
+// =============================================================================
+@mixin modal-dialog-responsive {
+  @include modal-dialog;
+
+  @media screen and (max-width: $breakpoint-mobile) {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+@mixin modal-header-responsive {
+  @include modal-header;
+
+  @media screen and (max-width: $breakpoint-mobile) {
+    padding: 16px;
+    margin-bottom: 8px;
+
+    &::after {
+      left: 16px;
+      right: 16px;
+    }
+  }
+}
+
+@mixin modal-content-responsive {
+  @include modal-content;
+
+  @media screen and (max-width: $breakpoint-mobile) {
+    padding: 0 16px;
+  }
+}
+
+@mixin modal-footer-responsive {
+  @include modal-footer;
+
+  @media screen and (max-width: $breakpoint-mobile) {
+    padding: 16px;
+  }
+}

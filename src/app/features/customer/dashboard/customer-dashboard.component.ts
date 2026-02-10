@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, TemplateRef, signal, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, TemplateRef, signal, AfterViewInit, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -16,13 +16,13 @@ import {
   DropdownMenuItem
 } from '@app/ui-kit';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { DashboardService, DashboardOrder } from '@core/services/http/dashboard.service';
 import {
   HistoryItem,
   HistoryStatus,
   HistoryType,
   mockCustomerQuickActions,
-  mockCustomerActiveOrders,
-  mockCustomerHistoryData,
   ICON_QUICK_ACTIONS,
   ICON_ACTIVE_ORDERS,
   ICON_HISTORY
@@ -32,8 +32,8 @@ import {
 interface ContactFormData {
   subject: string;
   message: string;
-  orderInquiryId: string;
-  machineProduct: string;
+  orderId: string;
+  product: string;
   attachment: File | null;
   urgency: string;
 }
@@ -52,13 +52,16 @@ interface ContactFormData {
     DataTableComponent,
     BadgeComponent,
     ButtonComponent,
-    DropdownMenuComponent
+    DropdownMenuComponent,
+    IconComponent
   ],
   templateUrl: './customer-dashboard.component.html',
   styleUrls: ['./customer-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomerDashboardComponent implements AfterViewInit {
+export class CustomerDashboardComponent implements AfterViewInit, OnInit {
+  private dashboardService = inject(DashboardService);
+
   @ViewChild('typeCell', { static: true }) typeCell!: TemplateRef<any>;
   @ViewChild('statusCell', { static: true }) statusCell!: TemplateRef<any>;
   @ViewChild('actionsCell', { static: true }) actionsCell!: TemplateRef<any>;
@@ -72,16 +75,20 @@ export class CustomerDashboardComponent implements AfterViewInit {
   contactFormData: ContactFormData = {
     subject: '',
     message: '',
-    orderInquiryId: '',
-    machineProduct: '',
+    orderId: '',
+    product: '',
     attachment: null,
     urgency: ''
   };
   selectedFileName = signal<string>('');
 
+  // Loading states
+  isLoadingOrders = signal(true);
+  isLoadingHistory = signal(true);
+
   // Active Orders section
   activeOrdersIcon = ICON_ACTIVE_ORDERS;
-  activeOrders: OrderCardData[] = mockCustomerActiveOrders;
+  activeOrders = signal<OrderCardData[]>([]);
 
   // History section
   historyIcon = ICON_HISTORY;
@@ -99,12 +106,96 @@ export class CustomerDashboardComponent implements AfterViewInit {
 
   columns = signal<TableColumn[]>([]);
 
-  historyData: HistoryItem[] = mockCustomerHistoryData;
+  historyData = signal<HistoryItem[]>([]);
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  private loadDashboardData(): void {
+    this.isLoadingOrders.set(true);
+    this.isLoadingHistory.set(true);
+
+    // Load recent orders
+    this.dashboardService.getRecentOrders(10).subscribe({
+      next: (orders) => {
+        // Map orders to active orders format
+        const activeOrderCards = this.mapOrdersToCards(orders);
+        this.activeOrders.set(activeOrderCards);
+        this.isLoadingOrders.set(false);
+
+        // Map to history format
+        const historyItems = this.mapToHistoryItems(orders);
+        this.historyData.set(historyItems);
+        this.isLoadingHistory.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load dashboard data:', error);
+        this.isLoadingOrders.set(false);
+        this.isLoadingHistory.set(false);
+      }
+    });
+  }
+
+  private mapOrdersToCards(orders: DashboardOrder[]): OrderCardData[] {
+    return orders
+      .filter(o => !['completed', 'canceled'].includes(o.status))
+      .slice(0, 3)
+      .map(order => ({
+        id: `#${order.orderNumber || order.id.slice(0, 4)}`,
+        type: 'order' as const,
+        internalReference: order.orderNumber || order.id.slice(0, 8),
+        dateCreated: this.formatDate(order.createdAt),
+        partsOrdered: 0,
+        status: this.mapOrderStatus(order.status)
+      }));
+  }
+
+  private mapToHistoryItems(orders: DashboardOrder[]): HistoryItem[] {
+    return orders.map(order => ({
+      orderId: order.orderNumber || order.id.slice(0, 4),
+      type: 'order' as HistoryType,
+      dateCreated: this.formatDate(order.createdAt),
+      internalReference: order.orderNumber || order.id.slice(0, 8),
+      partsOrdered: 0,
+      status: this.mapToHistoryStatus(order.status)
+    })).sort((a, b) =>
+      new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+    );
+  }
+
+  private formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+  }
+
+  private mapOrderStatus(status: string): 'submitted' | 'confirmed' | 'in-review' {
+    const statusMap: Record<string, 'submitted' | 'confirmed' | 'in-review'> = {
+      'submitted': 'submitted',
+      'confirmed': 'confirmed',
+      'in_progress': 'confirmed',
+      'in_review': 'in-review',
+      'dispatched': 'confirmed'
+    };
+    return statusMap[status] || 'submitted';
+  }
+
+  private mapToHistoryStatus(status: string): HistoryStatus {
+    const statusMap: Record<string, HistoryStatus> = {
+      'completed': 'completed',
+      'canceled': 'cancelled',
+      'cancelled': 'cancelled',
+      'in_review': 'in-review',
+      'submitted': 'in-review',
+      'in_progress': 'in-review'
+    };
+    return statusMap[status] || 'in-review';
+  }
 
   ngAfterViewInit(): void {
     // Set columns without Customer column for Customer view
     this.columns.set([
-      { key: 'inquiryId', label: 'Inquiry ID' },
+      { key: 'orderId', label: 'Order ID' },
       { key: 'type', label: 'Type', template: this.typeCell },
       { key: 'dateCreated', label: 'Date Created', sortable: true },
       { key: 'internalReference', label: 'Internal reference number' },
@@ -116,12 +207,13 @@ export class CustomerDashboardComponent implements AfterViewInit {
 
   get filteredData(): HistoryItem[] {
     const tab = this.activeTab();
+    const data = this.historyData();
     if (tab === 'completed') {
-      return this.historyData.filter(item => item.status === 'completed');
+      return data.filter(item => item.status === 'completed');
     } else if (tab === 'cancelled') {
-      return this.historyData.filter(item => item.status === 'cancelled');
+      return data.filter(item => item.status === 'cancelled');
     }
-    return this.historyData;
+    return data;
   }
 
   onTabChange(tabId: string): void {
@@ -233,8 +325,8 @@ export class CustomerDashboardComponent implements AfterViewInit {
     this.contactFormData = {
       subject: '',
       message: '',
-      orderInquiryId: '',
-      machineProduct: '',
+      orderId: '',
+      product: '',
       attachment: null,
       urgency: ''
     };

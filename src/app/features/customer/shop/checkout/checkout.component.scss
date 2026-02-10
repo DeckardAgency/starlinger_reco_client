@@ -1,18 +1,13 @@
+@use '../../../../ui-kit/admin-shared' as admin;
+@use '../../../../ui-kit/customer-shared' as customer;
+
 .checkout {
-  display: flex;
-  flex-direction: column;
+  @include customer.page-container;
   height: 100%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%),
-              linear-gradient(90deg, #f4f4f5 0%, #f4f4f5 100%),
-              linear-gradient(90deg, #fff 0%, #fff 100%);
 
   // Header
   &__header {
-    display: flex;
-    align-items: center;
-    height: 64px;
-    padding: 0 16px;
-    border-bottom: 1px solid #e4e4e7;
+    @include customer.page-header-64;
   }
 
   // Title Section
@@ -24,34 +19,11 @@
   }
 
   &__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #232323;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    span {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 28px;
-    }
+    @include customer.section-title;
   }
 
   &__count {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 20px;
-    background: linear-gradient(90deg, rgba(9, 9, 11, 0.1) 0%, rgba(9, 9, 11, 0.1) 100%),
-                linear-gradient(90deg, #f4f4f5 0%, #f4f4f5 100%);
-    border-radius: 6px;
-    font-size: 14px;
-    color: #71717a;
+    @include customer.count-badge;
   }
 
   // Content
@@ -94,7 +66,6 @@
     }
   }
 
-  // Cells
   &__cell {
     padding: 16px;
     display: flex;
@@ -144,19 +115,11 @@
   }
 
   &__product-image {
-    position: relative;
-    width: 149px;
-    height: 149px;
-    flex-shrink: 0;
+    @include customer.item-image-wrapper;
     border: 1px solid #e4e4e7;
-    border-radius: 2px;
-    overflow: hidden;
-    background: #fafafa;
 
     img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      @include customer.item-image;
     }
   }
 
@@ -164,53 +127,29 @@
     position: absolute;
     top: 7px;
     right: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 1px solid #e4e4e7;
-    background: #fff;
-    color: #232323;
-    cursor: pointer;
-    border-radius: 50%;
-
-    &:hover {
-      background: #f4f4f5;
-    }
   }
 
   &__product-info {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    @include customer.item-info;
     flex: 1;
   }
 
   &__product-code,
   &__product-name {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    @include customer.product-info-section;
   }
 
   &__label {
-    font-size: 12px;
-    color: #71717a;
-    line-height: 1;
+    @include customer.product-label;
   }
 
   &__value {
-    font-size: 14px;
-    font-weight: 500;
-    color: #09090b;
+    @include customer.product-code;
     line-height: 20px;
   }
 
   &__product-divider {
-    height: 1px;
-    background: #e4e4e7;
+    @include customer.product-divider;
   }
 
   &__product-price {
@@ -239,149 +178,45 @@
   }
 
   &__final-price {
-    font-size: 18px;
-    color: #71717a;
-  }
-
-  // Quantity Selector
-  &__quantity-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 12px;
-    border: 1px solid #e4e4e7;
-    border-radius: 6px;
-    background: #fff;
-  }
-
-  &__qty-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #232323;
-    cursor: pointer;
-
-    &:hover {
-      color: #71717a;
-    }
-  }
-
-  &__qty-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: #232323;
-    min-width: 16px;
-    text-align: center;
+    @include customer.product-price;
   }
 
   // Delete Button
   &__delete-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #232323;
-    cursor: pointer;
-    border-radius: 6px;
-
-    &:hover {
-      background: #f4f4f5;
-      color: #dc2626;
-    }
+    @include customer.delete-btn-large;
   }
 
   // Sidebar
   &__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    width: 300px;
-    flex-shrink: 0;
+    @include customer.sidebar;
   }
 
-  // Internal Reference
   &__reference {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px;
-    background: linear-gradient(90deg, rgba(9, 9, 11, 0.1) 0%, rgba(9, 9, 11, 0.1) 100%),
-                linear-gradient(90deg, #f4f4f5 0%, #f4f4f5 100%);
-    border-radius: 6px;
+    @include customer.reference-section;
   }
 
   &__reference-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #232323;
-    line-height: 1;
+    @include customer.reference-label;
   }
 
   &__reference-input {
-    height: 40px;
-    padding: 8px 12px;
-    border: 1px solid #e4e4e7;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 14px;
-    color: #232323;
-    line-height: 20px;
-
-    &::placeholder {
-      color: #71717a;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: #dc2626;
-    }
+    @include customer.reference-input;
   }
 
-  // Summary
   &__summary {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    @include customer.summary-container;
   }
 
   &__summary-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @include customer.summary-row;
   }
 
   &__summary-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #232323;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
+    @include customer.summary-label;
   }
 
   &__summary-value {
-    font-size: 16px;
-    font-weight: 500;
-    color: #232323;
-
-    &--total {
-      font-weight: 600;
-    }
+    @include customer.summary-value;
   }
 
   // Actions
@@ -392,40 +227,15 @@
   }
 
   &__btn {
-    display: flex;
-    align-items: center;
+    @include admin.btn-base;
     justify-content: space-between;
-    height: 40px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
 
     &--primary {
-      background: #dc2626;
-      border: none;
-      color: #fff;
-
-      &:hover {
-        background: #b91c1c;
-      }
+      @include admin.btn-primary;
     }
 
     &--outline {
-      background: #fff;
-      border: 1px solid #e4e4e7;
-      color: #232323;
-
-      &:hover {
-        background: #f4f4f5;
-      }
+      @include admin.btn-outline;
     }
   }
 }
@@ -446,4 +256,3 @@
     }
   }
 }
-

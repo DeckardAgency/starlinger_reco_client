@@ -3,16 +3,12 @@
     <!-- Header -->
     <div class="wishlist-sheet__header">
       <div class="wishlist-sheet__title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 17.5s-6.875-4.375-6.875-8.75a4.375 4.375 0 018.75-2.188 4.375 4.375 0 018.75 2.188c0 4.375-6.875 8.75-6.875 8.75z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="heart" size="md"></ui-icon>
         <span>Wishlist</span>
         <div class="wishlist-sheet__count">{{ wishlistItems().length }}</div>
       </div>
       <button class="wishlist-sheet__close" type="button" (click)="closeWishlist()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="x" size="sm"></ui-icon>
       </button>
     </div>
 
@@ -22,11 +18,11 @@
         <div class="wishlist-item">
           <div class="wishlist-item__image-wrapper">
             <img [src]="item.imageUrl" [alt]="item.productName" class="wishlist-item__image">
-            <button class="wishlist-item__favorite" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path fill="#DC2626" d="M8 14s-5.5-3.5-5.5-7A3.5 3.5 0 018 4.5 3.5 3.5 0 0113.5 7c0 3.5-5.5 7-5.5 7z" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <ui-favorite-button
+              class="wishlist-item__favorite"
+              size="sm"
+              [active]="true"
+            ></ui-favorite-button>
           </div>
           <div class="wishlist-item__info">
             <div class="wishlist-item__details">
@@ -42,23 +38,15 @@
             <div class="wishlist-item__controls">
               <div class="wishlist-item__divider"></div>
               <div class="wishlist-item__quantity-row">
-                <div class="wishlist-item__quantity">
-                  <button class="wishlist-item__qty-btn" type="button" (click)="decrementQuantity(item)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                  <span class="wishlist-item__qty-value">{{ item.quantity }}</span>
-                  <button class="wishlist-item__qty-btn" type="button" (click)="incrementQuantity(item)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M8 3.333V12.667M3.333 8h9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
+                <ui-quantity-selector
+                  size="sm"
+                  [value]="item.quantity"
+                  [min]="1"
+                  [showInput]="false"
+                  (quantityChange)="onQuantityChange(item, $event)"
+                ></ui-quantity-selector>
                 <button class="wishlist-item__delete" type="button" (click)="removeItem(item)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <ui-icon name="trash" size="lg"></ui-icon>
                 </button>
               </div>
               <span class="wishlist-item__price">{{ formatPrice(item.price * item.quantity) }}</span>
@@ -71,9 +59,7 @@
     <!-- Footer Actions -->
     <div class="wishlist-sheet__footer">
       <button class="wishlist-sheet__btn wishlist-sheet__btn--back" type="button" (click)="onBackToProducts()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="chevron-left" size="sm"></ui-icon>
         <span>Back to product list</span>
       </button>
       <div class="wishlist-sheet__actions-right">
@@ -82,12 +68,9 @@
         </button>
         <button class="wishlist-sheet__btn wishlist-sheet__btn--add-to-cart" type="button" (click)="onAddToCart()">
           <span>Add to cart</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="chevron-right" size="sm"></ui-icon>
         </button>
       </div>
     </div>
   </div>
 </div>
-

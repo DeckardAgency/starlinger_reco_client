@@ -72,6 +72,13 @@ export abstract class BaseHttpService {
   }
 
   /**
+   * Simple DELETE request
+   */
+  protected delete<T>(url: string): Observable<T> {
+    return this.http.delete<T>(url);
+  }
+
+  /**
    * GET request for PDF export
    */
   protected getPdf(url: string): Observable<Blob> {

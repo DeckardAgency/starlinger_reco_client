@@ -2,10 +2,7 @@
   <div class="order-success__content">
     <!-- Success Icon -->
     <div class="order-success__icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <path d="M51.333 25.827v2.206a23.333 23.333 0 11-13.836-21.336" stroke="#232323" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M51.333 9.333L28 32.69l-7-7" stroke="#232323" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <ui-icon name="check-circle-large" size="lg"></ui-icon>
     </div>
 
     <!-- Thank You Message -->
@@ -14,22 +11,16 @@
     <!-- Order Details -->
     <div class="order-success__details">
       <p class="order-success__detail">Order number: {{ orderNumber() }}</p>
-      <p class="order-success__detail">Your Area Manager is {{ areaManager() }}</p>
     </div>
 
     <!-- Contact Buttons -->
     <div class="order-success__contact-buttons">
       <button class="order-success__contact-btn" type="button" (click)="callManager()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M14.667 11.28v2a1.333 1.333 0 01-1.454 1.333 13.193 13.193 0 01-5.753-2.046 13 13 0 01-4-4 13.193 13.193 0 01-2.047-5.78 1.333 1.333 0 011.327-1.454h2a1.333 1.333 0 011.333 1.147 8.56 8.56 0 00.467 1.873 1.333 1.333 0 01-.3 1.407l-.847.847a10.667 10.667 0 004 4l.847-.847a1.333 1.333 0 011.407-.3 8.56 8.56 0 001.873.467 1.333 1.333 0 011.147 1.353z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="phone" size="sm"></ui-icon>
         <span>Call</span>
       </button>
       <button class="order-success__contact-btn" type="button" (click)="emailManager()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2.667 2.667h10.666c.734 0 1.334.6 1.334 1.333v8c0 .733-.6 1.333-1.334 1.333H2.667c-.734 0-1.334-.6-1.334-1.333V4c0-.733.6-1.333 1.334-1.333z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M14.667 4L8 8.667 1.333 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <ui-icon name="mail" size="sm"></ui-icon>
         <span>E-mail</span>
       </button>
     </div>
@@ -38,17 +29,12 @@
   <!-- Action Buttons -->
   <div class="order-success__actions">
     <button class="order-success__btn order-success__btn--outline" type="button" (click)="goToDashboard()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <ui-icon name="chevron-left" size="sm"></ui-icon>
       <span>Back to Dashboard</span>
     </button>
     <button class="order-success__btn order-success__btn--primary" type="button" (click)="viewActiveInquiries()">
-      <span>View active Inquiries</span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <span>View my Orders</span>
+      <ui-icon name="chevron-right" size="sm"></ui-icon>
     </button>
   </div>
 </div>
-

@@ -1,9 +1,11 @@
-import { Component, ChangeDetectionStrategy, signal, computed, Output, EventEmitter, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CartService, CartItem } from '@core/services/cart.service';
-import { mockShopProducts } from '@core/mocks/mock-data';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
+import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 
 @Component({
   selector: 'app-cart',
@@ -11,13 +13,16 @@ import { mockShopProducts } from '@core/mocks/mock-data';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    IconComponent,
+    QuantitySelectorComponent,
+    FavoriteButtonComponent
   ],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CartComponent implements OnInit {
+export class CartComponent {
   @Output() close = new EventEmitter<void>();
 
   private cartService = inject(CartService);
@@ -37,18 +42,8 @@ export class CartComponent implements OnInit {
 
   total = computed(() => this.subtotal() + this.shippingCost);
 
-  ngOnInit(): void {
-    // Load mock items if cart is empty
-    if (this.cartItems().length === 0) {
-      this.loadMockCartItems();
-    }
-  }
-
-  private loadMockCartItems(): void {
-    const products = mockShopProducts.slice(0, 2);
-    products.forEach((product, index) => {
-      this.cartService.addItem(product, index === 0 ? 2 : 1);
-    });
+  onQuantityChange(item: CartItem, quantity: number): void {
+    this.cartService.updateQuantity(item.id, quantity);
   }
 
   incrementQuantity(item: CartItem): void {
@@ -106,4 +101,3 @@ export class CartComponent implements OnInit {
     }
   }
 }
-

@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, ViewChild, TemplateRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, TemplateRef, signal, OnInit, AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SectionHeaderComponent, TabsComponent, BadgeComponent, AvatarComponent, TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms';
+import { DashboardService, DashboardOrder } from '@core/services/http/dashboard.service';
 
 export type HistoryStatus = 'completed' | 'cancelled' | 'in-review';
 export type HistoryType = 'order' | 'manual';
 
 export interface HistoryItem {
-  inquiryId: string;
+  orderId: string;
   type: HistoryType;
   dateCreated: string;
   internalReference: string;
@@ -35,7 +36,10 @@ export interface HistoryItem {
   styleUrls: ['./history.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HistoryComponent {
+export class HistoryComponent implements OnInit, AfterViewInit {
+  private dashboardService = inject(DashboardService);
+  private cdr = inject(ChangeDetectorRef);
+
   @ViewChild('typeCell', { static: true }) typeCell!: TemplateRef<any>;
   @ViewChild('customerCell', { static: true }) customerCell!: TemplateRef<any>;
   @ViewChild('statusCell', { static: true }) statusCell!: TemplateRef<any>;
@@ -45,6 +49,8 @@ export class HistoryComponent {
   sortColumn = signal<string | null>('dateCreated');
   sortDirection = signal<'asc' | 'desc' | null>('desc');
   openMenuRowId = signal<string | null>(null);
+  isLoading = signal(true);
+  allData = signal<HistoryItem[]>([]);
 
   tabs = [
     { id: 'latest', label: 'Latest' },
@@ -58,82 +64,79 @@ export class HistoryComponent {
 
   columns = signal<TableColumn[]>([]);
 
-  allData: HistoryItem[] = [
-    {
-      inquiryId: '0001',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '000123-ABC',
-      customerInitials: 'AK',
-      customerName: 'Anes Kapetanovic',
-      partsOrdered: 12,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0002',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '000987-EAD',
-      customerInitials: 'AK',
-      customerName: 'Anes Kapetanovic',
-      partsOrdered: 192,
-      status: 'cancelled'
-    },
-    {
-      inquiryId: '0003',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '004231-UGR',
-      customerInitials: 'ME',
-      customerName: 'Martin Ertl',
-      partsOrdered: 48,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0004',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '001456-ZXY',
-      customerInitials: 'Me',
-      customerName: 'Martin Ertl',
-      partsOrdered: 36,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0005',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '002789-WPQ',
-      customerInitials: 'AK',
-      customerName: 'Anes Kapetanovic',
-      partsOrdered: 24,
-      status: 'cancelled'
-    },
-    {
-      inquiryId: '0006',
-      type: 'manual',
-      dateCreated: '14-03-2024',
-      internalReference: '005678-MNB',
-      customerInitials: 'AK',
-      customerName: 'Anes Kapetanovic',
-      partsOrdered: 60,
-      status: 'completed'
-    },
-    {
-      inquiryId: '0007',
-      type: 'order',
-      dateCreated: '14-03-2024',
-      internalReference: '003234-LJK',
-      customerInitials: 'IJ',
-      customerName: 'Ivan Jozic',
-      partsOrdered: 72,
-      status: 'completed'
-    }
-  ];
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  private loadData(): void {
+    this.isLoading.set(true);
+
+    this.dashboardService.getRecentOrders(30).subscribe({
+      next: (orders) => {
+        const items = this.mapToHistoryItems(orders);
+        this.allData.set(items);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load history:', error);
+        this.allData.set([]);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private mapToHistoryItems(orders: DashboardOrder[]): HistoryItem[] {
+    return orders.map(o => ({
+      orderId: o.id,
+      type: 'order' as HistoryType,
+      dateCreated: this.formatDate(o.createdAt),
+      internalReference: o.orderNumber || o.id.slice(0, 8),
+      customerInitials: this.getInitials(o.user),
+      customerName: this.getUserName(o.user),
+      partsOrdered: 0,
+      status: this.mapStatus(o.status)
+    })).sort((a, b) => {
+      const parse = (d: string) => { const [day, month, year] = d.split('-'); return new Date(Number(year), Number(month) - 1, Number(day)).getTime(); };
+      return parse(b.dateCreated) - parse(a.dateCreated);
+    });
+  }
+
+  private formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  private getInitials(user: { firstName?: string; lastName?: string; email?: string } | undefined): string {
+    if (!user) return 'U';
+    const first = user.firstName?.[0] || '';
+    const last = user.lastName?.[0] || '';
+    if (first || last) return (first + last).toUpperCase();
+    return (user.email?.[0] || 'U').toUpperCase();
+  }
+
+  private getUserName(user: { firstName?: string; lastName?: string; email?: string } | undefined): string {
+    if (!user) return 'Unknown';
+    const name = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    return name || user.email || 'Unknown';
+  }
+
+  private mapStatus(status: string): HistoryStatus {
+    const s = (status || '').toLowerCase();
+    if (['completed', 'delivered', 'answered'].includes(s)) return 'completed';
+    if (['cancelled', 'canceled', 'rejected'].includes(s)) return 'cancelled';
+    if (['in_review', 'in-review', 'more_info', 'in_progress'].includes(s)) return 'in-review';
+    return 'in-review';
+  }
 
   ngAfterViewInit(): void {
     this.columns.set([
-      { key: 'inquiryId', label: 'Inquiry ID' },
+      { key: 'orderId', label: 'Order ID' },
       { key: 'type', label: 'Type', template: this.typeCell },
       { key: 'dateCreated', label: 'Date Created', sortable: true },
       { key: 'internalReference', label: 'Internal reference number' },
@@ -146,12 +149,13 @@ export class HistoryComponent {
 
   get filteredData(): HistoryItem[] {
     const tab = this.activeTab();
+    const data = this.allData();
     if (tab === 'completed') {
-      return this.allData.filter(item => item.status === 'completed');
+      return data.filter(item => item.status === 'completed');
     } else if (tab === 'cancelled') {
-      return this.allData.filter(item => item.status === 'cancelled');
+      return data.filter(item => item.status === 'cancelled');
     }
-    return this.allData;
+    return data;
   }
 
   onTabChange(tabId: string): void {

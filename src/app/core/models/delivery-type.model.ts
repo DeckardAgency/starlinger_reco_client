@@ -20,3 +20,8 @@ export interface DeliveryTypeDocument {
   selected?: boolean;
 }
 
+export interface DeliveryTypesCollection {
+  totalItems: number;
+  member: DeliveryType[];
+}
+

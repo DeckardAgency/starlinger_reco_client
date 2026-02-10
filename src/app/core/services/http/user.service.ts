@@ -58,6 +58,18 @@ export class UserService extends BaseHttpService {
   }
 
   /**
+   * Get a single user by ID
+   * @param id User UUID
+   * @returns Observable with the user or null if not found
+   */
+  getUserById(id: string): Observable<User | null> {
+    const url = `${this.usersUrl}/${id}`;
+    return this.getWithJsonLd<User>(url).pipe(
+      map(u => u ?? null)
+    );
+  }
+
+  /**
    * Get all users (for admins or filtered by client)
    * @param filters Optional filters like pagination, sorting, search
    * @returns Observable with the collection of users
@@ -84,5 +96,35 @@ export class UserService extends BaseHttpService {
     }
 
     return this.getWithJsonLd<UserCollectionResponse>(this.usersUrl, params);
+  }
+
+  /**
+   * Create a new user
+   * @param userData User data to create
+   * @returns Observable with the created user
+   */
+  createUser(userData: Partial<User>): Observable<User> {
+    return this.postWithJsonLd<User>(this.usersUrl, userData);
+  }
+
+  /**
+   * Update an existing user
+   * @param id User UUID
+   * @param userData Partial user data to update
+   * @returns Observable with the updated user
+   */
+  updateUser(id: string, userData: Partial<User>): Observable<User> {
+    const url = `${this.usersUrl}/${id}`;
+    return this.patchWithJsonLd<User>(url, userData);
+  }
+
+  /**
+   * Delete a user
+   * @param id User UUID
+   * @returns Observable for the delete operation
+   */
+  deleteUser(id: string): Observable<void> {
+    const url = `${this.usersUrl}/${id}`;
+    return this.deleteWithJsonLd<void>(url);
   }
 }

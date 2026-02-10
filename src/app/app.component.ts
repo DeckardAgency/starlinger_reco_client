@@ -39,6 +39,7 @@ export class AppComponent implements OnInit {
   currentRoute: string = '';
   isAuthenticated: boolean = false;
   isAuthPage: boolean = false;
+  is404Page: boolean = false;
 
   private readonly authRoutes = ['/login', '/forgot-password'];
 
@@ -64,6 +65,7 @@ export class AppComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       this.currentRoute = event.url;
       this.isAuthPage = this.authRoutes.some(route => event.url.startsWith(route));
+      this.is404Page = event.url === '/404' || event.url.startsWith('/404?');
 
       // Check client status on every route change
       this.checkClientStatus();
@@ -72,6 +74,7 @@ export class AppComponent implements OnInit {
     // Initialize current route
     this.currentRoute = this.router.url;
     this.isAuthPage = this.authRoutes.some(route => this.router.url.startsWith(route));
+    this.is404Page = this.router.url === '/404' || this.router.url.startsWith('/404?');
 
     // Subscribe to authentication state changes
     this.authService.isAuthenticated$.pipe(

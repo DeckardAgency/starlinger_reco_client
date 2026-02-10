@@ -6,6 +6,14 @@
   ></ui-section-header>
 
   <div class="active-orders__cards">
-    <ui-order-card *ngFor="let order of orders" [data]="order"></ui-order-card>
+    @if (isLoading()) {
+      <p>Loading...</p>
+    } @else if (orders().length === 0) {
+      <p class="empty-state">No active orders or inquiries</p>
+    } @else {
+      @for (order of orders(); track order.id) {
+        <ui-order-card [data]="order" routePrefix="/admin"></ui-order-card>
+      }
+    }
   </div>
 </section>

@@ -7,6 +7,13 @@
     flex-direction: column;
     gap: 10px;
     max-width: 350px;
+
+    @media (max-width: 576px) {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        max-width: none;
+    }
 }
 
 .notification {

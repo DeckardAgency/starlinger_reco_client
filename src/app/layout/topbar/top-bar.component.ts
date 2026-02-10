@@ -1,23 +1,22 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { SearchComponent, SearchSuggestion } from '@app/ui-kit/molecules/search/search.component';
 import { MobileMenuService } from '@services/mobile-menu.service';
-import { InfoRequestNotificationService } from '@core/services/info-request-notification.service';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { AuthService } from '@core/auth/auth.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-top-bar',
+    standalone: true,
     imports: [CommonModule, SearchComponent],
     templateUrl: './top-bar.component.html',
     styleUrls: ['./top-bar.component.scss']
 })
 export class TopBarComponent implements OnInit, OnDestroy {
     showNotificationDropdown = false;
+    showMobileSearch = false;
     searchSuggestions: SearchSuggestion[] = [];
     searchLoading = false;
 
@@ -25,21 +24,21 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
     constructor(
         private mobileMenuService: MobileMenuService,
-        private notificationService: InfoRequestNotificationService,
-        private router: Router,
         public cartService: CartService,
         public wishlistService: WishlistService,
         public authService: AuthService
     ) {}
 
-    get notificationState$() {
-        return this.notificationService.state$;
-    }
-
     ngOnInit(): void {}
 
+    /**
+     * Check if current user is a Customer (Client)
+     * Only true if user has CLIENT but NOT CLIENT_ADMIN or SUPER_ADMIN
+     */
     get isCustomer(): boolean {
-        return this.authService.hasRole('ROLE_CLIENT');
+        return this.authService.hasRole('ROLE_CLIENT') && 
+               !this.authService.hasRole('ROLE_CLIENT_ADMIN') &&
+               !this.authService.hasRole('ROLE_SUPER_ADMIN');
     }
 
     get cartItemCount(): number {
@@ -56,6 +55,14 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
     openWishlist(): void {
         this.wishlistService.openWishlist();
+    }
+
+    openMobileSearch(): void {
+        this.showMobileSearch = !this.showMobileSearch;
+    }
+
+    closeMobileSearch(): void {
+        this.showMobileSearch = false;
     }
 
     ngOnDestroy(): void {
@@ -75,21 +82,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
         this.showNotificationDropdown = false;
     }
 
-    toggleNotifications(enabled: boolean): void {
-        this.notificationService.toggleNotifications(enabled);
-    }
-
-    toggleSound(enabled: boolean): void {
-        this.notificationService.toggleSound(enabled);
-    }
-
-    requestPermission(): void {
-        this.notificationService.requestPermission();
-    }
-
-    testNotification(): void {
-        this.notificationService.testNotification();
-    }
 
     onSearch(query: string): void {
         this.searchLoading = true;
@@ -97,9 +89,8 @@ export class TopBarComponent implements OnInit, OnDestroy {
         // For now, simulate search with mock data
         setTimeout(() => {
             this.searchSuggestions = [
-                { id: '1', label: 'AIVV-01152 Power Panel T30', description: 'Machine part', type: 'Part' },
-                { id: '2', label: 'AIVV-01210 Power Panel T30', description: 'Machine part', type: 'Part' },
-                { id: '3', label: 'AIVV Machine', description: 'recoSTAR dynamic', type: 'Machine' },
+                { id: '1', label: 'AIVV-01152 Power Panel T30', description: 'Spare part', type: 'Part' },
+                { id: '2', label: 'AIVV-01210 Power Panel T30', description: 'Spare part', type: 'Part' },
             ].filter(s => s.label.toLowerCase().includes(query.toLowerCase()));
             this.searchLoading = false;
         }, 300);
@@ -111,17 +102,4 @@ export class TopBarComponent implements OnInit, OnDestroy {
         // this.router.navigate(['/details', suggestion.id]);
     }
 
-    viewAllResponses(): void {
-        this.notificationService.clearNewResponsesCount();
-        this.closeNotificationDropdown();
-        this.router.navigate(['/info-requests/list'], { queryParams: { tab: 'responded' } });
-    }
-
-    getPermissionStatus(): string {
-        const status = this.notificationService.getPermissionStatus();
-        if (status === 'granted') return 'Enabled';
-        if (status === 'denied') return 'Blocked';
-        if (status === 'default') return 'Not set';
-        return 'Not supported';
-    }
 }

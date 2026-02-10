@@ -63,6 +63,7 @@
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    outline: none;
 
     @media (max-width: 576px) {
       background: transparent;
@@ -74,9 +75,32 @@
       background: #27272A;
     }
 
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #DC2626;
+      outline-offset: 2px;
+    }
+
     svg {
       width: 16px;
       height: 16px;
+    }
+
+    &--mobile-search {
+      display: none;
+
+      @media (max-width: 576px) {
+        display: flex;
+      }
+    }
+
+    &--desktop-only {
+      @media (max-width: 576px) {
+        display: none;
+      }
     }
   }
 
@@ -158,6 +182,7 @@
     color: #E4E4E7;
     cursor: pointer;
     transition: all 0.2s;
+    outline: none;
 
     @media (max-width: 834px) {
       display: flex;
@@ -173,9 +198,39 @@
       background: #27272A;
     }
 
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #DC2626;
+      outline-offset: 2px;
+    }
+
     svg {
       width: 20px;
       height: 20px;
+    }
+  }
+
+  // Mobile Search Panel
+  &__mobile-search {
+    display: none;
+    padding: 16px 24px;
+    background: #232323;
+
+    @media (max-width: 576px) {
+      display: block;
+    }
+  }
+
+  // Notification wrapper - scale up bell icon slightly to match visual weight
+  &__notification {
+    @media (max-width: 576px) {
+      .top-bar__action-btn svg {
+        width: 26px;
+        height: 26px;
+      }
     }
   }
 }
@@ -204,19 +259,74 @@
 
 @media (max-width: 576px) {
   .top-bar {
+    height: auto;
+    border-bottom: 1px solid #e4e4e7;
+
+    &__content {
+      padding: 16px 24px;
+      gap: 0;
+      align-items: flex-end;
+    }
+
     &__content-wrapper {
+      width: auto;
+    }
+
+    &__logo-wrapper {
+      width: 56px;
+      height: 48px;
+      display: flex;
       flex-direction: column;
-      align-items: start;
       justify-content: center;
     }
 
+    &__logo-img {
+      height: 40px;
+      width: auto;
+    }
+
     &__search {
-      margin-left: 0;
-      margin-top: 8px;
+      display: none;
     }
 
     &__actions {
-      //display: none;
+      gap: 0;
+    }
+
+    &__action-btn {
+      width: 48px;
+      height: 48px;
+      padding: 4px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      &:hover {
+        background: transparent;
+      }
+    }
+
+    &__hamburger {
+      width: 48px;
+      height: 48px;
+      padding: 4px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      &:hover {
+        background: transparent;
+      }
     }
   }
 }
@@ -417,9 +527,22 @@
   }
 }
 
+@media (max-width: 576px) {
+  .top-bar__notification-dropdown {
+    position: fixed;
+    top: 80px;
+    left: 16px;
+    right: 16px;
+  }
+
+  .notification-dropdown {
+    width: 100%;
+  }
+}
+
 @media (max-width: 400px) {
   .notification-dropdown {
-    width: 290px;
+    width: 100%;
   }
 }
 

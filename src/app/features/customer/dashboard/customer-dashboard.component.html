@@ -19,14 +19,21 @@
     <ui-section-header
       title="Active orders"
       [icon]="activeOrdersIcon"
-      viewAllLink="/customer/inquiries/active"
+      viewAllLink="/customer/shop"
     ></ui-section-header>
     <div class="active-orders__cards">
-      <ui-order-card
-        *ngFor="let order of activeOrders"
-        [data]="order"
-        routePrefix="/customer"
-      ></ui-order-card>
+      @if (isLoadingOrders()) {
+        <p>Loading orders...</p>
+      } @else if (activeOrders().length === 0) {
+        <p class="empty-state">No active orders</p>
+      } @else {
+        @for (order of activeOrders(); track order.id) {
+          <ui-order-card
+            [data]="order"
+            routePrefix="/customer"
+          ></ui-order-card>
+        }
+      }
     </div>
   </section>
 
@@ -35,7 +42,7 @@
     <ui-section-header
       title="History"
       [icon]="historyIcon"
-      viewAllLink="/customer/inquiries/history"
+      viewAllLink="/customer/shop"
     ></ui-section-header>
 
     <div class="history__content">
@@ -75,17 +82,13 @@
       variant="ghost"
       size="sm"
       [iconOnly]="true"
-      (click)="toggleMenu(row.inquiryId)"
+      (click)="toggleMenu(row.orderId)"
     >
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="3" r="1" fill="currentColor"/>
-        <circle cx="8" cy="8" r="1" fill="currentColor"/>
-        <circle cx="8" cy="13" r="1" fill="currentColor"/>
-      </svg>
+      <ui-icon name="more-vertical" size="sm"></ui-icon>
     </ui-button>
     <ui-dropdown-menu
       [items]="dropdownMenuItems"
-      [isOpen]="openMenuRowId() === row.inquiryId"
+      [isOpen]="openMenuRowId() === row.orderId"
       (itemClick)="onMenuItemClick($event, row)"
       (closeMenu)="closeMenu()"
     ></ui-dropdown-menu>
@@ -98,15 +101,11 @@
     <div class="modal-sheet" (click)="$event.stopPropagation()">
       <div class="modal-sheet__header">
         <div class="modal-sheet__title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M11.333 12C11.333 11.4696 11.1226 10.9609 10.7475 10.5858C10.3724 10.2107 9.86377 10 9.33337 10H6.66671C6.1363 10 5.62759 10.2107 5.25252 10.5858C4.87745 10.9609 4.66671 11.4696 4.66671 12M5.33337 1.333V2.667M10.6667 1.333V2.667M3.33337 2.667H12.6667C13.4031 2.667 14 3.264 14 4V13.333C14 14.07 13.4031 14.667 12.6667 14.667H3.33337C2.597 14.667 2 14.07 2 13.333V4C2 3.264 2.597 2.667 3.33337 2.667ZM9.33337 6.667C9.33337 7.403 8.73637 8 8.00004 8C7.26371 8 6.66671 7.403 6.66671 6.667C6.66671 5.93 7.26371 5.333 8.00004 5.333C8.73637 5.333 9.33337 5.93 9.33337 6.667Z" stroke="#DC2626" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Contact Service area manager</span>
+          <ui-icon name="calendar-user" size="sm" color="#DC2626"></ui-icon>
+          <span>Contact Service Manager</span>
         </div>
         <button class="modal-sheet__close" (click)="closeContactModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="x" size="sm"></ui-icon>
         </button>
       </div>
 
@@ -119,7 +118,7 @@
               type="text"
               class="form-field__input"
               [(ngModel)]="contactFormData.subject"
-              placeholder="Summarize your inquiry in one or two sentences."
+              placeholder="Enter a brief summary."
             >
           </div>
 
@@ -134,25 +133,25 @@
             ></textarea>
           </div>
 
-          <!-- Order/Inquiry ID -->
+          <!-- Order ID -->
           <div class="form-field">
-            <label class="form-field__label">Order/Inquiry ID <span class="form-field__optional">(Optional)</span></label>
+            <label class="form-field__label">Order ID <span class="form-field__optional">(Optional)</span></label>
             <input
               type="text"
               class="form-field__input"
-              [(ngModel)]="contactFormData.orderInquiryId"
-              placeholder="Summarize your inquiry in one or two sentences."
+              [(ngModel)]="contactFormData.orderId"
+              placeholder="Enter your order ID."
             >
           </div>
 
-          <!-- Machine/Product -->
+          <!-- Product -->
           <div class="form-field">
-            <label class="form-field__label">Machine/Product <span class="form-field__optional">(Optional)</span></label>
+            <label class="form-field__label">Product <span class="form-field__optional">(Optional)</span></label>
             <input
               type="text"
               class="form-field__input"
-              [(ngModel)]="contactFormData.machineProduct"
-              placeholder="Summarize your inquiry in one or two sentences."
+              [(ngModel)]="contactFormData.product"
+              placeholder="Enter a brief summary."
             >
           </div>
 
@@ -184,9 +183,7 @@
       <div class="modal-sheet__footer">
         <button class="btn btn--primary btn--full-width" (click)="onSendMessage()">
           <span>Send message</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <ui-icon name="chevron-right" size="sm"></ui-icon>
         </button>
       </div>
     </div>

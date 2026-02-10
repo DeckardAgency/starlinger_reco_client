@@ -105,6 +105,13 @@ export class SupportTicketService {
   }
 
   /**
+   * Create a new support ticket
+   */
+  createSupportTicket(ticketData: Partial<SupportTicket>): Observable<SupportTicket> {
+    return this.http.post<SupportTicket>(this.apiUrl, ticketData, this.httpOptions);
+  }
+
+  /**
    * Extract total pages from pagination view
    */
   private extractTotalPages(response: SupportTicketsResponse): number {

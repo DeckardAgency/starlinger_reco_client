@@ -1,5 +1,5 @@
 export interface Account {
-  id: number;
+  id: number | string;
   code?: string;
   oib: string;
   name: string;
@@ -53,7 +53,7 @@ export interface AccountDetailResponse {
 
 // Contact model for the Contacts list page
 export interface Contact {
-  id: number;
+  id: number | string;
   firstName: string;
   lastName: string;
   account: string;

@@ -23,3 +23,8 @@ export interface WarehouseDocument {
   selected?: boolean;
 }
 
+export interface WarehousesCollection {
+  totalItems: number;
+  member: Warehouse[];
+}
+

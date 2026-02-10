@@ -104,6 +104,19 @@ export class OrderService {
     }
 
     /**
+     * Create a new order
+     */
+    createOrder(orderData: Record<string, unknown>): Observable<Order> {
+        return this.http.post<Order>(this.apiUrl, orderData, this.httpOptions).pipe(
+            tap(response => console.log('Order created:', response)),
+            catchError(error => {
+                console.error('Error creating order:', error);
+                throw error;
+            })
+        );
+    }
+
+    /**
      * Update an order
      */
     updateOrder(id: string, updateData: Partial<Order>): Observable<Order> {

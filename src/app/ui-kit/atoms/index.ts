@@ -13,3 +13,4 @@ export * from './select/select.component';
 export * from './divider/divider.component';
 export * from './link/link.component';
 export * from './toggle/toggle.component';
+export * from './favorite-button/favorite-button.component';

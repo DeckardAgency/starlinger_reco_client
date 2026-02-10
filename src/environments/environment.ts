@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://127.0.0.1:8002', // for asset URLs
+  apiBaseUrl: 'http://localhost:8000', // Backend API base URL
   apiPath: '/api/v1', // for API endpoints
-  serverUrl: 'https://127.0.0.1:8002', // for server-side rendering
-  useDummyAuth: true, // Enable dummy authentication for development
-  useMocks: true // Enable mock interceptor for development without backend
+  serverUrl: 'http://localhost:8000', // for server-side rendering
+  useDummyAuth: false, // Disable dummy auth - use real backend
+  useMocks: false // Disable mock interceptor - use real backend
 };

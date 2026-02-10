@@ -1,4 +1,4 @@
-<div class="app" [class.app--auth-page]="isAuthPage">
+<div class="app" [class.app--auth-page]="isAuthPage" [class.app--404-page]="is404Page">
   <ng-container *ngIf="!isAuthPage">
     <app-top-bar></app-top-bar>
     <app-sidebar></app-sidebar>

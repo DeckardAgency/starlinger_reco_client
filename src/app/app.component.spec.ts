@@ -80,10 +80,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'starlinger_inquiry_tool_client' title`, () => {
+  it(`should have the 'starlinger_reco_client' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('starlinger_inquiry_tool_client');
+    expect(app.title).toEqual('starlinger_reco_client');
   });
 
   it('should check if route is manual entry', () => {
@@ -107,11 +107,11 @@ describe('AppComponent', () => {
     expect(quickCartServiceSpy.open).toHaveBeenCalled();
   });
 
-  it('should handle view inquiry', () => {
+  it('should handle view manual cart', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
 
-    app.onViewInquiry();
+    app.onViewManualCart();
 
     expect(manualQuickCartServiceSpy.hideNotification).toHaveBeenCalled();
     expect(manualQuickCartServiceSpy.open).toHaveBeenCalled();

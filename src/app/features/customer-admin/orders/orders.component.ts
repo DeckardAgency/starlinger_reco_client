@@ -1,20 +1,35 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, computed, ViewChild, TemplateRef, AfterViewInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, signal, computed, ViewChild, TemplateRef, AfterViewInit, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
-
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
 import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
 import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
-import { 
+import {
   ListHeaderComponent,
   TableFooterComponent,
   TableActionsDropdownComponent,
   TableAction
 } from '@app/ui-kit/molecules';
-import { mockOrderHistory, OrderHistoryItem } from '@core/mocks/mock-data';
+import { OrderService } from '@core/services/http/order.service';
+import { Order } from '@core/models/order.model';
+
+// Display interface for the data table
+interface OrderHistoryItem {
+  id: string;
+  type: 'order';
+  dateCreated: string;
+  internalRef: string;
+  customer: {
+    name: string;
+    initials: string;
+    avatar?: string;
+  };
+  partsOrdered: number;
+  status: 'completed' | 'cancelled' | 'pending' | 'draft';
+}
 
 @Component({
   selector: 'app-customer-admin-orders',
@@ -36,9 +51,11 @@ import { mockOrderHistory, OrderHistoryItem } from '@core/mocks/mock-data';
   styleUrls: ['./orders.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrdersComponent implements AfterViewInit {
+export class OrdersComponent implements AfterViewInit, OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+  private orderService = inject(OrderService);
 
   @ViewChild('typeTemplate') typeTemplate!: TemplateRef<any>;
   @ViewChild('customerTemplate') customerTemplate!: TemplateRef<any>;
@@ -49,7 +66,7 @@ export class OrdersComponent implements AfterViewInit {
   searchQuery = '';
 
   // Loading state
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   // Sort state
   sortColumn: string | null = null;
@@ -58,15 +75,18 @@ export class OrdersComponent implements AfterViewInit {
   // Dropdown state
   openDropdownId = signal<string | null>(null);
 
+  // Route-based filter context
+  private routeFilter = signal<string | null>(null);
+
   // Active tab
   activeTab = signal('latest');
 
-  // Tabs configuration
-  tabs: TabItem[] = [
+  // Tabs configuration - set based on route context
+  tabs = signal<TabItem[]>([
     { id: 'latest', label: 'Latest' },
     { id: 'completed', label: 'Completed' },
     { id: 'cancelled', label: 'Cancelled' }
-  ];
+  ]);
 
   // Table columns
   columns: TableColumn[] = [];
@@ -78,34 +98,162 @@ export class OrdersComponent implements AfterViewInit {
     { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
   ];
 
-  // Use centralized mock data
-  allOrders = signal<OrderHistoryItem[]>([...mockOrderHistory]);
+  // Data from API
+  allOrders = signal<OrderHistoryItem[]>([]);
 
-  // Filtered orders based on active tab
+  // Filtered orders based on active tab and route context
   orders = computed(() => {
     const tab = this.activeTab();
     const all = this.allOrders();
+    const filter = this.routeFilter();
 
-    if (tab === 'completed') {
-      return all.filter(o => o.status === 'completed');
-    } else if (tab === 'cancelled') {
-      return all.filter(o => o.status === 'cancelled');
+    // Route-level filtering
+    if (filter === 'archive') {
+      if (tab === 'completed') return all.filter(o => o.status === 'completed');
+      if (tab === 'cancelled') return all.filter(o => o.status === 'cancelled');
+      return all.filter(o => o.status === 'completed' || o.status === 'cancelled');
     }
-    // 'latest' shows all
+
+    if (filter === 'drafts') {
+      return all.filter(o => o.status === 'draft');
+    }
+
+    // Default: active orders (exclude completed, cancelled, draft)
+    if (tab === 'completed') return all.filter(o => o.status === 'completed');
+    if (tab === 'cancelled') return all.filter(o => o.status === 'cancelled');
+
+    // 'latest' on default route shows active orders only
+    if (!filter) {
+      return all.filter(o => o.status === 'pending');
+    }
+
     return all;
   });
 
   // Total count
-  totalCount = computed(() => this.allOrders().length);
+  totalCount = computed(() => this.orders().length);
+
+  // Page title based on route context
+  pageTitle = computed(() => {
+    const filter = this.routeFilter();
+    if (filter === 'archive') return 'Archive';
+    if (filter === 'drafts') return 'Drafts';
+    if (filter === 'bin') return 'Bin';
+    return 'Orders';
+  });
+
+  // Home route based on current URL context
+  homeRoute = computed(() => {
+    return this.router.url.startsWith('/customer-admin') ? '/customer-admin/orders' : '/customer/orders';
+  });
+
+  ngOnInit(): void {
+    const filter = this.route.snapshot.data['filter'] as string | undefined;
+    this.routeFilter.set(filter || null);
+
+    // Configure tabs based on route
+    if (filter === 'archive') {
+      this.tabs.set([
+        { id: 'all', label: 'All' },
+        { id: 'completed', label: 'Completed' },
+        { id: 'cancelled', label: 'Cancelled' }
+      ]);
+      this.activeTab.set('all');
+    } else if (filter === 'drafts') {
+      this.tabs.set([
+        { id: 'drafts', label: 'Drafts' }
+      ]);
+      this.activeTab.set('drafts');
+    } else {
+      this.tabs.set([
+        { id: 'latest', label: 'Latest' },
+        { id: 'completed', label: 'Completed' },
+        { id: 'cancelled', label: 'Cancelled' }
+      ]);
+      this.activeTab.set('latest');
+    }
+
+    this.loadData();
+  }
 
   ngAfterViewInit(): void {
     this.initColumns();
     this.cdr.detectChanges();
   }
 
+  private loadData(): void {
+    this.isLoading.set(true);
+
+    this.orderService.getOrders().subscribe({
+      next: (response) => {
+        const orderItems = response.orders.map(order => this.mapOrderToHistoryItem(order));
+
+        // Sort by date (newest first)
+        const sorted = orderItems.sort((a, b) => {
+          return this.parseDate(b.dateCreated).getTime() - this.parseDate(a.dateCreated).getTime();
+        });
+
+        this.allOrders.set(sorted);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load orders:', error);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private mapOrderToHistoryItem(order: Order): OrderHistoryItem {
+    const userName = order.user ? `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() : 'Unknown';
+    const initials = this.getInitials(userName);
+
+    return {
+      id: order.id,
+      type: 'order',
+      dateCreated: this.formatDate(order.createdAt),
+      internalRef: order.orderNumber || order.id,
+      customer: {
+        name: userName,
+        initials
+      },
+      partsOrdered: order.items?.length || 0,
+      status: this.mapOrderStatus(order.status, order.isDraft)
+    };
+  }
+
+  private getInitials(name: string): string {
+    if (!name || name === 'Unknown') return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  private formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  private parseDate(dateStr: string): Date {
+    // Parse DD-MM-YYYY format
+    const [day, month, year] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  private mapOrderStatus(status: string, isDraft?: boolean): 'completed' | 'cancelled' | 'pending' | 'draft' {
+    if (isDraft || (status || '').toLowerCase() === 'draft') return 'draft';
+    const lowerStatus = (status || '').toLowerCase();
+    if (lowerStatus === 'completed' || lowerStatus === 'delivered') return 'completed';
+    if (lowerStatus === 'cancelled' || lowerStatus === 'canceled') return 'cancelled';
+    return 'pending';
+  }
+
   private initColumns(): void {
     this.columns = [
-      { key: 'id', label: 'Inquiry ID', sortable: true, width: '112px' },
+      { key: 'id', label: 'Order ID', sortable: true, width: '112px' },
       { key: 'type', label: 'Type', sortable: false, width: '128px', template: this.typeTemplate },
       { key: 'dateCreated', label: 'Date Created', sortable: true, width: '190px' },
       { key: 'internalRef', label: 'Internal reference number', sortable: false },
@@ -165,7 +313,9 @@ export class OrdersComponent implements AfterViewInit {
   }
 
   onView(order: OrderHistoryItem): void {
-    this.router.navigate(['/customer-admin/orders', order.id]);
+    // Navigate to the correct detail route based on current context
+    const basePath = this.router.url.startsWith('/customer-admin') ? '/customer-admin/orders' : '/customer/orders';
+    this.router.navigate([basePath, order.id]);
     this.closeDropdown();
   }
 
@@ -180,7 +330,7 @@ export class OrdersComponent implements AfterViewInit {
   }
 
   getTypeLabel(type: string): string {
-    return type === 'order' ? 'Order' : 'Inquiry';
+    return 'Order';
   }
 
   getTypeVariant(type: string): 'dark' | 'secondary' {
@@ -192,6 +342,7 @@ export class OrdersComponent implements AfterViewInit {
       case 'completed': return 'Completed';
       case 'cancelled': return 'Cancelled';
       case 'pending': return 'Pending';
+      case 'draft': return 'Draft';
       default: return status;
     }
   }
@@ -201,6 +352,7 @@ export class OrdersComponent implements AfterViewInit {
       case 'completed': return 'success';
       case 'cancelled': return 'danger';
       case 'pending': return 'success';
+      case 'draft': return 'secondary';
       default: return 'secondary';
     }
   }

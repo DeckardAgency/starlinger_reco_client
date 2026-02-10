@@ -1,9 +1,14 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
-import { mockShopProducts, ShopProduct } from '@core/mocks/mock-data';
+import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
+import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
+import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { CartService } from '@core/services/cart.service';
+import { OrderService } from '@core/services/http/order.service';
+import { ShopProduct } from '@core/mocks/mock-data';
 
 export interface CheckoutItem {
   id: string;
@@ -20,13 +25,23 @@ export interface CheckoutItem {
     CommonModule,
     FormsModule,
     RouterModule,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    QuantitySelectorComponent,
+    FavoriteButtonComponent,
+    IconComponent
   ],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
+  private router = inject(Router);
+  private cartService = inject(CartService);
+  private orderService = inject(OrderService);
+
+  isPlacingOrder = signal(false);
+  orderError = signal<string | null>(null);
+
   breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Cart', route: '/customer/shop/cart' }
   ];
@@ -46,19 +61,19 @@ export class CheckoutComponent {
 
   total = computed(() => this.subtotal() + this.shippingCost);
 
-  constructor(private router: Router) {
+  ngOnInit(): void {
     this.loadCartItems();
   }
 
   private loadCartItems(): void {
-    // Mock cart items with different quantities and discounts
-    const products = mockShopProducts.slice(0, 5);
-    this.cartItems.set(products.map((product, index) => ({
-      id: `cart-${product.id}`,
-      product,
-      quantity: [8, 3, 1, 2, 3][index] || 1,
-      discount: 20,
-      isFavorite: false
+    // Load items from cart service
+    const serviceItems = this.cartService.cartItems();
+    this.cartItems.set(serviceItems.map(item => ({
+      id: item.id,
+      product: item.product,
+      quantity: item.quantity,
+      discount: 0, // No discount by default, could be added from API
+      isFavorite: item.isFavorite
     })));
   }
 
@@ -72,6 +87,12 @@ export class CheckoutComponent {
 
   getItemTotal(item: CheckoutItem): number {
     return this.getDiscountedPrice(item) * item.quantity;
+  }
+
+  onQuantityChange(item: CheckoutItem, quantity: number): void {
+    this.cartItems.update(items => 
+      items.map(i => i.id === item.id ? { ...i, quantity } : i)
+    );
   }
 
   incrementQuantity(item: CheckoutItem): void {
@@ -109,18 +130,40 @@ export class CheckoutComponent {
   }
 
   onPlaceOrder(): void {
-    console.log('Place order:', {
-      items: this.cartItems(),
-      reference: this.internalReference(),
-      total: this.total()
-    });
-    
-    // Generate order number (in real app, this would come from the backend)
-    const orderNumber = `STRL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    
-    // Navigate to order success page
-    this.router.navigate(['/customer/shop/order-success'], {
-      queryParams: { orderNumber }
+    if (this.isPlacingOrder()) {
+      return;
+    }
+
+    this.isPlacingOrder.set(true);
+    this.orderError.set(null);
+
+    // Build order data from cart items
+    const orderData = {
+      internalReference: this.internalReference(),
+      items: this.cartItems().map(item => ({
+        product: `/api/v1/products/${item.product.id}`,
+        quantity: item.quantity,
+        unitPrice: this.getDiscountedPrice(item)
+      })),
+      isDraft: false
+    };
+
+    this.orderService.createOrder(orderData).subscribe({
+      next: (order) => {
+        // Clear cart on successful order
+        this.cartService.clearCart();
+        this.isPlacingOrder.set(false);
+
+        // Navigate to order success page with order number from API
+        this.router.navigate(['/customer/shop/order-success'], {
+          queryParams: { orderNumber: order.orderNumber || order.id }
+        });
+      },
+      error: (error) => {
+        console.error('Failed to create order:', error);
+        this.orderError.set('Failed to place order. Please try again.');
+        this.isPlacingOrder.set(false);
+      }
     });
   }
 
@@ -131,4 +174,3 @@ export class CheckoutComponent {
     });
   }
 }
-

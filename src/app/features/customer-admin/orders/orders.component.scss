@@ -8,45 +8,25 @@
   @include admin.admin-page;
 }
 
+.page-content {
+  @include admin.list-page-content;
+}
+
 .table-container {
-  @include admin.table-container;
+  @include admin.tabs-table-container;
 }
 
-.table-wrapper {
-  @include admin.table-wrapper;
+ui-tabs {
+  @include admin.tabs-table-tabs;
 }
 
-.tabs-wrapper {
-  background: transparent !important;
-  border-bottom: 1px solid #e4e4e7;
-  margin: 0 -1px;
-
-  ::ng-deep .ui-tabs--underline {
-    border-bottom: none;
-    background: transparent !important;
-  }
-
-  ::ng-deep .ui-tabs__tab {
-    background: transparent !important;
-    padding: 6px 50px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-}
-
-@include admin.data-table-overrides;
+@include admin.tabs-table-data-table;
 
 // Customer Cell
 .customer-cell {
   @include admin.avatar-cell;
-}
 
-.customer-name {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: #232323;
+  .customer-name {
+    @include admin.customer-name;
+  }
 }

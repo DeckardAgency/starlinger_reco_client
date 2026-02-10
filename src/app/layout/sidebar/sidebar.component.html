@@ -120,16 +120,6 @@
           @if (isSectionExpanded('product') || isCollapsed()) {
             <ul class="sidebar__sub-list" @expandCollapse>
               <li class="sidebar__item">
-                <a routerLink="/admin/machines" [class.sidebar__link--active]="isRouteActive('machines')" class="sidebar__link">
-                  <span class="sidebar__icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M8.00016 5.33317V2.6665H5.3335M1.3335 9.33317H2.66683M13.3335 9.33317H14.6668M10.0002 8.6665V9.99984M6.00016 8.6665V9.99984M4.00016 5.33317H12.0002C12.7365 5.33317 13.3335 5.93012 13.3335 6.6665V11.9998C13.3335 12.7362 12.7365 13.3332 12.0002 13.3332H4.00016C3.26378 13.3332 2.66683 12.7362 2.66683 11.9998V6.6665C2.66683 5.93012 3.26378 5.33317 4.00016 5.33317Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                  <span class="sidebar__link-text">Machines</span>
-                </a>
-              </li>
-              <li class="sidebar__item">
                 <a routerLink="/admin/products" [class.sidebar__link--active]="isRouteActive('products')" class="sidebar__link">
                   <span class="sidebar__icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -340,7 +330,7 @@
                         </defs>
                       </svg>
                     </span>
-                    <span class="sidebar__link-text">History</span>
+                    <span class="sidebar__link-text">Orders</span>
                   </a>
                 </li>
                 <!-- Drafts -->
@@ -377,34 +367,6 @@
                       </svg>
                     </span>
                     <span class="sidebar__link-text">Bin</span>
-                  </a>
-                </li>
-              </ul>
-            }
-          </li>
-
-          <!-- Machine hub -->
-          <li class="sidebar__section">
-            <div class="sidebar__section-header" (click)="toggleSection('machine')">
-              <h2 class="sidebar__section-title">Machine hub</h2>
-              <span class="sidebar__section-title-short">MH</span>
-              <span class="sidebar__section-chevron" [class.sidebar__section-chevron--expanded]="isSectionExpanded('machine')">
-                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6l4 4 4-4" stroke="#3f3f46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-            @if (isSectionExpanded('machine') || isCollapsed()) {
-              <ul class="sidebar__sub-list" @expandCollapse>
-                <li class="sidebar__item">
-                  <a routerLink="/customer-admin/machines" [class.sidebar__link--active]="isRouteActive('customer-admin/machines')" class="sidebar__link">
-                    <span class="sidebar__icon">
-                      <!-- Bot icon -->
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M8.00016 5.33317V2.6665H5.3335M1.3335 9.33317H2.66683M13.3335 9.33317H14.6668M10.0002 8.6665V9.99984M6.00016 8.6665V9.99984M4.00016 5.33317H12.0002C12.7365 5.33317 13.3335 5.93012 13.3335 6.6665V11.9998C13.3335 12.7362 12.7365 13.3332 12.0002 13.3332H4.00016C3.26378 13.3332 2.66683 12.7362 2.66683 11.9998V6.6665C2.66683 5.93012 3.26378 5.33317 4.00016 5.33317Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                    <span class="sidebar__link-text">My Machines</span>
                   </a>
                 </li>
               </ul>
@@ -501,39 +463,25 @@
                         <span class="sidebar__link-text">All products</span>
                       </a>
                     </li>
-                    <li class="sidebar__nested-item">
-                      <a routerLink="/customer/shop/groups" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
-                        <span class="sidebar__icon">
-                          <!-- Group icon -->
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M2.66667 4.66667C2.66667 4.31305 2.80714 3.97391 3.05719 3.72386C3.30724 3.47381 3.64638 3.33333 4 3.33333H5.33333C5.68696 3.33333 6.02609 3.47381 6.27614 3.72386C6.52619 3.97391 6.66667 4.31305 6.66667 4.66667V6C6.66667 6.35362 6.52619 6.69276 6.27614 6.94281C6.02609 7.19286 5.68696 7.33333 5.33333 7.33333H4C3.64638 7.33333 3.30724 7.19286 3.05719 6.94281C2.80714 6.69276 2.66667 6.35362 2.66667 6V4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9.33333 4.66667C9.33333 4.31305 9.47381 3.97391 9.72386 3.72386C9.97391 3.47381 10.313 3.33333 10.6667 3.33333H12C12.3536 3.33333 12.6928 3.47381 12.9428 3.72386C13.1929 3.97391 13.3333 4.31305 13.3333 4.66667V6C13.3333 6.35362 13.1929 6.69276 12.9428 6.94281C12.6928 7.19286 12.3536 7.33333 12 7.33333H10.6667C10.313 7.33333 9.97391 7.19286 9.72386 6.94281C9.47381 6.69276 9.33333 6.35362 9.33333 6V4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2.66667 10C2.66667 9.64638 2.80714 9.30724 3.05719 9.05719C3.30724 8.80714 3.64638 8.66667 4 8.66667H5.33333C5.68696 8.66667 6.02609 8.80714 6.27614 9.05719C6.52619 9.30724 6.66667 9.64638 6.66667 10V11.3333C6.66667 11.687 6.52619 12.0261 6.27614 12.2761C6.02609 12.5262 5.68696 12.6667 5.33333 12.6667H4C3.64638 12.6667 3.30724 12.5262 3.05719 12.2761C2.80714 12.0261 2.66667 11.687 2.66667 11.3333V10Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9.33333 10C9.33333 9.64638 9.47381 9.30724 9.72386 9.05719C9.97391 8.80714 10.313 8.66667 10.6667 8.66667H12C12.3536 8.66667 12.6928 8.80714 12.9428 9.05719C13.1929 9.30724 13.3333 9.64638 13.3333 10V11.3333C13.3333 11.687 13.1929 12.0261 12.9428 12.2761C12.6928 12.5262 12.3536 12.6667 12 12.6667H10.6667C10.313 12.6667 9.97391 12.5262 9.72386 12.2761C9.47381 12.0261 9.33333 11.687 9.33333 11.3333V10Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </span>
-                        <span class="sidebar__link-text">Product groups</span>
-                      </a>
-                    </li>
                   </ul>
                 }
               </li>
 
-              <!-- My Inquiries with submenu -->
+              <!-- My Orders with submenu -->
               <li class="sidebar__item sidebar__item--expandable">
-                <div class="sidebar__link" (click)="toggleSection('inquiries')">
+                <div class="sidebar__link" (click)="toggleSection('orders')">
                   <span class="sidebar__icon">
                     <!-- Folder icon -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M14.6667 12.6667C14.6667 13.0203 14.5262 13.3594 14.2761 13.6095C14.0261 13.8595 13.687 14 13.3333 14H2.66667C2.31305 14 1.97391 13.8595 1.72386 13.6095C1.47381 13.3594 1.33333 13.0203 1.33333 12.6667V3.33333C1.33333 2.97971 1.47381 2.64057 1.72386 2.39052C1.97391 2.14048 2.31305 2 2.66667 2H6L7.33333 4H13.3333C13.687 4 14.0261 4.14048 14.2761 4.39052C14.5262 4.64057 14.6667 4.97971 14.6667 5.33333V12.6667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </span>
-                  <span class="sidebar__link-text">My Inquiries</span>
+                  <span class="sidebar__link-text">My Orders</span>
                 </div>
-                @if (isSectionExpanded('inquiries') || isCollapsed()) {
+                @if (isSectionExpanded('orders') || isCollapsed()) {
                   <ul class="sidebar__nested-list" @expandCollapse>
                     <li class="sidebar__nested-item">
-                      <a routerLink="/customer/inquiries/active" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
+                      <a routerLink="/customer/orders" routerLinkActive="sidebar__link--active" [routerLinkActiveOptions]="{exact: true}" class="sidebar__nested-link">
                         <span class="sidebar__icon">
                           <!-- FileWarning icon -->
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -546,7 +494,7 @@
                       </a>
                     </li>
                     <li class="sidebar__nested-item">
-                      <a routerLink="/customer/inquiries/history" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
+                      <a routerLink="/customer/orders/archive" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
                         <span class="sidebar__icon">
                           <!-- FileCheck icon -->
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -554,11 +502,11 @@
                             <path d="M5.99984 9.99992L7.33317 11.3333L9.99984 8.66659" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
                         </span>
-                        <span class="sidebar__link-text">History</span>
+                        <span class="sidebar__link-text">Archive</span>
                       </a>
                     </li>
                     <li class="sidebar__nested-item">
-                      <a routerLink="/customer/inquiries/drafts" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
+                      <a routerLink="/customer/orders/drafts" routerLinkActive="sidebar__link--active" class="sidebar__nested-link">
                         <span class="sidebar__icon">
                           <!-- FilePen icon -->
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
