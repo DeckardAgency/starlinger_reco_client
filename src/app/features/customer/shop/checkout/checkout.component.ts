@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -7,6 +7,7 @@ import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-select
 import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { CartService } from '@core/services/cart.service';
+import { WishlistService } from '@core/services/wishlist.service';
 import { OrderService } from '@core/services/http/order.service';
 import { ShopProduct } from '@core/mocks/mock-data';
 
@@ -34,9 +35,10 @@ export interface CheckoutItem {
   styleUrls: ['./checkout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent {
   private router = inject(Router);
   private cartService = inject(CartService);
+  private wishlistService = inject(WishlistService);
   private orderService = inject(OrderService);
 
   isPlacingOrder = signal(false);
@@ -46,36 +48,33 @@ export class CheckoutComponent implements OnInit {
     { label: 'Cart', route: '/customer/shop/cart' }
   ];
 
-  cartItems = signal<CheckoutItem[]>([]);
+  // Reactively derive from cart service so items always stay in sync
+  cartItems = computed<CheckoutItem[]>(() =>
+    this.cartService.cartItems().map(item => ({
+      id: item.id,
+      product: item.product,
+      quantity: item.quantity,
+      discount: 0,
+      isFavorite: item.isFavorite
+    }))
+  );
+
   internalReference = signal('#0001');
   shippingCost = 49.00;
 
   itemCount = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
 
-  subtotal = computed(() => 
+  subtotal = computed(() =>
     this.cartItems().reduce((sum, item) => {
       const discountedPrice = item.product.price * (1 - item.discount / 100);
       return sum + (discountedPrice * item.quantity);
     }, 0)
   );
 
-  total = computed(() => this.subtotal() + this.shippingCost);
-
-  ngOnInit(): void {
-    this.loadCartItems();
-  }
-
-  private loadCartItems(): void {
-    // Load items from cart service
-    const serviceItems = this.cartService.cartItems();
-    this.cartItems.set(serviceItems.map(item => ({
-      id: item.id,
-      product: item.product,
-      quantity: item.quantity,
-      discount: 0, // No discount by default, could be added from API
-      isFavorite: item.isFavorite
-    })));
-  }
+  total = computed(() => {
+    const sub = this.subtotal();
+    return sub > 0 ? sub + this.shippingCost : 0;
+  });
 
   getOriginalPrice(item: CheckoutItem): number {
     return item.product.price;
@@ -90,31 +89,33 @@ export class CheckoutComponent implements OnInit {
   }
 
   onQuantityChange(item: CheckoutItem, quantity: number): void {
-    this.cartItems.update(items => 
-      items.map(i => i.id === item.id ? { ...i, quantity } : i)
-    );
-  }
-
-  incrementQuantity(item: CheckoutItem): void {
-    this.cartItems.update(items => 
-      items.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
-    );
-  }
-
-  decrementQuantity(item: CheckoutItem): void {
-    this.cartItems.update(items => 
-      items.map(i => i.id === item.id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i)
-    );
+    this.cartService.updateQuantity(item.id, quantity);
   }
 
   removeItem(item: CheckoutItem): void {
-    this.cartItems.update(items => items.filter(i => i.id !== item.id));
+    this.cartService.removeItem(item.id);
   }
 
   toggleFavorite(item: CheckoutItem): void {
-    this.cartItems.update(items => 
-      items.map(i => i.id === item.id ? { ...i, isFavorite: !i.isFavorite } : i)
-    );
+    const wasInWishlist = item.isFavorite;
+    this.cartService.toggleFavorite(item.id);
+
+    if (!wasInWishlist) {
+      this.wishlistService.addItem({
+        productId: item.product.id,
+        productCode: item.product.code,
+        productName: item.product.name,
+        imageUrl: item.product.image,
+        price: item.product.price,
+        quantity: 1,
+        isFavorite: true
+      });
+    } else {
+      const wishlistItem = this.wishlistService.wishlistItems().find(i => i.productCode === item.product.code);
+      if (wishlistItem) {
+        this.wishlistService.removeItem(wishlistItem.id);
+      }
+    }
   }
 
   onReferenceChange(value: string): void {
@@ -137,24 +138,19 @@ export class CheckoutComponent implements OnInit {
     this.isPlacingOrder.set(true);
     this.orderError.set(null);
 
-    // Build order data from cart items
     const orderData = {
-      internalReference: this.internalReference(),
+      notes: this.internalReference(),
       items: this.cartItems().map(item => ({
         product: `/api/v1/products/${item.product.id}`,
-        quantity: item.quantity,
-        unitPrice: this.getDiscountedPrice(item)
+        quantity: item.quantity
       })),
       isDraft: false
     };
 
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
-        // Clear cart on successful order
         this.cartService.clearCart();
         this.isPlacingOrder.set(false);
-
-        // Navigate to order success page with order number from API
         this.router.navigate(['/customer/shop/order-success'], {
           queryParams: { orderNumber: order.orderNumber || order.id }
         });
@@ -168,9 +164,33 @@ export class CheckoutComponent implements OnInit {
   }
 
   onSaveDraft(): void {
-    console.log('Save draft:', {
-      items: this.cartItems(),
-      reference: this.internalReference()
+    if (this.isPlacingOrder() || this.cartItems().length === 0) {
+      return;
+    }
+
+    this.isPlacingOrder.set(true);
+    this.orderError.set(null);
+
+    const orderData = {
+      notes: this.internalReference(),
+      items: this.cartItems().map(item => ({
+        product: `/api/v1/products/${item.product.id}`,
+        quantity: item.quantity
+      })),
+      isDraft: true
+    };
+
+    this.orderService.createOrder(orderData).subscribe({
+      next: () => {
+        this.cartService.clearCart();
+        this.isPlacingOrder.set(false);
+        this.router.navigate(['/customer/shop/products']);
+      },
+      error: (error) => {
+        console.error('Failed to save draft:', error);
+        this.orderError.set('Failed to save draft. Please try again.');
+        this.isPlacingOrder.set(false);
+      }
     });
   }
 }

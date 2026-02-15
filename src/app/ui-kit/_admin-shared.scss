@@ -8,12 +8,14 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
 }
 
 @mixin admin-page {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
   background: #f4f4f5;
 }
 
@@ -515,6 +517,7 @@
   gap: 16px;
   padding: 16px;
   flex: 1;
+  min-height: 0;
 }
 
 // =============================================================================
@@ -522,6 +525,10 @@
 // Used in: Dashboard History, Shop Orders, Manual Entries
 // =============================================================================
 @mixin tabs-table-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #E4E4E7;
   border-radius: 8px;
   overflow: hidden;

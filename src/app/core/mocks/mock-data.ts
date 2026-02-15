@@ -974,6 +974,8 @@ export interface ShopProduct {
   image: string;
   isFavorite: boolean;
   group: string;
+  technicalDescription?: string;
+  shortDescription?: string;
 }
 
 export const mockShopProducts: ShopProduct[] = [
@@ -1402,7 +1404,8 @@ export type HistoryStatus = 'completed' | 'cancelled' | 'in-review';
 export type HistoryType = 'order' | 'manual';
 
 export interface HistoryItem {
-  orderId: string;
+  id: string; // Real UUID for routing
+  orderId: string; // Display order number
   type: HistoryType;
   dateCreated: string;
   internalReference: string;
@@ -1411,13 +1414,13 @@ export interface HistoryItem {
 }
 
 export const mockCustomerHistoryData: HistoryItem[] = [
-  { orderId: '0001', type: 'order', dateCreated: '14-03-2024', internalReference: '000123-ABC', partsOrdered: 12, status: 'completed' },
-  { orderId: '0002', type: 'order', dateCreated: '14-03-2024', internalReference: '000987-EAD', partsOrdered: 192, status: 'cancelled' },
-  { orderId: '0003', type: 'manual', dateCreated: '14-03-2024', internalReference: '004231-UGR', partsOrdered: 48, status: 'completed' },
-  { orderId: '0004', type: 'manual', dateCreated: '14-03-2024', internalReference: '001456-ZXY', partsOrdered: 36, status: 'completed' },
-  { orderId: '0005', type: 'order', dateCreated: '14-03-2024', internalReference: '002789-WPQ', partsOrdered: 24, status: 'cancelled' },
-  { orderId: '0006', type: 'manual', dateCreated: '14-03-2024', internalReference: '005678-MNB', partsOrdered: 60, status: 'completed' },
-  { orderId: '0007', type: 'order', dateCreated: '14-03-2024', internalReference: '003234-LJK', partsOrdered: 72, status: 'completed' }
+  { id: 'mock-0001', orderId: '0001', type: 'order', dateCreated: '14-03-2024', internalReference: '000123-ABC', partsOrdered: 12, status: 'completed' },
+  { id: 'mock-0002', orderId: '0002', type: 'order', dateCreated: '14-03-2024', internalReference: '000987-EAD', partsOrdered: 192, status: 'cancelled' },
+  { id: 'mock-0003', orderId: '0003', type: 'manual', dateCreated: '14-03-2024', internalReference: '004231-UGR', partsOrdered: 48, status: 'completed' },
+  { id: 'mock-0004', orderId: '0004', type: 'manual', dateCreated: '14-03-2024', internalReference: '001456-ZXY', partsOrdered: 36, status: 'completed' },
+  { id: 'mock-0005', orderId: '0005', type: 'order', dateCreated: '14-03-2024', internalReference: '002789-WPQ', partsOrdered: 24, status: 'cancelled' },
+  { id: 'mock-0006', orderId: '0006', type: 'manual', dateCreated: '14-03-2024', internalReference: '005678-MNB', partsOrdered: 60, status: 'completed' },
+  { id: 'mock-0007', orderId: '0007', type: 'order', dateCreated: '14-03-2024', internalReference: '003234-LJK', partsOrdered: 72, status: 'completed' }
 ];
 
 // =============================================================================

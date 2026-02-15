@@ -2,10 +2,6 @@
   <!-- Header with Breadcrumbs -->
   <header class="shop__header">
     <div class="shop__breadcrumb">
-      <button class="shop__menu-btn" type="button">
-        <ui-icon name="menu" size="md"></ui-icon>
-      </button>
-      <div class="shop__separator"></div>
       <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
     </div>
   </header>
@@ -130,12 +126,15 @@
               <div class="product-card__divider"></div>
               <div class="product-card__price">{{ formatPrice(product.price) }}</div>
             </div>
-            <!-- Arrow button for selected product in list view -->
-            @if (viewMode() === 'list' && isProductSelected(product)) {
-              <button class="product-card__arrow" type="button">
-                <ui-icon name="arrow-right" size="sm"></ui-icon>
-              </button>
-            }
+            <!-- Arrow button: visible on selected product (desktop list view) or all cards (mobile) -->
+            <button
+              class="product-card__arrow"
+              [class.product-card__arrow--visible]="viewMode() === 'list' && isProductSelected(product)"
+              type="button"
+              (click)="onArrowClick(product, $event)"
+            >
+              <ui-icon name="arrow-right" size="sm"></ui-icon>
+            </button>
           </article>
         } @empty {
           <ui-empty-state
@@ -172,7 +171,7 @@
               [showDots]="true"
               [infiniteLoop]="true"
               [enableSwipe]="true"
-              aspectRatio="4/3"
+              aspectRatio="16/9"
             ></ui-carousel>
           </div>
 
@@ -187,6 +186,9 @@
             </div>
 
             <h2 class="product-detail__name">{{ selectedProduct()!.name }}</h2>
+            @if (selectedProduct()!.shortDescription) {
+              <p class="product-detail__short-desc">{{ selectedProduct()!.shortDescription }}</p>
+            }
 
             <div class="product-detail__description">
               <ui-icon name="file-text" size="md"></ui-icon>

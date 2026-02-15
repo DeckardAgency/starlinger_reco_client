@@ -14,7 +14,7 @@ export class WishlistService {
   readonly wishlistItems = this._wishlistItems.asReadonly();
 
   get itemCount(): number {
-    return this._wishlistItems().reduce((sum, item) => sum + item.quantity, 0);
+    return this._wishlistItems().length;
   }
 
   openWishlist(): void {
@@ -32,25 +32,20 @@ export class WishlistService {
   addItem(item: Omit<WishlistItem, 'id'>, quantity: number = 1): void {
     const existingItem = this._wishlistItems().find(i => i.productCode === item.productCode);
 
+    // Already in wishlist — no-op
     if (existingItem) {
-      this._wishlistItems.update(items =>
-        items.map(i =>
-          i.productCode === item.productCode
-            ? { ...i, quantity: i.quantity + quantity }
-            : i
-        )
-      );
-    } else {
-      this._wishlistItems.update(items => [
-        ...items,
-        {
-          ...item,
-          id: `wl-${Date.now()}`,
-          quantity,
-          isFavorite: true
-        }
-      ]);
+      return;
     }
+
+    this._wishlistItems.update(items => [
+      ...items,
+      {
+        ...item,
+        id: `wl-${Date.now()}`,
+        quantity,
+        isFavorite: true
+      }
+    ]);
     this.saveToStorage();
   }
 

@@ -53,6 +53,19 @@
                     <span class="checkout__value">{{ item.product.name }}</span>
                   </div>
                   <div class="checkout__product-divider"></div>
+                  <!-- Quantity + Delete (visible on mobile only) -->
+                  <div class="checkout__mobile-controls">
+                    <ui-quantity-selector
+                      size="sm"
+                      [value]="item.quantity"
+                      [min]="1"
+                      [showInput]="false"
+                      (quantityChange)="onQuantityChange(item, $event)"
+                    ></ui-quantity-selector>
+                    <button class="checkout__delete-btn checkout__delete-btn--mobile" type="button" (click)="removeItem(item)">
+                      <ui-icon name="trash" size="lg"></ui-icon>
+                    </button>
+                  </div>
                   <div class="checkout__product-price">
                     <span class="checkout__old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
                     <span class="checkout__discount-badge">-{{ item.discount }}%</span>
@@ -120,7 +133,7 @@
             <ui-icon name="truck" size="md"></ui-icon>
             <span>Shipping & handling</span>
           </div>
-          <span class="checkout__summary-value">{{ formatPrice(shippingCost) }}</span>
+          <span class="checkout__summary-value">{{ formatPrice(itemCount() > 0 ? shippingCost : 0) }}</span>
         </div>
         <div class="checkout__summary-row">
           <div class="checkout__summary-label">

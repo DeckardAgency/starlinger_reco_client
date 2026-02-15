@@ -1,9 +1,12 @@
-import { Component, ChangeDetectionStrategy, signal, computed, Output, EventEmitter, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, Output, EventEmitter, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CartService, CartItem } from '@core/services/cart.service';
+import { WishlistService } from '@core/services/wishlist.service';
+import { OrderService } from '@core/services/http/order.service';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
 import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 
@@ -16,19 +19,34 @@ import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favor
     RouterModule,
     IconComponent,
     QuantitySelectorComponent,
-    FavoriteButtonComponent
+    FavoriteButtonComponent,
+    ToastComponent
   ],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CartComponent {
+export class CartComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
 
   private cartService = inject(CartService);
+  private wishlistService = inject(WishlistService);
+  private orderService = inject(OrderService);
   private router = inject(Router);
 
   isOpen = signal(true);
+  isSavingDraft = signal(false);
+  showToast = signal(false);
+  toastMessage = signal('');
+  toastType = signal<'success' | 'error'>('success');
+
+  ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+  }
   internalReference = signal('#0001');
   shippingCost = 49.00;
 
@@ -59,7 +77,25 @@ export class CartComponent {
   }
 
   toggleFavorite(item: CartItem): void {
+    const wasInWishlist = item.isFavorite;
     this.cartService.toggleFavorite(item.id);
+
+    if (!wasInWishlist) {
+      this.wishlistService.addItem({
+        productId: item.product.id,
+        productCode: item.product.code,
+        productName: item.product.name,
+        imageUrl: item.product.image,
+        price: item.product.price,
+        quantity: 1,
+        isFavorite: true
+      });
+    } else {
+      const wishlistItem = this.wishlistService.wishlistItems().find(i => i.productCode === item.product.code);
+      if (wishlistItem) {
+        this.wishlistService.removeItem(wishlistItem.id);
+      }
+    }
   }
 
   onReferenceChange(value: string): void {
@@ -76,10 +112,42 @@ export class CartComponent {
   }
 
   onSaveDraft(): void {
-    console.log('Save draft:', {
-      items: this.cartItems(),
-      reference: this.internalReference()
+    if (this.isSavingDraft() || this.cartItems().length === 0) {
+      return;
+    }
+
+    this.isSavingDraft.set(true);
+
+    const orderData = {
+      notes: this.internalReference(),
+      items: this.cartItems().map(item => ({
+        product: `/api/v1/products/${item.product.id}`,
+        quantity: item.quantity
+      })),
+      isDraft: true
+    };
+
+    this.orderService.createOrder(orderData).subscribe({
+      next: () => {
+        this.cartService.clearCart();
+        this.isSavingDraft.set(false);
+        this.toastType.set('success');
+        this.toastMessage.set('Draft saved successfully.');
+        this.showToast.set(true);
+        setTimeout(() => this.closeCart(), 1500);
+      },
+      error: (error) => {
+        console.error('Failed to save draft:', error);
+        this.isSavingDraft.set(false);
+        this.toastType.set('error');
+        this.toastMessage.set('Failed to save draft. Please try again.');
+        this.showToast.set(true);
+      }
     });
+  }
+
+  onToastClosed(): void {
+    this.showToast.set(false);
   }
 
   onCheckout(): void {

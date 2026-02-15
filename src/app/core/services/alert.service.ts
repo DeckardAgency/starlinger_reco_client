@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
-export type AlertType = 'success' | 'error' | 'warning' | 'info' | 'confirm';
+export type AlertType = 'success' | 'error' | 'warning' | 'info' | 'confirm' | 'prompt';
 
 export interface AlertButton {
     text: string;
@@ -15,6 +15,7 @@ export interface AlertConfig {
     type?: AlertType;
     buttons?: AlertButton[];
     showCloseButton?: boolean;
+    inputPlaceholder?: string;
 }
 
 export interface AlertEvent {
@@ -109,6 +110,23 @@ export class AlertService {
             buttons: [
                 { text: 'Cancel', type: 'secondary', value: false },
                 { text: 'Confirm', type: 'primary', value: true }
+            ]
+        });
+    }
+
+    /**
+     * Show a prompt dialog with a text input
+     * Returns the entered string, or null if cancelled
+     */
+    prompt(message: string, title?: string, placeholder?: string): Promise<string | null> {
+        return this.show({
+            title: title || 'Input Required',
+            message,
+            type: 'prompt',
+            inputPlaceholder: placeholder || '',
+            buttons: [
+                { text: 'Cancel', type: 'secondary', value: null },
+                { text: 'Confirm', type: 'primary', value: '__prompt_value__' }
             ]
         });
     }

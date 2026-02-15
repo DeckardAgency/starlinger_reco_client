@@ -22,6 +22,7 @@
               class="wishlist-item__favorite"
               size="sm"
               [active]="true"
+              (toggleFavorite)="removeItem(item)"
             ></ui-favorite-button>
           </div>
           <div class="wishlist-item__info">

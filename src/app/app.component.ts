@@ -14,6 +14,7 @@ import { WishlistService } from '@core/services/wishlist.service';
 import { MobileMenuComponent } from './layout/mobile-menu/mobile-menu.component';
 import { CartComponent } from '@features/customer/shop/cart/cart.component';
 import { WishlistComponent } from '@features/customer/shop/wishlist/wishlist.component';
+import { AlertComponent } from '@shared/components/alert/alert.component';
 import { UserService } from '@services/http/user.service';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { environment } from '@env/environment';
@@ -29,7 +30,8 @@ import { environment } from '@env/environment';
       LoginModalComponent,
       MobileMenuComponent,
       CartComponent,
-      WishlistComponent
+      WishlistComponent,
+      AlertComponent
     ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']

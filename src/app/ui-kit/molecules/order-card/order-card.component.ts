@@ -19,6 +19,7 @@ export type OrderCardStatus =
 
 export interface OrderCardData {
   id: string;
+  orderId?: string; // Real UUID for routing
   type: OrderCardType;
   internalReference: string;
   dateCreated: string;
@@ -71,9 +72,7 @@ export class OrderCardComponent {
   }
 
   getDetailLink(): string {
-    if (this.routePrefix === '/customer') {
-      return `/customer/shop-orders/${this.data.id.replace('#', '')}`;
-    }
-    return `${this.routePrefix}/shop-orders/${this.data.id}`;
+    const id = this.data.orderId || this.data.id;
+    return `${this.routePrefix}/orders/${id}`;
   }
 }

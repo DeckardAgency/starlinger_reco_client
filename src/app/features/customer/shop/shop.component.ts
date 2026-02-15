@@ -25,9 +25,6 @@ interface FilterGroup {
   code: string;
 }
 
-interface ProductDetail extends ShopProduct {
-  technicalDescription?: string;
-}
 
 @Component({
   selector: 'app-shop',
@@ -66,7 +63,7 @@ export class ShopComponent implements OnInit {
   isLoading = signal(true);
 
   // Selected product for detail view
-  selectedProduct = signal<ProductDetail | null>(null);
+  selectedProduct = signal<ShopProduct | null>(null);
   quantity = signal(1);
   
   // Computed carousel slides for selected product
@@ -96,6 +93,9 @@ export class ShopComponent implements OnInit {
   productGroups = signal<FilterGroup[]>([]);
 
   ngOnInit(): void {
+    if (this.isMobile()) {
+      this.viewMode.set('list');
+    }
     this.loadData();
   }
 
@@ -132,8 +132,10 @@ export class ShopComponent implements OnInit {
       name: product.name,
       price: product.price,
       image: this.getProductImageUrl(product),
-      isFavorite: false,
-      group: product.productGroupId || ''
+      isFavorite: this.wishlistService.wishlistItems().some(i => i.productCode === product.partNo),
+      group: product.productGroupId || '',
+      technicalDescription: product.technicalDescription,
+      shortDescription: product.shortDescription
     };
   }
 
@@ -153,8 +155,7 @@ export class ShopComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Shop', route: '/customer/shop' },
-    { label: 'All products' }
+    { label: 'Shop' }
   ];
 
   // Filtered products
@@ -242,6 +243,7 @@ export class ShopComponent implements OnInit {
 
     if (!wasInWishlist) {
       this.wishlistService.addItem({
+        productId: product.id,
         productCode: product.code,
         productName: product.name,
         imageUrl: product.image,
@@ -261,7 +263,20 @@ export class ShopComponent implements OnInit {
     return `€ ${price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
+  private isMobile(): boolean {
+    return window.innerWidth <= 576;
+  }
+
+  /** Tablet + mobile: navigate to full detail page instead of split panel */
+  private isCompactView(): boolean {
+    return window.innerWidth <= 1024;
+  }
+
   onProductClick(product: ShopProduct): void {
+    if (this.isCompactView()) {
+      this.router.navigate(['/customer/shop/products', product.id]);
+      return;
+    }
     // In list view, show detail panel; in grid view, navigate to detail page
     if (this.viewMode() === 'list') {
       this.selectProduct(product);
@@ -270,16 +285,21 @@ export class ShopComponent implements OnInit {
     }
   }
 
+  onArrowClick(product: ShopProduct, event: Event): void {
+    event.stopPropagation();
+    if (this.isCompactView()) {
+      this.router.navigate(['/customer/shop/products', product.id]);
+    } else {
+      this.selectProduct(product);
+    }
+  }
+
   selectProduct(product: ShopProduct): void {
-    const detail: ProductDetail = {
-      ...product,
-      technicalDescription: '0-400mbar, G1/2", 11-30V DC_PMC11-AA1U1FBWBJA'
-    };
-    this.selectedProduct.set(detail);
+    this.selectedProduct.set(product);
     this.quantity.set(1);
   }
 
-  closeProductDetail(): void {
+  closeShopProduct(): void {
     this.selectedProduct.set(null);
   }
 
@@ -312,6 +332,7 @@ export class ShopComponent implements OnInit {
     const product = this.selectedProduct();
     if (product) {
       this.wishlistService.addItem({
+        productId: product.id,
         productCode: product.code,
         productName: product.name,
         imageUrl: product.image,

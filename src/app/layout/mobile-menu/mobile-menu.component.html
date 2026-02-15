@@ -62,6 +62,47 @@
                 </li>
 
                 <li class="mobile-menu__section">
+                    <h2 class="mobile-menu__section-title">My Orders</h2>
+                    <ul class="mobile-menu__sub-list">
+                        <li class="mobile-menu__item">
+                            <a routerLink="/customer/orders" routerLinkActive="mobile-menu__link--active" [routerLinkActiveOptions]="{exact: true}" class="mobile-menu__link" (click)="closeMenu()">
+                                <span class="mobile-menu__icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M9.33317 1.33325H3.99984C3.64622 1.33325 3.30708 1.47373 3.05703 1.72378C2.80698 1.97382 2.6665 2.31296 2.6665 2.66659V13.3333C2.6665 13.6869 2.80698 14.026 3.05703 14.2761C3.30708 14.5261 3.64622 14.6666 3.99984 14.6666H11.9998C12.3535 14.6666 12.6926 14.5261 12.9426 14.2761C13.1927 14.026 13.3332 13.6869 13.3332 13.3333V5.33325L9.33317 1.33325Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 5.33325V7.99992" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 10.6667H8.00667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span class="mobile-menu__link-text">Active</span>
+                            </a>
+                        </li>
+                        <li class="mobile-menu__item">
+                            <a routerLink="/customer/orders/archive" routerLinkActive="mobile-menu__link--active" class="mobile-menu__link" (click)="closeMenu()">
+                                <span class="mobile-menu__icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M9.33317 1.33325H3.99984C3.64622 1.33325 3.30708 1.47373 3.05703 1.72378C2.80698 1.97382 2.6665 2.31296 2.6665 2.66659V13.3333C2.6665 13.6869 2.80698 14.026 3.05703 14.2761C3.30708 14.5261 3.64622 14.6666 3.99984 14.6666H11.9998C12.3535 14.6666 12.6926 14.5261 12.9426 14.2761C13.1927 14.026 13.3332 13.6869 13.3332 13.3333V5.33325L9.33317 1.33325Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M5.99984 9.99992L7.33317 11.3333L9.99984 8.66659" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span class="mobile-menu__link-text">Archive</span>
+                            </a>
+                        </li>
+                        <li class="mobile-menu__item">
+                            <a routerLink="/customer/orders/drafts" routerLinkActive="mobile-menu__link--active" class="mobile-menu__link" (click)="closeMenu()">
+                                <span class="mobile-menu__icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M9.33317 1.33325H3.99984C3.64622 1.33325 3.30708 1.47373 3.05703 1.72378C2.80698 1.97382 2.6665 2.31296 2.6665 2.66659V13.3333C2.6665 13.6869 2.80698 14.026 3.05703 14.2761C3.30708 14.5261 3.64622 14.6666 3.99984 14.6666H11.9998C12.3535 14.6666 12.6926 14.5261 12.9426 14.2761C13.1927 14.026 13.3332 13.6869 13.3332 13.3333V5.33325L9.33317 1.33325Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M10.3333 9.00008L7.33333 12.0001H5.33333V10.0001L8.33333 7.00008L10.3333 9.00008Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.33333 7L10.3333 9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span class="mobile-menu__link-text">Drafts</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mobile-menu__section">
                     <h2 class="mobile-menu__section-title">Support</h2>
                     <ul class="mobile-menu__sub-list">
                         <li class="mobile-menu__item">

@@ -12,7 +12,7 @@
       [showSearch]="true"
       [showExportButton]="true"
       [showAddButton]="false"
-      [searchQuery]="searchQuery"
+      [searchQuery]="searchQuery()"
       (searchQueryChange)="onSearchChange($event)"
       (export)="onExport()"
     ></ui-list-header>

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, ViewChild, TemplateRef, signal, AfterViewInit, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   SectionHeaderComponent,
   QuickActionCardComponent,
@@ -61,6 +61,7 @@ interface ContactFormData {
 })
 export class CustomerDashboardComponent implements AfterViewInit, OnInit {
   private dashboardService = inject(DashboardService);
+  private router = inject(Router);
 
   @ViewChild('typeCell', { static: true }) typeCell!: TemplateRef<any>;
   @ViewChild('statusCell', { static: true }) statusCell!: TemplateRef<any>;
@@ -142,7 +143,8 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       .filter(o => !['completed', 'canceled'].includes(o.status))
       .slice(0, 3)
       .map(order => ({
-        id: `#${order.orderNumber || order.id.slice(0, 4)}`,
+        id: order.orderNumber || order.id.slice(0, 8),
+        orderId: order.id,
         type: 'order' as const,
         internalReference: order.orderNumber || order.id.slice(0, 8),
         dateCreated: this.formatDate(order.createdAt),
@@ -153,6 +155,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   private mapToHistoryItems(orders: DashboardOrder[]): HistoryItem[] {
     return orders.map(order => ({
+      id: order.id,
       orderId: order.orderNumber || order.id.slice(0, 4),
       type: 'order' as HistoryType,
       dateCreated: this.formatDate(order.createdAt),
@@ -278,10 +281,10 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
   }
 
   onMenuItemClick(itemId: string, row: HistoryItem): void {
-    console.log(`Action ${itemId} for row:`, row);
+    this.closeMenu();
     switch (itemId) {
       case 'view':
-        // Navigate to detail page
+        this.router.navigate(['/customer/orders', row.id]);
         break;
       case 'archive':
         // Archive the item

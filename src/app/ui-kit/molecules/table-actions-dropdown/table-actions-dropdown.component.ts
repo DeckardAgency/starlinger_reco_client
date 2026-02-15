@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, HostListener, ElementRef, inject, booleanAttribute } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, HostListener, ElementRef, inject, booleanAttribute, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../atoms/icon/icon.component';
 
@@ -26,6 +26,10 @@ export interface ActionClickEvent {
 })
 export class TableActionsDropdownComponent {
   private elementRef = inject(ElementRef);
+
+  @ViewChild('triggerBtn') triggerBtn!: ElementRef<HTMLButtonElement>;
+
+  dropdownStyle: { top: string; left: string } = { top: '0px', left: '0px' };
 
   /**
    * Whether the dropdown is currently open
@@ -59,6 +63,13 @@ export class TableActionsDropdownComponent {
 
   onToggle(event: Event): void {
     event.stopPropagation();
+    if (this.triggerBtn) {
+      const rect = this.triggerBtn.nativeElement.getBoundingClientRect();
+      this.dropdownStyle = {
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.right - 154}px`
+      };
+    }
     this.toggle.emit();
   }
 

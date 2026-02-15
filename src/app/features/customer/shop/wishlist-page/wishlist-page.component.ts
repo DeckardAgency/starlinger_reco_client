@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, inject, ChangeDetectorRef, 
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { WishlistService } from '@core/services/wishlist.service';
+import { CartService } from '@core/services/cart.service';
 import { WishlistItem } from '@core/models/wishlist.model';
 import { DataTableComponent, TableColumn } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
@@ -27,6 +28,7 @@ export class WishlistPageComponent implements AfterViewInit {
   @ViewChild('actionsTemplate') actionsTemplate!: TemplateRef<any>;
 
   private wishlistService = inject(WishlistService);
+  private cartService = inject(CartService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -60,8 +62,19 @@ export class WishlistPageComponent implements AfterViewInit {
   }
 
   onAddToCart(): void {
-    console.log('Adding all wishlist items to cart:', this.wishlistItems());
-    // Navigate to cart or add items to cart service
-    this.router.navigate(['/customer/shop/cart']);
+    const items = this.wishlistItems();
+    for (const item of items) {
+      this.cartService.addItem({
+        id: item.productId,
+        code: item.productCode,
+        name: item.productName,
+        price: item.price,
+        image: item.imageUrl,
+        isFavorite: true,
+        group: ''
+      }, item.quantity);
+    }
+    this.wishlistService.clearWishlist();
+    this.cartService.openCart();
   }
 }

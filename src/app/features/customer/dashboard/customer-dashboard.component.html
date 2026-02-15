@@ -19,7 +19,7 @@
     <ui-section-header
       title="Active orders"
       [icon]="activeOrdersIcon"
-      viewAllLink="/customer/shop"
+      viewAllLink="/customer/orders"
     ></ui-section-header>
     <div class="active-orders__cards">
       @if (isLoadingOrders()) {
@@ -42,7 +42,7 @@
     <ui-section-header
       title="History"
       [icon]="historyIcon"
-      viewAllLink="/customer/shop"
+      viewAllLink="/customer/orders"
     ></ui-section-header>
 
     <div class="history__content">
@@ -82,13 +82,13 @@
       variant="ghost"
       size="sm"
       [iconOnly]="true"
-      (click)="toggleMenu(row.orderId)"
+      (click)="toggleMenu(row.id)"
     >
       <ui-icon name="more-vertical" size="sm"></ui-icon>
     </ui-button>
     <ui-dropdown-menu
       [items]="dropdownMenuItems"
-      [isOpen]="openMenuRowId() === row.orderId"
+      [isOpen]="openMenuRowId() === row.id"
       (itemClick)="onMenuItemClick($event, row)"
       (closeMenu)="closeMenu()"
     ></ui-dropdown-menu>

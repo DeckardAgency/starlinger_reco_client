@@ -2,10 +2,6 @@
   <!-- Header with Breadcrumbs -->
   <header class="page-header">
     <div class="page-header__breadcrumb">
-      <button class="page-header__menu-btn" type="button">
-        <ui-icon name="arrow-left" size="sm"></ui-icon>
-      </button>
-      <div class="page-header__separator"></div>
       <ui-breadcrumbs [items]="breadcrumbItems()" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
     </div>
   </header>
@@ -62,6 +58,9 @@
 
             <!-- Product Name -->
             <h2 class="product-card__name">{{ product()?.name }}</h2>
+            @if (product()?.shortDescription) {
+              <p class="product-card__short-desc">{{ product()?.shortDescription }}</p>
+            }
 
             <!-- Technical Description -->
             <div class="product-card__tech-desc">
@@ -77,6 +76,9 @@
 
           <!-- Actions -->
           <div class="product-card__actions">
+            <div class="product-card__price-row">
+              <span class="product-card__price-label">{{ formatPrice(product()!.price) }}</span>
+            </div>
             <div class="product-card__cart-row">
               <ui-quantity-selector
                 [value]="quantity()"

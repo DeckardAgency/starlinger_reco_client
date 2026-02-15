@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, Output, EventEmit
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { WishlistService } from '@core/services/wishlist.service';
+import { CartService } from '@core/services/cart.service';
 import { WishlistItem } from '@core/models/wishlist.model';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -26,6 +27,7 @@ export class WishlistComponent {
   @Output() addToCart = new EventEmitter<WishlistItem[]>();
 
   private wishlistService = inject(WishlistService);
+  private cartService = inject(CartService);
   private router = inject(Router);
 
   isOpen = signal(true);
@@ -60,9 +62,21 @@ export class WishlistComponent {
   }
 
   onAddToCart(): void {
-    this.addToCart.emit(this.wishlistItems());
-    console.log('Adding to cart:', this.wishlistItems());
-    // Could navigate to cart or show confirmation
+    const items = this.wishlistItems();
+    for (const item of items) {
+      this.cartService.addItem({
+        id: item.productId,
+        code: item.productCode,
+        name: item.productName,
+        price: item.price,
+        image: item.imageUrl,
+        isFavorite: true,
+        group: ''
+      }, item.quantity);
+    }
+    this.wishlistService.clearWishlist();
+    this.closeWishlist();
+    this.cartService.openCart();
   }
 
   onShowWishlist(): void {

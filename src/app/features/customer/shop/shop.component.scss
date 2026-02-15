@@ -13,15 +13,6 @@
     @include customer.breadcrumb-container;
   }
 
-  &__menu-btn {
-    @include admin.btn-ghost;
-    @include customer.menu-btn;
-  }
-
-  &__separator {
-    @include customer.breadcrumb-separator;
-    margin: 0 8px;
-  }
 
   // List Header
   &__list-header {
@@ -353,6 +344,7 @@
     @include customer.product-name;
     display: block;
     margin-top: 4px;
+    min-height: 40px;
   }
 
   &__price {
@@ -362,9 +354,10 @@
 
   &__arrow {
     position: absolute;
-    top: 12px;
+    top: 50%;
     right: 12px;
-    display: flex;
+    transform: translateY(-50%);
+    display: none;
     align-items: center;
     justify-content: center;
     width: 32px;
@@ -380,11 +373,24 @@
     &:hover {
       background: #27272a;
     }
+
+    &--visible {
+      display: flex;
+    }
+
+    @media (max-width: 576px) {
+      display: flex;
+    }
   }
 
   &--selected {
     border-color: #18181b;
     box-shadow: 0 0 0 1px #18181b;
+
+    @media (max-width: 576px) {
+      border-color: #e4e4e7;
+      box-shadow: none;
+    }
   }
 }
 
@@ -427,8 +433,6 @@
 
   &__image-wrapper {
     margin-bottom: 16px;
-    max-height: 320px;
-    overflow: hidden;
 
     ui-carousel {
       ::ng-deep .ui-carousel__viewport {
@@ -499,6 +503,14 @@
     text-transform: uppercase;
   }
 
+  &__short-desc {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #71717a;
+    margin: 0;
+  }
+
   &__description {
     display: flex;
     align-items: center;
@@ -561,4 +573,169 @@
 // Toast container
 .toast-container {
   @include customer.toast-container;
+
+  @media (max-width: 576px) {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+// =============================================================================
+// TABLET RESPONSIVE (≤1024px)
+// =============================================================================
+@media (max-width: 1024px) {
+  .shop {
+    // No split view on tablet — product list takes full width
+    &__content--split {
+      .shop__list-column {
+        width: 100%;
+      }
+    }
+
+    // Remove max-width so list cards stretch
+    &__products--list {
+      max-width: none;
+    }
+
+    // Filters stretch full width with gap
+    &__filters {
+      max-width: none;
+      gap: 16px;
+    }
+
+    &__search {
+      flex: 1;
+      width: auto;
+      max-width: none;
+    }
+
+    &__filter-dropdown {
+      flex: 1;
+      width: auto;
+    }
+  }
+
+  // Hide detail side panel on tablet — user navigates to detail page instead
+  .product-detail {
+    display: none;
+  }
+}
+
+// =============================================================================
+// MOBILE RESPONSIVE (≤576px)
+// =============================================================================
+@media (max-width: 576px) {
+  .shop {
+    // Hide grid/list toggle — mobile is list-only
+    &__list-header-right {
+      display: none;
+    }
+
+    // Stack filters vertically, full width
+    &__filters {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      max-width: none;
+    }
+
+    &__search {
+      width: 100%;
+      max-width: none;
+    }
+
+    &__filter-dropdown {
+      width: 100%;
+    }
+
+    // Content: single column, no split
+    &__content {
+      gap: 0;
+
+      &--split {
+        .shop__list-column {
+          width: 100%;
+        }
+      }
+    }
+
+    // Product list: full width, remove max-width
+    &__products {
+      &--list {
+        max-width: none;
+      }
+
+      &--grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  // Product card: unified vertical layout on mobile (both grid and list)
+  .product-card {
+    &--list,
+    &--grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+
+      .product-card__image-container {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 0;
+        aspect-ratio: auto;
+        padding: 12px;
+      }
+
+      .product-card__img {
+        max-width: 120px;
+        max-height: 100px;
+      }
+
+      .product-card__favorite {
+        top: 10px;
+        right: 35px;
+      }
+
+      .product-card__info {
+        grid-column: 1;
+        grid-row: 2;
+        padding: 8px 16px 12px;
+      }
+
+      .product-card__meta {
+        &:not(:last-of-type) {
+          margin-bottom: 8px;
+        }
+      }
+    }
+
+    &__divider {
+      display: none;
+    }
+
+    // Arrow: outline style, sits in row 2 next to info
+    &__arrow {
+      position: static;
+      display: flex;
+      grid-column: 2;
+      grid-row: 2;
+      align-self: center;
+      margin-right: 12px;
+      transform: none;
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      color: #232323;
+
+      &:hover {
+        background: #f4f4f5;
+      }
+    }
+  }
+
+  // Hide detail side panel on mobile — user navigates to detail page instead
+  .product-detail {
+    display: none;
+  }
 }

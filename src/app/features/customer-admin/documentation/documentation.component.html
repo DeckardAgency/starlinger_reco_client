@@ -70,7 +70,7 @@
           </div>
           <div class="doc-detail__content">
             @if (selectedDoc()?.content) {
-              <div class="doc-content" [innerHTML]="selectedDoc()?.content"></div>
+              <div class="doc-content">{{ selectedDoc()?.content }}</div>
             } @else {
               <p class="no-content">No content available for this document.</p>
             }

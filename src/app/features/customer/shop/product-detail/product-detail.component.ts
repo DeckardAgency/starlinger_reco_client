@@ -9,6 +9,7 @@ import { CarouselComponent, CarouselSlide } from '@app/ui-kit/molecules/carousel
 import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { CartService } from '@core/services/cart.service';
+import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ShopProduct } from '@core/mocks/mock-data';
 import { Product } from '@core/models';
@@ -36,6 +37,7 @@ interface ProductDetail extends ShopProduct {
 })
 export class ProductDetailComponent implements OnInit {
   private cartService = inject(CartService);
+  private wishlistService = inject(WishlistService);
   private productService = inject(ProductService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -55,7 +57,6 @@ export class ProductDetailComponent implements OnInit {
     const prod = this.product();
     return [
       { label: 'Shop', route: '/customer/shop' },
-      { label: 'All products', route: '/customer/shop/products' },
       { label: prod?.name || 'Product' }
     ];
   });
@@ -122,7 +123,8 @@ export class ProductDetailComponent implements OnInit {
       image: this.getProductImageUrl(product, '400x400'),
       isFavorite: false,
       group: 'general',
-      technicalDescription: product.technicalDescription || product.shortDescription
+      technicalDescription: product.technicalDescription,
+      shortDescription: product.shortDescription
     };
   }
 
@@ -171,23 +173,46 @@ export class ProductDetailComponent implements OnInit {
   addToWishlist(): void {
     const product = this.product();
     if (product) {
-      console.log('Add to wishlist:', product);
+      this.wishlistService.addItem({
+        productId: product.id,
+        productCode: product.code,
+        productName: product.name,
+        imageUrl: product.image,
+        price: product.price,
+        quantity: 1,
+        isFavorite: true
+      });
     }
   }
 
   toggleFavorite(product: ShopProduct, event: Event): void {
     event.stopPropagation();
-    const updated = this.relatedProducts().map(p =>
-      p.id === product.id ? { ...p, isFavorite: !p.isFavorite } : p
-    );
-    this.relatedProducts.set(updated);
+    this.onFavoriteToggle(product);
   }
 
   onFavoriteToggle(product: ShopProduct): void {
+    const wasInWishlist = product.isFavorite;
     const updated = this.relatedProducts().map(p =>
       p.id === product.id ? { ...p, isFavorite: !p.isFavorite } : p
     );
     this.relatedProducts.set(updated);
+
+    if (!wasInWishlist) {
+      this.wishlistService.addItem({
+        productId: product.id,
+        productCode: product.code,
+        productName: product.name,
+        imageUrl: product.image,
+        price: product.price,
+        quantity: 1,
+        isFavorite: true
+      });
+    } else {
+      const wishlistItem = this.wishlistService.wishlistItems().find(i => i.productCode === product.code);
+      if (wishlistItem) {
+        this.wishlistService.removeItem(wishlistItem.id);
+      }
+    }
   }
 
   onRelatedProductClick(product: ShopProduct): void {

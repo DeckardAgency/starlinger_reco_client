@@ -14,6 +14,7 @@ import {
   TableAction
 } from '@app/ui-kit/molecules';
 import { OrderService } from '@core/services/http/order.service';
+import { AlertService } from '@core/services/alert.service';
 import { Order } from '@core/models/order.model';
 
 // Display interface for the data table
@@ -56,6 +57,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private orderService = inject(OrderService);
+  private alertService = inject(AlertService);
 
   @ViewChild('typeTemplate') typeTemplate!: TemplateRef<any>;
   @ViewChild('customerTemplate') customerTemplate!: TemplateRef<any>;
@@ -63,7 +65,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   @ViewChild('actionsTemplate') actionsTemplate!: TemplateRef<any>;
 
   // Search state
-  searchQuery = '';
+  searchQuery = signal('');
 
   // Loading state
   isLoading = signal(true);
@@ -101,33 +103,44 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   // Data from API
   allOrders = signal<OrderHistoryItem[]>([]);
 
-  // Filtered orders based on active tab and route context
+  // Filtered orders based on active tab, route context and search
   orders = computed(() => {
     const tab = this.activeTab();
     const all = this.allOrders();
     const filter = this.routeFilter();
+    const query = this.searchQuery().toLowerCase().trim();
+
+    let filtered: OrderHistoryItem[];
 
     // Route-level filtering
     if (filter === 'archive') {
-      if (tab === 'completed') return all.filter(o => o.status === 'completed');
-      if (tab === 'cancelled') return all.filter(o => o.status === 'cancelled');
-      return all.filter(o => o.status === 'completed' || o.status === 'cancelled');
+      if (tab === 'completed') filtered = all.filter(o => o.status === 'completed');
+      else if (tab === 'cancelled') filtered = all.filter(o => o.status === 'cancelled');
+      else filtered = all.filter(o => o.status === 'completed' || o.status === 'cancelled');
+    } else if (filter === 'drafts') {
+      filtered = all.filter(o => o.status === 'draft');
+    } else if (tab === 'completed') {
+      filtered = all.filter(o => o.status === 'completed');
+    } else if (tab === 'cancelled') {
+      filtered = all.filter(o => o.status === 'cancelled');
+    } else if (!filter) {
+      filtered = all.filter(o => o.status === 'pending');
+    } else {
+      filtered = all;
     }
 
-    if (filter === 'drafts') {
-      return all.filter(o => o.status === 'draft');
+    // Apply search
+    if (query) {
+      filtered = filtered.filter(o =>
+        o.id.toLowerCase().includes(query) ||
+        o.internalRef.toLowerCase().includes(query) ||
+        o.customer.name.toLowerCase().includes(query) ||
+        o.dateCreated.includes(query) ||
+        o.status.includes(query)
+      );
     }
 
-    // Default: active orders (exclude completed, cancelled, draft)
-    if (tab === 'completed') return all.filter(o => o.status === 'completed');
-    if (tab === 'cancelled') return all.filter(o => o.status === 'cancelled');
-
-    // 'latest' on default route shows active orders only
-    if (!filter) {
-      return all.filter(o => o.status === 'pending');
-    }
-
-    return all;
+    return filtered;
   });
 
   // Total count
@@ -269,8 +282,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   }
 
   onSearchChange(query: string): void {
-    this.searchQuery = query;
-    this.cdr.markForCheck();
+    this.searchQuery.set(query);
   }
 
   onSortChange(event: SortEvent): void {
@@ -319,13 +331,41 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     this.closeDropdown();
   }
 
-  onArchive(order: OrderHistoryItem): void {
-    console.log('Archive order:', order);
+  async onArchive(order: OrderHistoryItem): Promise<void> {
     this.closeDropdown();
+    const reason = await this.alertService.prompt(
+      `Please provide a reason for canceling order "${order.internalRef}".`,
+      'Cancel Order',
+      'Enter cancellation reason...'
+    );
+    if (!reason) {
+      return;
+    }
+    this.orderService.updateOrder(order.id, { status: 'canceled', cancellationReason: reason } as Partial<Order>).subscribe({
+      next: () => {
+        this.allOrders.update(list => list.filter(o => o.id !== order.id));
+        this.cdr.markForCheck();
+      },
+      error: (error) => console.error('Error archiving order:', error)
+    });
   }
 
-  onDelete(order: OrderHistoryItem): void {
-    console.log('Delete order:', order);
+  async onDelete(order: OrderHistoryItem): Promise<void> {
+    const confirmed = await this.alertService.confirm(
+      `Are you sure you want to delete order "${order.internalRef}"?`,
+      'Delete'
+    );
+    if (!confirmed) {
+      this.closeDropdown();
+      return;
+    }
+    this.orderService.deleteOrder(order.id).subscribe({
+      next: () => {
+        this.allOrders.update(list => list.filter(o => o.id !== order.id));
+        this.cdr.markForCheck();
+      },
+      error: (error) => console.error('Error deleting order:', error)
+    });
     this.closeDropdown();
   }
 

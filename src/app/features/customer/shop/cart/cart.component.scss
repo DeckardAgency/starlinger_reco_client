@@ -87,6 +87,14 @@
       @include admin.btn-primary;
     }
   }
+
+  &__toast {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 10;
+  }
 }
 
 // Cart Item
@@ -168,9 +176,9 @@
     top: 0;
     right: 0;
     bottom: 0;
-    left: auto;
+    left: 0;
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
     height: 100vh;
     border-radius: 0;
     padding: 16px;
@@ -206,6 +214,8 @@
   }
 
   .cart-sheet__items {
+    flex: none;
+    overflow: visible;
     margin-bottom: 12px;
     gap: 8px;
   }
@@ -272,58 +282,58 @@
     justify-content: center;
   }
 
-  // Keep items in row layout on mobile, just smaller
+  // Vertical layout on mobile — image on its own row
   .cart-item {
-    flex-direction: row;
-    padding: 10px;
+    flex-direction: column;
+    padding: 12px;
     gap: 12px;
   }
 
-  // Small square image
   .cart-item__image-wrapper {
-    width: 70px;
-    height: 70px;
+    width: 100%;
+    height: auto;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .cart-item__image {
+    max-width: 100%;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
   }
 
   .cart-item__favorite {
-    display: none; // Hide favorite on mobile to save space
+    top: 8px;
+    right: 8px;
   }
 
   .cart-item__info {
-    flex: 1;
-    min-width: 0; // Allow text truncation
+    flex: none;
+    min-width: 0;
     gap: 8px;
   }
 
   .cart-item__details {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .cart-item__code-section,
-  .cart-item__name-section {
-    flex-direction: row;
-    gap: 8px;
-    align-items: baseline;
+    gap: 6px;
   }
 
   .cart-item__label {
     font-size: 11px;
-    white-space: nowrap;
-    min-width: 75px;
   }
 
   .cart-item__code,
   .cart-item__name {
     font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .cart-item__controls {
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .cart-item__divider {

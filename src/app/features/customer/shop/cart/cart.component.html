@@ -107,5 +107,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast notification -->
+    @if (showToast()) {
+      <div class="cart-sheet__toast">
+        <ui-toast
+          [type]="toastType()"
+          variant="dark"
+          title="{{ toastType() === 'success' ? 'Success!' : 'Error' }}"
+          [message]="toastMessage()"
+          [showIcon]="false"
+          [showClose]="false"
+          [duration]="3000"
+          (closed)="onToastClosed()"
+        ></ui-toast>
+      </div>
+    }
   </div>
 </div>

@@ -181,6 +181,11 @@
     @include customer.product-price;
   }
 
+  // Mobile controls (quantity + delete) — hidden on desktop
+  &__mobile-controls {
+    display: none;
+  }
+
   // Delete Button
   &__delete-btn {
     @include customer.delete-btn-large;
@@ -240,7 +245,7 @@
   }
 }
 
-// Responsive
+// Responsive — tablet
 @media (max-width: 1024px) {
   .checkout {
     &__content {
@@ -253,6 +258,148 @@
 
     &__table-wrapper {
       overflow-x: auto;
+    }
+  }
+}
+
+// Responsive — mobile
+@media (max-width: 576px) {
+  .checkout {
+    &__content {
+      flex-direction: column;
+      overflow: visible;
+      padding: 16px;
+    }
+
+    &__table-wrapper {
+      border: none;
+      overflow: visible;
+      background: transparent;
+    }
+
+    &__table {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    // Transform each row into a card
+    &__table-row {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      background: #fff;
+      padding: 0;
+
+      // Hide table header on mobile (must be after display: flex to win)
+      &--header {
+        display: none;
+      }
+    }
+
+    // Item cell becomes full-width card content
+    &__cell {
+      padding: 0;
+
+      &--item {
+        width: 100%;
+        min-width: 0;
+      }
+
+      // Hide separate cells — shown inside the card instead
+      &--price,
+      &--discount,
+      &--quantity,
+      &--total,
+      &--actions {
+        display: none;
+      }
+    }
+
+    // Product card: vertical layout
+    &__product-card {
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    &__product-image {
+      width: 100%;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      box-sizing: border-box;
+
+      img {
+        max-width: 100%;
+        max-height: 150px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+    }
+
+    &__product-info {
+      flex: none;
+      gap: 8px;
+    }
+
+    &__product-divider {
+      margin: 4px 0;
+    }
+
+    &__mobile-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    &__delete-btn--mobile {
+      @include customer.delete-btn;
+    }
+
+    &__product-price {
+      height: auto;
+      flex-wrap: wrap;
+    }
+
+    &__old-price {
+      font-size: 14px;
+    }
+
+    &__discount-badge {
+      font-size: 12px;
+      height: 24px;
+      padding: 2px 6px;
+    }
+
+    &__final-price {
+      font-size: 14px;
+    }
+
+    // Sidebar
+    &__sidebar {
+      width: 100%;
+    }
+
+    &__reference-input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    // Actions: side by side
+    &__actions {
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    &__btn {
+      flex: 1;
+      justify-content: center;
     }
   }
 }

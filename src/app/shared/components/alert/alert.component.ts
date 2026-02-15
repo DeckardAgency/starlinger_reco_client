@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { trigger, style, transition, animate } from '@angular/animations';
 import { AlertService, AlertEvent, AlertButton } from '@services/alert.service';
@@ -7,7 +8,7 @@ import { AlertService, AlertEvent, AlertButton } from '@services/alert.service';
 @Component({
     selector: 'app-alert',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './alert.component.html',
     styleUrls: ['./alert.component.scss'],
     animations: [
@@ -33,6 +34,7 @@ import { AlertService, AlertEvent, AlertButton } from '@services/alert.service';
 })
 export class AlertComponent implements OnInit, OnDestroy {
     currentAlert: AlertEvent | null = null;
+    promptValue: string = '';
     private subscription!: Subscription;
 
     constructor(private alertService: AlertService) {}
@@ -40,6 +42,7 @@ export class AlertComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.subscription = this.alertService.alert$.subscribe(alert => {
             this.currentAlert = alert;
+            this.promptValue = '';
         });
     }
 
@@ -58,7 +61,11 @@ export class AlertComponent implements OnInit, OnDestroy {
 
     onButtonClick(button: AlertButton): void {
         if (this.currentAlert) {
-            this.currentAlert.resolve(button.value);
+            if (this.currentAlert.config.type === 'prompt' && button.value === '__prompt_value__') {
+                this.currentAlert.resolve(this.promptValue || null);
+            } else {
+                this.currentAlert.resolve(button.value);
+            }
             this.currentAlert = null;
         }
     }
@@ -82,6 +89,7 @@ export class AlertComponent implements OnInit, OnDestroy {
             case 'error': return 'alert__icon--error';
             case 'warning': return 'alert__icon--warning';
             case 'confirm': return 'alert__icon--confirm';
+            case 'prompt': return 'alert__icon--confirm';
             default: return 'alert__icon--info';
         }
     }

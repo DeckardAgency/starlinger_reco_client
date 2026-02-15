@@ -1,6 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .data-table {
   width: 100%;
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: var(--data-table-max-height, calc(100vh - 300px));
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
   background: transparent;
 
@@ -27,6 +37,9 @@
     background: #FFF;
     text-align: left;
     vertical-align: middle;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 
     &--sortable {
       cursor: pointer;

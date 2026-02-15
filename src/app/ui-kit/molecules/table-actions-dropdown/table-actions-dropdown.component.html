@@ -1,10 +1,10 @@
 <div class="actions-cell">
-  <button class="actions-trigger" (click)="onToggle($event)" type="button">
+  <button #triggerBtn class="actions-trigger" (click)="onToggle($event)" type="button">
     <ui-icon name="more-vertical" size="sm"></ui-icon>
   </button>
 
   @if (isOpen) {
-    <div class="dropdown-menu" (click)="$event.stopPropagation()">
+    <div class="dropdown-menu" [style.top]="dropdownStyle.top" [style.left]="dropdownStyle.left" (click)="$event.stopPropagation()">
       @for (action of actions; track action.id) {
         <button
           class="dropdown-menu__item"
