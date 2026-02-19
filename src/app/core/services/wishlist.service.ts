@@ -41,7 +41,7 @@ export class WishlistService {
       ...items,
       {
         ...item,
-        id: `wl-${Date.now()}`,
+        id: Date.now(),
         quantity,
         isFavorite: true
       }
@@ -49,7 +49,7 @@ export class WishlistService {
     this.saveToStorage();
   }
 
-  updateQuantity(itemId: string, quantity: number): void {
+  updateQuantity(itemId: number, quantity: number): void {
     if (quantity <= 0) {
       this.removeItem(itemId);
       return;
@@ -63,7 +63,7 @@ export class WishlistService {
     this.saveToStorage();
   }
 
-  removeItem(itemId: string): void {
+  removeItem(itemId: number): void {
     this._wishlistItems.update(items => items.filter(item => item.id !== itemId));
     this.saveToStorage();
   }

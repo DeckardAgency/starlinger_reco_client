@@ -19,7 +19,7 @@ import { Order } from '@core/models/order.model';
 
 // Display interface for the data table
 interface OrderHistoryItem {
-  id: string;
+  id: number;
   type: 'order';
   dateCreated: string;
   internalRef: string;
@@ -75,7 +75,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   sortDirection: 'asc' | 'desc' | null = null;
 
   // Dropdown state
-  openDropdownId = signal<string | null>(null);
+  openDropdownId = signal<number | null>(null);
 
   // Route-based filter context
   private routeFilter = signal<string | null>(null);
@@ -132,7 +132,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     // Apply search
     if (query) {
       filtered = filtered.filter(o =>
-        o.id.toLowerCase().includes(query) ||
+        String(o.id).toLowerCase().includes(query) ||
         o.internalRef.toLowerCase().includes(query) ||
         o.customer.name.toLowerCase().includes(query) ||
         o.dateCreated.includes(query) ||
@@ -226,7 +226,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       id: order.id,
       type: 'order',
       dateCreated: this.formatDate(order.createdAt),
-      internalRef: order.orderNumber || order.id,
+      internalRef: String(order.orderNumber || order.id),
       customer: {
         name: userName,
         initials
@@ -294,7 +294,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     console.log('Exporting data...');
   }
 
-  toggleDropdown(orderId: string, event?: Event): void {
+  toggleDropdown(orderId: number, event?: Event): void {
     if (event) {
       event.stopPropagation();
     }
@@ -341,7 +341,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     if (!reason) {
       return;
     }
-    this.orderService.updateOrder(order.id, { status: 'canceled', cancellationReason: reason } as Partial<Order>).subscribe({
+    this.orderService.updateOrder(String(order.id), { status: 'canceled', cancellationReason: reason } as Partial<Order>).subscribe({
       next: () => {
         this.allOrders.update(list => list.filter(o => o.id !== order.id));
         this.cdr.markForCheck();
@@ -359,7 +359,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       this.closeDropdown();
       return;
     }
-    this.orderService.deleteOrder(order.id).subscribe({
+    this.orderService.deleteOrder(String(order.id)).subscribe({
       next: () => {
         this.allOrders.update(list => list.filter(o => o.id !== order.id));
         this.cdr.markForCheck();

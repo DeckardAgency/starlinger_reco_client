@@ -967,7 +967,7 @@ export const mockCustomerAdminUsers: CustomerAdminUser[] = [
 // =============================================================================
 
 export interface ShopProduct {
-  id: string;
+  id: number;
   code: string;
   name: string;
   price: number;
@@ -980,31 +980,31 @@ export interface ShopProduct {
 
 export const mockShopProducts: ShopProduct[] = [
   // Pelletizer group products
-  { id: 'sp-001', code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 'sp-004', code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 'sp-005', code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 'sp-006', code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
+  { id: 1, code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
+  { id: 4, code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
+  { id: 5, code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
+  { id: 6, code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
   // Electrical component group
-  { id: 'sp-008', code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Sensor', isFavorite: false, group: 'electrical' },
-  { id: 'sp-010', code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Motor', isFavorite: false, group: 'electrical' },
-  { id: 'sp-012', code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Heater', isFavorite: false, group: 'electrical' },
+  { id: 8, code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Sensor', isFavorite: false, group: 'electrical' },
+  { id: 10, code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Motor', isFavorite: false, group: 'electrical' },
+  { id: 12, code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Heater', isFavorite: false, group: 'electrical' },
   // Filtration group
-  { id: 'sp-011', code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
-  { id: 'sp-013', code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
+  { id: 11, code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
+  { id: 13, code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
   // Knives group
-  { id: 'sp-014', code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
-  { id: 'sp-015', code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
+  { id: 14, code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
+  { id: 15, code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
   // Seals group
-  { id: 'sp-002', code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
-  { id: 'sp-003', code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
+  { id: 2, code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
+  { id: 3, code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
   // Category X group
-  { id: 'sp-009', code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
-  { id: 'sp-016', code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
+  { id: 9, code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
+  { id: 16, code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
   // Category Y group
-  { id: 'sp-017', code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Gasket', isFavorite: false, group: 'category-y' },
+  { id: 17, code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Gasket', isFavorite: false, group: 'category-y' },
   // Category Z group
-  { id: 'sp-018', code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' },
-  { id: 'sp-019', code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' }
+  { id: 18, code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' },
+  { id: 19, code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' }
 ];
 
 export const mockProductGroups = [
@@ -1449,7 +1449,7 @@ export const DUMMY_USER_CREDENTIALS = {
 };
 
 export const mockDevelopmentUser = {
-  id: 'dev-user-001',
+  id: 1,
   email: DUMMY_USER_CREDENTIALS.email,
   username: DUMMY_USER_CREDENTIALS.email,
   roles: ['ROLE_USER', 'ROLE_CLIENT'] as string[],
@@ -1460,7 +1460,7 @@ export const mockDevelopmentUser = {
   client: {
     '@id': '/api/clients/dev-001',
     '@type': 'Client',
-    id: 'dev-client-001',
+    id: 1,
     name: 'Starlinger Development',
     code: 'STL-DEV',
     isActive: true,

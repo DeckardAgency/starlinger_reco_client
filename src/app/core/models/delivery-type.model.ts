@@ -1,5 +1,5 @@
 export interface DeliveryType {
-  id: string;
+  id: number;
   name: string;
   active: boolean;
   readyForShop: boolean;
@@ -13,7 +13,7 @@ export interface DeliveryType {
 }
 
 export interface DeliveryTypeDocument {
-  id: string;
+  id: number;
   fileType: string;
   name: string;
   size: string;

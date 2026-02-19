@@ -38,7 +38,7 @@ interface OrderDetailLogMessage {
 }
 
 interface OrderDetail {
-  id: string;
+  id: number;
   type: 'order';
   internalRef: string;
   dateCreated: string;
@@ -108,7 +108,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       next: (order) => {
         if (order) {
           this.order.set(this.mapOrderToDetail(order));
-          this.updateBreadcrumbs('Order', order.orderNumber || order.id);
+          this.updateBreadcrumbs('Order', String(order.orderNumber || order.id));
         } else {
           this.order.set(null);
         }
@@ -166,7 +166,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     return {
       id: order.id,
       type: 'order',
-      internalRef: order.orderNumber || order.id,
+      internalRef: String(order.orderNumber || order.id),
       dateCreated: this.formatDate(order.createdAt),
       partsOrdered: order.items?.length || 0,
       status: order.status,

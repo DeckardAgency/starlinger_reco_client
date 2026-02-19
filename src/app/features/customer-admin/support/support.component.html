@@ -33,7 +33,7 @@
         @for (ticket of tickets(); track ticket.id) {
           <div class="ticket-card" (click)="onViewTicket(ticket)">
             <div class="ticket-card__header">
-              <span class="ticket-id">#{{ ticket.id.slice(0, 8) }}</span>
+              <span class="ticket-id">#{{ ticket.id }}</span>
               <div class="ticket-badges">
                 <ui-badge [variant]="getUrgencyVariant(ticket.urgency)" size="sm">
                   {{ getUrgencyLabel(ticket.urgency) }}
@@ -58,7 +58,7 @@
       <div class="ticket-detail-overlay" (click)="onCloseDetail()">
         <div class="ticket-detail" (click)="$event.stopPropagation()">
           <div class="ticket-detail__header">
-            <h2>Ticket #{{ selectedTicket()?.id?.slice(0, 8) }}</h2>
+            <h2>Ticket #{{ selectedTicket()?.id }}</h2>
             <ui-button variant="ghost" size="sm" (click)="onCloseDetail()">
               <ui-icon name="x" size="sm"></ui-icon>
             </ui-button>

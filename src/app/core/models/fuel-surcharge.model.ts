@@ -1,12 +1,12 @@
 export interface DeliveryTypeRef {
   '@id': string;
   '@type': string;
-  id: string;
+  id: number;
   name: string;
 }
 
 export interface FuelSurcharge {
-  id: string;
+  id: number;
   name: string;
   date: string;
   fuelSurcharge: number;

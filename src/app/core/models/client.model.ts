@@ -6,7 +6,7 @@ export interface Client {
     '@context'?: string;
     '@id': string;
     '@type': string;
-    id: string;
+    id: number;
     name: string;
     code: string;
     description?: string;
@@ -32,7 +32,7 @@ export interface ClientUser {
     '@context'?: string;
     '@id': string;
     '@type': string;
-    id: string;
+    id: number;
     email: string;
     firstName: string;
     lastName: string;
@@ -43,7 +43,7 @@ export interface ProductPrice {
     '@context'?: string;
     '@id': string;
     '@type': string;
-    id: string;
+    id: number;
     product: string;  // IRI reference to product
     price: number;
     discountPercentage: number;

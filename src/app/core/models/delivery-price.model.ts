@@ -1,5 +1,5 @@
 export interface DeliveryPrice {
-  id: string;
+  id: number;
   name: string;
   dhlZone: string;
   deliveryType: string;

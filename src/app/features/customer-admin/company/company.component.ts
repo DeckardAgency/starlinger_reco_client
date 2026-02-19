@@ -67,7 +67,7 @@ export class CompanyComponent implements OnInit {
       next: (client) => {
         if (client) {
           // Fetch full client details
-          this.clientService.getClient(client.id).subscribe({
+          this.clientService.getClient(String(client.id)).subscribe({
             next: (clientDetail) => {
               this.client.set(clientDetail);
               this.populateForm(clientDetail);
@@ -122,7 +122,7 @@ export class CompanyComponent implements OnInit {
 
     this.isSaving.set(true);
 
-    this.clientService.updateClient(client.id, {
+    this.clientService.updateClient(String(client.id), {
       name: this.formData.name,
       email: this.formData.email,
       phoneNumber: this.formData.phoneNumber,

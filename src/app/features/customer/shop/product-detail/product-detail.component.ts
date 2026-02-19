@@ -100,7 +100,7 @@ export class ProductDetailComponent implements OnInit {
         
         // Get related products (excluding current)
         const related = allProducts.member
-          .filter(p => p.id !== productId)
+          .filter(p => p.id !== Number(productId))
           .slice(0, 4)
           .map(p => this.mapProductToShopProduct(p));
         this.relatedProducts.set(related);

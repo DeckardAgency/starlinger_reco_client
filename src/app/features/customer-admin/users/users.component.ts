@@ -27,7 +27,7 @@ import { User } from '@core/models';
 
 // Display interface for the data table
 interface CustomerAdminUser {
-  id: string;
+  id: number;
   name: string;
   initials: string;
   avatar?: string;
@@ -86,7 +86,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
   sortDirection: 'asc' | 'desc' | null = null;
 
   // Dropdown state
-  openDropdownId = signal<string | null>(null);
+  openDropdownId = signal<number | null>(null);
 
   // Drawer state
   showAddUserDrawer = signal(false);
@@ -247,7 +247,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
     this.sortDirection = event.direction;
   }
 
-  toggleDropdown(userId: string, event?: Event): void {
+  toggleDropdown(userId: number, event?: Event): void {
     if (event) {
       event.stopPropagation();
     }
@@ -315,7 +315,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
 
     if (editingUser) {
       // Update existing user
-      this.userService.updateUser(editingUser.id, userData).subscribe({
+      this.userService.updateUser(String(editingUser.id), userData).subscribe({
         next: () => {
           this.loadUsers();
           this.onCloseDrawer();
@@ -366,7 +366,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
     this.closeDropdown();
 
     // Update user status to inactive
-    this.userService.updateUser(user.id, { isActive: false }).subscribe({
+    this.userService.updateUser(String(user.id), { isActive: false }).subscribe({
       next: () => {
         // Update local state
         this.allUsers.update(users =>
@@ -387,7 +387,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
       return;
     }
 
-    this.userService.deleteUser(user.id).subscribe({
+    this.userService.deleteUser(String(user.id)).subscribe({
       next: () => {
         // Remove user from local state
         this.allUsers.update(users => users.filter(u => u.id !== user.id));

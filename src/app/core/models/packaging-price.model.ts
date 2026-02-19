@@ -1,5 +1,5 @@
 export interface PackagingPrice {
-  id: string;
+  id: number;
   name: string;
   sizeFrom: number;
   sizeTo: number;

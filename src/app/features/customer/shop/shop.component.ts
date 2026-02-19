@@ -133,7 +133,7 @@ export class ShopComponent implements OnInit {
       price: product.price,
       image: this.getProductImageUrl(product),
       isFavorite: this.wishlistService.wishlistItems().some(i => i.productCode === product.partNo),
-      group: product.productGroupId || '',
+      group: String(product.productGroupId || ''),
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription
     };
@@ -147,7 +147,7 @@ export class ShopComponent implements OnInit {
 
   private mapProductGroupToFilterGroup(group: ProductGroup): FilterGroup {
     return {
-      id: group.id,
+      id: String(group.id),
       label: group.name,
       code: group.productGroupCode
     };
@@ -348,7 +348,7 @@ export class ShopComponent implements OnInit {
     }
   }
 
-  trackByProductId(index: number, product: ShopProduct): string {
+  trackByProductId(index: number, product: ShopProduct): number {
     return product.id;
   }
 }

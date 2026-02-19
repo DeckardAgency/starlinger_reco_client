@@ -102,7 +102,7 @@ export class SettingsComponent implements OnInit {
       lastName: this.profileForm.lastName
     };
 
-    this.userService.updateUser(currentUser.id, updateData).subscribe({
+    this.userService.updateUser(String(currentUser.id), updateData).subscribe({
       next: (updatedUser) => {
         // Update local user state
         this.user.set({ ...currentUser, ...updatedUser });
@@ -151,7 +151,7 @@ export class SettingsComponent implements OnInit {
     };
 
     // Cast to any since password change uses different payload than standard user update
-    this.userService.updateUser(currentUser.id, passwordData as any).subscribe({
+    this.userService.updateUser(String(currentUser.id), passwordData as any).subscribe({
       next: () => {
         this.resetPasswordForm();
         this.showPasswordChange.set(false);

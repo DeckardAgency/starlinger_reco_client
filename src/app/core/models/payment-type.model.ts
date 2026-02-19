@@ -1,5 +1,5 @@
 export interface PaymentType {
-  id: string;
+  id: number;
   name: string;
   active: boolean;
   readyForShop: boolean;
@@ -17,7 +17,7 @@ export interface PaymentType {
 }
 
 export interface PaymentTypeDocument {
-  id: string;
+  id: number;
   fileType: string;
   name: string;
   size: string;

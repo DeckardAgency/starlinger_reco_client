@@ -254,7 +254,7 @@ export class AuthService {
       const user: User = {
         username: tokenData?.email || email,
         email: tokenData?.email || email,
-        id: '',
+        id: 0,
         roles: [],
         firstName: '',
         lastName: '',
