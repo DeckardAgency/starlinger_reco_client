@@ -3,9 +3,9 @@
     <nav class="sidebar__nav">
       <ul class="sidebar__list">
         <!-- ============================================== -->
-        <!-- SUPER ADMIN NAVIGATION -->
+        <!-- ADMIN NAVIGATION (hidden in client app) -->
         <!-- ============================================== -->
-        @if (isSuperAdmin) {
+        @if (false) {
         <!-- Dashboard with collapse toggle -->
         <li class="sidebar__item sidebar__top">
           <a routerLink="/admin/dashboard" routerLinkActive="sidebar__link--active" class="sidebar__link">
@@ -284,9 +284,9 @@
         }
 
         <!-- ============================================== -->
-        <!-- CUSTOMER ADMIN NAVIGATION -->
+        <!-- CUSTOMER ADMIN NAVIGATION (hidden in client app) -->
         <!-- ============================================== -->
-        @if (isCustomerAdmin) {
+        @if (false) {
           <!-- Collapse toggle only (no dashboard for customer admin) -->
           <li class="sidebar__item sidebar__top">
             <div class="sidebar__link" style="visibility: hidden; flex: 1;">
@@ -403,9 +403,9 @@
         }
 
         <!-- ============================================== -->
-        <!-- CUSTOMER NAVIGATION -->
+        <!-- CUSTOMER NAVIGATION (always shown in client app) -->
         <!-- ============================================== -->
-        @if (isCustomer) {
+        @if (authService.isAuthenticated()) {
           <!-- Dashboard with collapse toggle -->
           <li class="sidebar__item sidebar__top">
             <a routerLink="/customer/dashboard" routerLinkActive="sidebar__link--active" class="sidebar__link">
@@ -586,8 +586,8 @@
 
               @if (isUserDropdownOpen()) {
                 <div class="sidebar__user-dropdown" @fadeInOut>
-                  <!-- Customer Admin specific dropdown items -->
-                  @if (isCustomerAdmin) {
+                  <!-- Customer Admin specific dropdown items (hidden in client app) -->
+                  @if (false) {
                     <div class="sidebar__user-switch-user" (click)="navigateToCompany()" role="button">
                       <span>
                         <!-- Building icon -->
@@ -617,8 +617,8 @@
                       Switch user
                     </div>
                   }
-                  <!-- Customer specific dropdown items -->
-                  @if (isCustomer) {
+                  <!-- Customer specific dropdown items (always shown in client app) -->
+                  @if (authService.isAuthenticated()) {
                     <div class="sidebar__user-switch-user" (click)="switchUser()" role="button">
                       <span>
                         <!-- RefreshCcw icon -->

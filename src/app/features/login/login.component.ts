@@ -6,7 +6,6 @@ import { AuthService } from '@core/auth/auth.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { InputComponent, ButtonComponent, CheckboxComponent, LinkComponent } from '@app/ui-kit';
-import { USER_ROLES } from '@core/models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -99,16 +98,7 @@ export class LoginComponent {
    * Navigate to the user's home page based on role
    */
   private navigateToHome(): void {
-    const user = this.authService.getCurrentUser();
-    
-    if (user?.roles?.includes(USER_ROLES.SUPER_ADMIN)) {
-      this.router.navigate(['/admin/dashboard']);
-    } else if (user?.roles?.includes(USER_ROLES.CLIENT_ADMIN)) {
-      this.router.navigate(['/customer-admin/orders']);
-    } else if (user?.roles?.includes(USER_ROLES.CLIENT)) {
-      this.router.navigate(['/customer/dashboard']);
-    } else {
-      this.router.navigate(['/login']);
-    }
+    // Client app always goes to customer dashboard regardless of role
+    this.router.navigate(['/customer/dashboard']);
   }
 }

@@ -76,9 +76,9 @@
   }
 
   &__search {
-    @include admin.search-input-wrapper;
     width: 200px;
     max-width: 200px;
+    @include admin.search-input-wrapper;
   }
 
   &__search-icon {
@@ -184,9 +184,9 @@
   // Products container
   &__products {
     &--grid {
-      @include customer.responsive-grid-4;
       max-height: calc(100vh - 320px);
       overflow-y: auto;
+      @include customer.responsive-grid-4;
 
       @media (max-width: 1100px) {
         grid-template-columns: repeat(3, 1fr);

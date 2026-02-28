@@ -139,7 +139,7 @@
                   @for (user of client()?.users; track user.id) {
                     <div class="user-item">
                       <div class="user-avatar">
-                        {{ (user.firstName?.[0] || '') + (user.lastName?.[0] || '') || 'U' }}
+                        {{ (user.firstName[0] || '') + (user.lastName[0] || '') || 'U' }}
                       </div>
                       <div class="user-info">
                         <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>

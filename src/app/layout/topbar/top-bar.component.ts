@@ -33,12 +33,12 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
     /**
      * Check if current user is a Customer (Client)
-     * Only true if user has CLIENT but NOT CLIENT_ADMIN or SUPER_ADMIN
+     * Only true if user has CLIENT but NOT CLIENT_ADMIN or ADMIN
      */
     get isCustomer(): boolean {
-        return this.authService.hasRole('ROLE_CLIENT') && 
+        return this.authService.hasRole('ROLE_CLIENT') &&
                !this.authService.hasRole('ROLE_CLIENT_ADMIN') &&
-               !this.authService.hasRole('ROLE_SUPER_ADMIN');
+               !this.authService.hasRole('ROLE_ADMIN');
     }
 
     get cartItemCount(): number {

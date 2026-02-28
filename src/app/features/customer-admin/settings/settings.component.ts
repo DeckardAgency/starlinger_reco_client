@@ -176,10 +176,8 @@ export class SettingsComponent implements OnInit {
   getRoleDisplay(roles: string[]): string {
     if (!roles || roles.length === 0) return 'User';
     
-    if (roles.includes('ROLE_SUPER_ADMIN')) return 'Super Admin';
     if (roles.includes('ROLE_ADMIN')) return 'Admin';
     if (roles.includes('ROLE_CLIENT_ADMIN')) return 'Client Admin';
-    if (roles.includes('ROLE_VIEWER')) return 'Viewer';
     if (roles.includes('ROLE_CLIENT')) return 'Client User';
     return 'User';
   }

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
-import { InputComponent } from '@app/ui-kit/atoms/input/input.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
 import { CarouselComponent, CarouselSlide } from '@app/ui-kit/molecules/carousel/carousel.component';
@@ -34,7 +33,6 @@ interface FilterGroup {
     FormsModule,
     RouterModule,
     BreadcrumbsComponent,
-    InputComponent,
     ToastComponent,
     QuantitySelectorComponent,
     CarouselComponent,

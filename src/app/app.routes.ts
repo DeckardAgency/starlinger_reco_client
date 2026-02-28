@@ -1,7 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@core/auth/auth.guard';
-import { RoleGuard } from '@core/auth/role.guard';
-import { USER_ROLES } from '@core/models/auth.model';
 
 export const routes: Routes = [
   // ============================================================================
@@ -37,8 +35,7 @@ export const routes: Routes = [
   // ============================================================================
   {
     path: 'customer-admin',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [USER_ROLES.CLIENT_ADMIN] },
+    canActivate: [AuthGuard],
     children: [
       {
         path: '',
@@ -113,8 +110,7 @@ export const routes: Routes = [
   // ============================================================================
   {
     path: 'customer',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [USER_ROLES.CLIENT] },
+    canActivate: [AuthGuard],
     children: [
       {
         path: '',
@@ -225,15 +221,13 @@ export const routes: Routes = [
   {
     path: 'search',
     loadComponent: () => import('@features/customer/search/search.component').then(m => m.SearchComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [USER_ROLES.CLIENT] },
+    canActivate: [AuthGuard],
     title: 'Reco | Search'
   },
   {
     path: 'status',
     loadComponent: () => import('@features/customer/status/status.component').then(m => m.StatusComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [USER_ROLES.CLIENT] },
+    canActivate: [AuthGuard],
     title: 'Reco | Status & Notifications'
   },
 

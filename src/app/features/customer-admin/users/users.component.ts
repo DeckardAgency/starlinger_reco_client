@@ -213,13 +213,8 @@ export class UsersComponent implements AfterViewInit, OnInit {
     if (!roles || roles.length === 0) return 'standard';
 
     // Check for admin roles
-    if (roles.includes('ROLE_CLIENT_ADMIN') || roles.includes('ROLE_ADMIN') || roles.includes('ROLE_SUPER_ADMIN')) {
+    if (roles.includes('ROLE_CLIENT_ADMIN') || roles.includes('ROLE_ADMIN')) {
       return 'admin';
-    }
-
-    // Check for viewer role
-    if (roles.includes('ROLE_VIEWER')) {
-      return 'viewer';
     }
 
     return 'standard';
@@ -348,7 +343,6 @@ export class UsersComponent implements AfterViewInit, OnInit {
   private mapRoleToApi(role: string): string {
     switch (role) {
       case 'admin': return 'ROLE_CLIENT_ADMIN';
-      case 'viewer': return 'ROLE_VIEWER';
       default: return 'ROLE_CLIENT';
     }
   }
