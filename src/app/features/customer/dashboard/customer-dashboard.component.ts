@@ -140,7 +140,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   private mapOrdersToCards(orders: DashboardOrder[]): OrderCardData[] {
     return orders
-      .filter(o => !['completed', 'canceled'].includes(o.status))
+      .filter(o => !['delivered', 'canceled', 'reversal'].includes(o.status))
       .slice(0, 3)
       .map(order => ({
         id: order.orderNumber || order.id.slice(0, 8),
@@ -174,9 +174,14 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   private mapOrderStatus(status: string): 'submitted' | 'confirmed' | 'in-review' {
     const statusMap: Record<string, 'submitted' | 'confirmed' | 'in-review'> = {
+      'new': 'submitted',
       'submitted': 'submitted',
       'confirmed': 'confirmed',
+      'in_process': 'confirmed',
       'in_progress': 'confirmed',
+      'waiting_for_payment': 'in-review',
+      'ready_for_shipment': 'confirmed',
+      'shipped': 'confirmed',
       'in_review': 'in-review',
       'dispatched': 'confirmed'
     };
@@ -185,12 +190,19 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   private mapToHistoryStatus(status: string): HistoryStatus {
     const statusMap: Record<string, HistoryStatus> = {
+      'delivered': 'completed',
       'completed': 'completed',
       'canceled': 'cancelled',
       'cancelled': 'cancelled',
+      'reversal': 'cancelled',
+      'new': 'in-review',
       'in_review': 'in-review',
       'submitted': 'in-review',
-      'in_progress': 'in-review'
+      'in_process': 'in-review',
+      'in_progress': 'in-review',
+      'waiting_for_payment': 'in-review',
+      'ready_for_shipment': 'in-review',
+      'shipped': 'in-review'
     };
     return statusMap[status] || 'in-review';
   }
