@@ -13,6 +13,7 @@ import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ShopProduct } from '@core/mocks/mock-data';
 import { Product } from '@core/models';
+import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
   technicalDescription?: string;
@@ -90,13 +91,17 @@ export class ProductDetailComponent implements OnInit {
         // Map to ProductDetail
         this.product.set(this.mapProductToDetail(productResponse));
         
-        // Create image slides using placeholder
-        const imageUrl = this.getProductImageUrl(productResponse, '400x400');
-        this.productImages.set([
-          { id: 1, imageUrl, alt: productResponse.name },
-          { id: 2, imageUrl, alt: `${productResponse.name} - View 2` },
-          { id: 3, imageUrl, alt: `${productResponse.name} - View 3` }
-        ]);
+        // Create image slides from real gallery or fallback
+        if (productResponse.imageGallery && productResponse.imageGallery.length > 0) {
+          this.productImages.set(productResponse.imageGallery.map((img, i) => ({
+            id: img.id,
+            imageUrl: `${environment.apiBaseUrl}${img.filePath}`,
+            alt: `${productResponse.name} - ${i + 1}`
+          })));
+        } else {
+          const imageUrl = this.getProductImageUrl(productResponse, '400x400');
+          this.productImages.set([{ id: 1, imageUrl, alt: productResponse.name }]);
+        }
         
         // Get related products (excluding current)
         const related = allProducts.member
@@ -124,7 +129,20 @@ export class ProductDetailComponent implements OnInit {
       isFavorite: false,
       group: 'general',
       technicalDescription: product.technicalDescription,
-      shortDescription: product.shortDescription
+      shortDescription: product.shortDescription,
+      weight: product.weight || undefined,
+      imageGallery: (product.imageGallery || []).map(img => ({
+        id: img.id,
+        filePath: img.filePath,
+        filename: img.filename,
+        mimeType: img.mimeType
+      })),
+      documents: (product.documents as any[] || []).map((doc: any) => ({
+        id: doc.id,
+        filePath: doc.filePath,
+        filename: doc.filename,
+        mimeType: doc.mimeType
+      }))
     };
   }
 
@@ -136,14 +154,39 @@ export class ProductDetailComponent implements OnInit {
       price: product.price,
       image: this.getProductImageUrl(product),
       isFavorite: false,
-      group: 'general'
+      group: 'general',
+      weight: product.weight || undefined,
+      imageGallery: (product.imageGallery || []).map(img => ({
+        id: img.id,
+        filePath: img.filePath,
+        filename: img.filename,
+        mimeType: img.mimeType
+      })),
+      documents: (product.documents as any[] || []).map((doc: any) => ({
+        id: doc.id,
+        filePath: doc.filePath,
+        filename: doc.filename,
+        mimeType: doc.mimeType
+      }))
     };
   }
 
   private getProductImageUrl(product: Product, size: string = '200x200'): string {
-    // Use placeholder with product name - images don't exist in dev environment
+    if (product.featuredImage?.filePath) {
+      return `${environment.apiBaseUrl}${product.featuredImage.filePath}`;
+    }
     const encodedName = encodeURIComponent(product.shortDescription || product.name);
     return `https://placehold.co/${size}/f5f5f5/666?text=${encodedName}`;
+  }
+
+  getDocumentUrl(doc: { filePath: string }): string {
+    return `${environment.apiBaseUrl}${doc.filePath}`;
+  }
+
+  getDocumentIcon(mimeType: string): string {
+    if (mimeType?.includes('pdf')) return 'file-text';
+    if (mimeType?.includes('spreadsheet') || mimeType?.includes('excel') || mimeType?.includes('csv')) return 'file-spreadsheet';
+    return 'file';
   }
 
   goBack(): void {

@@ -153,7 +153,7 @@
   }
 
   &__product-price {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 8px;
     height: 36px;
@@ -198,6 +198,8 @@
 
   &__reference {
     @include customer.reference-section;
+    padding: 0;
+    background: none;
   }
 
   &__reference-label {
@@ -363,6 +365,7 @@
     }
 
     &__product-price {
+      display: flex;
       height: auto;
       flex-wrap: wrap;
     }
@@ -384,11 +387,6 @@
     // Sidebar
     &__sidebar {
       width: 100%;
-    }
-
-    &__reference-input {
-      width: 100%;
-      box-sizing: border-box;
     }
 
     // Actions: side by side

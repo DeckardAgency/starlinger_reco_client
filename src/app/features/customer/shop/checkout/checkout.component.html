@@ -133,8 +133,17 @@
             <ui-icon name="truck" size="md"></ui-icon>
             <span>Shipping & handling</span>
           </div>
-          <span class="checkout__summary-value">{{ formatPrice(itemCount() > 0 ? shippingCost : 0) }}</span>
+          <span class="checkout__summary-value">{{ isLoadingShipping() ? '...' : formatPrice(itemCount() > 0 ? shippingCost() : 0) }}</span>
         </div>
+        @if (estimatedTax() > 0) {
+          <div class="checkout__summary-row">
+            <div class="checkout__summary-label">
+              <ui-icon name="receipt" size="md"></ui-icon>
+              <span>Tax ({{ shippingTaxPercent() }}%)</span>
+            </div>
+            <span class="checkout__summary-value">{{ formatPrice(estimatedTax()) }}</span>
+          </div>
+        }
         <div class="checkout__summary-row">
           <div class="checkout__summary-label">
             <ui-icon name="package" size="md"></ui-icon>

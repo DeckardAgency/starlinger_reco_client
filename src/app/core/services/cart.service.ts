@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { ShopProduct } from '@core/mocks/mock-data';
+import { Order } from '@core/models/order.model';
 
 export interface CartItem {
   id: string;
@@ -91,6 +92,28 @@ export class CartService {
 
   clearCart(): void {
     this._cartItems.set([]);
+    this.saveToStorage();
+  }
+
+  /**
+   * Load items from a draft order into the cart, replacing current cart contents.
+   */
+  loadFromDraft(order: Order): void {
+    const items: CartItem[] = (order.items || []).map(item => ({
+      id: `cart-${item.product.id}`,
+      product: {
+        id: item.product.id,
+        code: item.product.partNo || '',
+        name: item.product.name || '',
+        price: item.unitPrice || item.product.price || 0,
+        image: '',
+        isFavorite: false,
+        group: ''
+      },
+      quantity: item.quantity,
+      isFavorite: false
+    }));
+    this._cartItems.set(items);
     this.saveToStorage();
   }
 

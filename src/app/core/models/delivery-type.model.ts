@@ -1,7 +1,7 @@
 export interface DeliveryType {
   id: number;
   name: string;
-  active: boolean;
+  isActive: boolean;
   readyForShop: boolean;
   express: boolean;
   enableFreeDelivery: boolean;

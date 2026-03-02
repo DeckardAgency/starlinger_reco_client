@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -15,6 +15,7 @@ import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
 import { ShopProduct } from '@core/mocks/mock-data';
 import { Product, ProductGroup } from '@core/models';
+import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
   technicalDescription?: string;
@@ -45,7 +46,11 @@ interface FilterGroup {
   styleUrls: ['./products-in-group.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductsInGroupComponent implements OnInit {
+export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('scrollSentinel') scrollSentinel!: ElementRef<HTMLDivElement>;
+  @ViewChild('productsContainer') productsContainer!: ElementRef<HTMLDivElement>;
+  private observer: IntersectionObserver | null = null;
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cartService = inject(CartService);
@@ -65,6 +70,13 @@ export class ProductsInGroupComponent implements OnInit {
   selectedGroups = signal<string[]>([]);
   isFilterOpen = signal(false);
 
+  // Infinite scroll
+  currentPage = signal(1);
+  totalItems = signal(0);
+  readonly itemsPerPage = 30;
+  isLoadingMore = signal(false);
+  hasMore = computed(() => this.products().length < this.totalItems());
+
   // Loading state
   isLoading = signal(true);
 
@@ -76,11 +88,16 @@ export class ProductsInGroupComponent implements OnInit {
   selectedProductImages = computed<CarouselSlide[]>(() => {
     const product = this.selectedProduct();
     if (!product) return [];
-    return [
-      { id: 1, imageUrl: product.image, alt: product.name },
-      { id: 2, imageUrl: product.image, alt: `${product.name} - View 2` },
-      { id: 3, imageUrl: product.image, alt: `${product.name} - View 3` }
-    ];
+
+    if (product.imageGallery && product.imageGallery.length > 0) {
+      return product.imageGallery.map((img, i) => ({
+        id: img.id,
+        imageUrl: `${environment.apiBaseUrl}${img.filePath}`,
+        alt: `${product.name} - ${i + 1}`
+      }));
+    }
+
+    return [{ id: 1, imageUrl: product.image, alt: product.name }];
   });
 
   // Toast
@@ -107,6 +124,29 @@ export class ProductsInGroupComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
+  private setupIntersectionObserver(): void {
+    const root = this.productsContainer?.nativeElement || null;
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && this.hasMore() && !this.isLoadingMore() && !this.isLoading()) {
+          this.loadMore();
+        }
+      },
+      { root, threshold: 0.1 }
+    );
+    if (this.scrollSentinel) {
+      this.observer.observe(this.scrollSentinel.nativeElement);
+    }
+  }
+
   private loadData(groupId: string): void {
     this.isLoading.set(true);
 
@@ -114,26 +154,44 @@ export class ProductsInGroupComponent implements OnInit {
     forkJoin({
       currentGroup: this.productGroupService.getProductGroupById(groupId),
       allGroups: this.productGroupService.getProductGroups(),
-      products: this.productService.getProducts()
+      products: this.productService.getProducts(1, this.itemsPerPage)
     }).subscribe({
       next: ({ currentGroup, allGroups, products }) => {
-        // Set current group info
         this.groupName.set(currentGroup.name);
         this.selectedGroups.set([groupId]);
 
-        // Map all groups for filter UI
         const filterGroups = allGroups.member.map(group => this.mapProductGroupToFilterGroup(group));
         this.productGroups.set(filterGroups);
 
-        // Map products (TODO: filter by group when API supports it)
         const shopProducts = products.member.map(product => this.mapProductToShopProduct(product));
         this.products.set(shopProducts);
+        this.totalItems.set(products.totalItems);
+        this.currentPage.set(1);
 
         this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Failed to load data:', error);
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  private loadMore(): void {
+    const nextPage = this.currentPage() + 1;
+    this.isLoadingMore.set(true);
+
+    this.productService.getProducts(nextPage, this.itemsPerPage).subscribe({
+      next: (products) => {
+        const newProducts = products.member.map(product => this.mapProductToShopProduct(product));
+        this.products.update(current => [...current, ...newProducts]);
+        this.totalItems.set(products.totalItems);
+        this.currentPage.set(nextPage);
+        this.isLoadingMore.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load more products:', error);
+        this.isLoadingMore.set(false);
       }
     });
   }
@@ -146,14 +204,41 @@ export class ProductsInGroupComponent implements OnInit {
       price: product.price,
       image: this.getProductImageUrl(product),
       isFavorite: false,
-      group: 'general' // TODO: map from product.productGroup when relation exists
+      group: 'general',
+      technicalDescription: product.technicalDescription,
+      shortDescription: product.shortDescription,
+      weight: product.weight || undefined,
+      imageGallery: (product.imageGallery || []).map(img => ({
+        id: img.id,
+        filePath: img.filePath,
+        filename: img.filename,
+        mimeType: img.mimeType
+      })),
+      documents: (product.documents as any[] || []).map((doc: any) => ({
+        id: doc.id,
+        filePath: doc.filePath,
+        filename: doc.filename,
+        mimeType: doc.mimeType
+      }))
     };
   }
 
   private getProductImageUrl(product: Product): string {
-    // Use placeholder with product name - images don't exist in dev environment
+    if (product.featuredImage?.filePath) {
+      return `${environment.apiBaseUrl}${product.featuredImage.filePath}`;
+    }
     const encodedName = encodeURIComponent(product.shortDescription || product.name);
     return `https://placehold.co/200x200/f5f5f5/666?text=${encodedName}`;
+  }
+
+  getDocumentUrl(doc: { filePath: string }): string {
+    return `${environment.apiBaseUrl}${doc.filePath}`;
+  }
+
+  getDocumentIcon(mimeType: string): string {
+    if (mimeType?.includes('pdf')) return 'file-text';
+    if (mimeType?.includes('spreadsheet') || mimeType?.includes('excel') || mimeType?.includes('csv')) return 'file-spreadsheet';
+    return 'file';
   }
 
   private mapProductGroupToFilterGroup(group: ProductGroup): FilterGroup {
@@ -182,7 +267,7 @@ export class ProductsInGroupComponent implements OnInit {
     return result;
   });
 
-  totalCount = computed(() => this.filteredProducts().length);
+  totalCount = computed(() => this.totalItems());
 
   // Get selected group labels for display
   selectedGroupLabels = computed(() => {

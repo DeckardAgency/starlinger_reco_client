@@ -72,6 +72,19 @@
                 <span class="product-card__tech-value">{{ product()?.technicalDescription }}</span>
               </div>
             </div>
+
+            <!-- Documents -->
+            @if (product()!.documents && product()!.documents!.length > 0) {
+              <div class="product-card__documents">
+                <span class="product-card__documents-label">Documents</span>
+                @for (doc of product()!.documents!; track doc.id) {
+                  <a class="product-card__document" [href]="getDocumentUrl(doc)" target="_blank" download>
+                    <ui-icon [name]="getDocumentIcon(doc.mimeType)" size="sm"></ui-icon>
+                    <span>{{ doc.filename }}</span>
+                  </a>
+                }
+              </div>
+            }
           </div>
 
           <!-- Actions -->

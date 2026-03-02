@@ -101,7 +101,7 @@
       }
 
       <!-- Products Grid/List -->
-      <div class="products-group__products" [class.products-group__products--grid]="viewMode() === 'grid'" [class.products-group__products--list]="viewMode() === 'list'">
+      <div #productsContainer class="products-group__products" [class.products-group__products--grid]="viewMode() === 'grid'" [class.products-group__products--list]="viewMode() === 'list'">
         @for (product of filteredProducts(); track trackByProductId($index, product)) {
           <article 
             class="product-card" 
@@ -142,6 +142,12 @@
             <p>No products found</p>
           </div>
         }
+        <!-- Infinite scroll sentinel (inside scroll container) -->
+        <div #scrollSentinel class="products-group__scroll-sentinel">
+          @if (isLoadingMore()) {
+            <span class="products-group__loading-text">Loading more products...</span>
+          }
+        </div>
       </div>
     </div>
 
@@ -198,6 +204,19 @@
               <span class="product-detail__price-label">Regular price:</span>
               <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
             </div>
+
+            <!-- Documents -->
+            @if (selectedProduct()!.documents && selectedProduct()!.documents!.length > 0) {
+              <div class="product-detail__documents">
+                <span class="product-detail__documents-label">Documents</span>
+                @for (doc of selectedProduct()!.documents!; track doc.id) {
+                  <a class="product-detail__document" [href]="getDocumentUrl(doc)" target="_blank" download>
+                    <ui-icon [name]="getDocumentIcon(doc.mimeType)" size="sm"></ui-icon>
+                    <span>{{ doc.filename }}</span>
+                  </a>
+                }
+              </div>
+            }
           </div>
 
           <!-- Actions -->

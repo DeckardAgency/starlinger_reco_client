@@ -66,6 +66,8 @@ export interface Order {
     cancellationReason?: string;
     cancelledAt?: string;
     cancelledBy?: User;
+    // Tax fields
+    totalTax?: number;
 }
 
 // Tracking carrier options

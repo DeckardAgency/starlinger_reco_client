@@ -113,6 +113,38 @@ export interface UpdateClientDto {
     isArchived?: boolean;
 }
 
+// Address for a client (from /api/v1/clients/{id}/addresses)
+export interface ClientAddress {
+    '@context'?: string;
+    '@id'?: string;
+    '@type'?: string;
+    id: number;
+    street: string;
+    city: string;
+    postalCode?: string;
+    country?: {
+        '@id'?: string;
+        id: number;
+        name: string;
+        code: string;
+        defaultTaxPercent?: string | null;
+    };
+    isBilling: boolean;
+    isDelivery: boolean;
+    isActive: boolean;
+    name?: string;
+    phone?: string;
+    email?: string;
+}
+
+export interface ClientAddressesResponse {
+    '@context'?: string;
+    '@id'?: string;
+    '@type'?: string;
+    member: ClientAddress[];
+    totalItems: number;
+}
+
 // Error responses
 export interface ValidationError {
     '@context'?: string;

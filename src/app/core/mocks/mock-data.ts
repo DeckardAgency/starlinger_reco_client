@@ -700,7 +700,7 @@ export const mockDeliveryTypes = [
   {
     id: '1',
     name: 'Standard Delivery',
-    active: true,
+    isActive: true,
     readyForShop: true,
     express: false,
     enableFreeDelivery: true,
@@ -715,7 +715,7 @@ export const mockDeliveryTypes = [
   {
     id: '2',
     name: 'Express Delivery',
-    active: true,
+    isActive: true,
     readyForShop: true,
     express: true,
     enableFreeDelivery: false,
@@ -730,7 +730,7 @@ export const mockPaymentTypes = [
   {
     id: '1',
     name: 'Bank transfer',
-    active: true,
+    isActive: true,
     readyForShop: true,
     enableInstallments: false,
     configuration: null,
@@ -749,7 +749,7 @@ export const mockPaymentTypes = [
   {
     id: '2',
     name: 'Payment by card',
-    active: false,
+    isActive: false,
     readyForShop: false,
     enableInstallments: true,
     configuration: null,
@@ -966,6 +966,13 @@ export const mockCustomerAdminUsers: CustomerAdminUser[] = [
 // MOCK SHOP PRODUCTS (Customer Shop)
 // =============================================================================
 
+export interface ShopProductMedia {
+  id: number;
+  filePath: string;
+  filename: string;
+  mimeType: string;
+}
+
 export interface ShopProduct {
   id: number;
   code: string;
@@ -976,6 +983,9 @@ export interface ShopProduct {
   group: string;
   technicalDescription?: string;
   shortDescription?: string;
+  weight?: string;
+  imageGallery?: ShopProductMedia[];
+  documents?: ShopProductMedia[];
 }
 
 export const mockShopProducts: ShopProduct[] = [

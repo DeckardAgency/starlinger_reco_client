@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of, catchError, map } from 'rxjs';
 import { environment } from '@env/environment';
+import { AuthService } from '@core/auth/auth.service';
 
 export interface DashboardOrder {
     id: string;
@@ -41,16 +42,24 @@ export interface OrderStatusDistributionResponse {
 export class DashboardService {
     private apiUrl = environment.apiBaseUrl;
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private authService: AuthService
+    ) {}
 
     /**
      * Get recent orders for dashboard
      */
     getRecentOrders(limit: number = 5): Observable<DashboardOrder[]> {
-        const params = new HttpParams()
+        let params = new HttpParams()
             .set('itemsPerPage', limit.toString())
             .set('order[createdAt]', 'desc')
             .set('isDraft', 'false');
+
+        const clientInfo = this.authService.getClientInfo();
+        if (clientInfo?.code) {
+            params = params.set('user.client.code', clientInfo.code);
+        }
 
         return this.http.get<any>(`${this.apiUrl}/api/v1/orders`, { params }).pipe(
             map(response => response.member || []),

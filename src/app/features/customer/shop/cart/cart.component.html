@@ -78,7 +78,7 @@
             <ui-icon name="truck" size="md"></ui-icon>
             <span>Shipping & handling</span>
           </div>
-          <span class="cart-sheet__summary-value">{{ formatPrice(shippingCost) }}</span>
+          <span class="cart-sheet__summary-value">{{ isLoadingShipping() ? '...' : formatPrice(itemCount() > 0 ? shippingCost() : 0) }}</span>
         </div>
         <div class="cart-sheet__summary-row">
           <div class="cart-sheet__summary-label">

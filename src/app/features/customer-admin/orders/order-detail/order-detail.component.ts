@@ -9,6 +9,7 @@ import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 import { OrderService } from '@core/services/http/order.service';
+import { CartService } from '@core/services/cart.service';
 import { Order } from '@core/models/order.model';
 
 // Display interfaces
@@ -71,6 +72,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private orderService = inject(OrderService);
+  private cartService = inject(CartService);
   private destroy$ = new Subject<void>();
 
   // Loading state
@@ -84,6 +86,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   // Order data
   order = signal<OrderDetail | null>(null);
+  isDraft = signal(false);
+  private rawOrder: Order | null = null;
 
   ngOnInit(): void {
     this.route.paramMap
@@ -107,7 +111,9 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     this.orderService.getOrder(id).subscribe({
       next: (order) => {
         if (order) {
+          this.rawOrder = order;
           this.order.set(this.mapOrderToDetail(order));
+          this.isDraft.set(order.isDraft === true || order.status === 'draft');
           this.updateBreadcrumbs('Order', String(order.orderNumber || order.id));
         } else {
           this.order.set(null);
@@ -221,6 +227,13 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   onDelete(): void {
     console.log('Delete order...');
+  }
+
+  onAddToCart(): void {
+    if (!this.rawOrder) return;
+    this.cartService.loadFromDraft(this.rawOrder);
+    this.router.navigate(['/customer/shop/products']);
+    this.cartService.openCart();
   }
 
   // Toggle product group expansion

@@ -87,7 +87,6 @@
 
       ::ng-deep .ui-carousel__image {
         object-fit: contain;
-        padding: 16px;
       }
 
       ::ng-deep .ui-carousel__arrow {
@@ -183,6 +182,34 @@
   &__tech-value {
     @include customer.product-code;
     line-height: 20px;
+  }
+
+  &__documents {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__documents-label {
+    @include customer.product-label;
+    margin-top: 8px;
+  }
+
+  &__document {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #18181b;
+    text-decoration: none;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f4f4f5;
+    }
   }
 
   &__actions {

@@ -1,7 +1,7 @@
 export interface PaymentType {
   id: number;
   name: string;
-  active: boolean;
+  isActive: boolean;
   readyForShop: boolean;
   enableInstallments: boolean;
   configuration: string | null;

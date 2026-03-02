@@ -24,6 +24,12 @@
         </div>
       </div>
       <div class="section-header__actions">
+        @if (isDraft()) {
+          <ui-button variant="primary" (clicked)="onAddToCart()">
+            <ui-icon name="cart" size="sm"></ui-icon>
+            Add to Cart
+          </ui-button>
+        }
         <ui-button variant="outline" (clicked)="onExport()">
           <ui-icon name="export" size="sm"></ui-icon>
           Export

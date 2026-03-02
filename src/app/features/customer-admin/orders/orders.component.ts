@@ -14,6 +14,7 @@ import {
   TableAction
 } from '@app/ui-kit/molecules';
 import { OrderService } from '@core/services/http/order.service';
+import { CartService } from '@core/services/cart.service';
 import { AlertService } from '@core/services/alert.service';
 import { Order } from '@core/models/order.model';
 
@@ -57,6 +58,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private orderService = inject(OrderService);
+  private cartService = inject(CartService);
   private alertService = inject(AlertService);
 
   @ViewChild('typeTemplate') typeTemplate!: TemplateRef<any>;
@@ -93,12 +95,8 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   // Table columns
   columns: TableColumn[] = [];
 
-  // Table actions for dropdown
-  tableActions: TableAction[] = [
-    { id: 'view', label: 'View', icon: 'eye' },
-    { id: 'archive', label: 'Archive', icon: 'archive' },
-    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
-  ];
+  // Table actions for dropdown (set dynamically based on route context)
+  tableActions: TableAction[] = [];
 
   // Data from API
   allOrders = signal<OrderHistoryItem[]>([]);
@@ -163,6 +161,21 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
     const filter = this.route.snapshot.data['filter'] as string | undefined;
     this.routeFilter.set(filter || null);
+
+    // Configure table actions based on route
+    if (filter === 'drafts') {
+      this.tableActions = [
+        { id: 'view', label: 'View', icon: 'eye' },
+        { id: 'add-to-cart', label: 'Add to Cart', icon: 'cart' },
+        { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+      ];
+    } else {
+      this.tableActions = [
+        { id: 'view', label: 'View', icon: 'eye' },
+        { id: 'archive', label: 'Archive', icon: 'archive' },
+        { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+      ];
+    }
 
     // Configure tabs based on route
     if (filter === 'archive') {
@@ -315,6 +328,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       case 'view':
         this.onView(order);
         break;
+      case 'add-to-cart':
+        this.onAddToCart(order);
+        break;
       case 'archive':
         this.onArchive(order);
         break;
@@ -329,6 +345,18 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     const basePath = this.router.url.startsWith('/customer-admin') ? '/customer-admin/orders' : '/customer/orders';
     this.router.navigate([basePath, order.id]);
     this.closeDropdown();
+  }
+
+  onAddToCart(order: OrderHistoryItem): void {
+    this.closeDropdown();
+    this.orderService.getOrder(String(order.id)).subscribe({
+      next: (fullOrder) => {
+        this.cartService.loadFromDraft(fullOrder);
+        this.router.navigate(['/customer/shop/products']);
+        this.cartService.openCart();
+      },
+      error: (error) => console.error('Error loading draft order:', error)
+    });
   }
 
   async onArchive(order: OrderHistoryItem): Promise<void> {

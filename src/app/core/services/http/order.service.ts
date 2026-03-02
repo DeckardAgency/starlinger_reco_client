@@ -3,7 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, catchError, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Order, OrdersResponse, TransformedOrdersResponse } from '@models/order.model';
-import {environment} from "@env/environment";
+import { environment } from '@env/environment';
+import { AuthService } from '@core/auth/auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +18,10 @@ export class OrderService {
         })
     };
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private authService: AuthService
+    ) {}
 
     /**
      * Get orders with pagination, sorting and filtering
@@ -30,6 +34,12 @@ export class OrderService {
         filters: { status?: string[], isDraft?: boolean } = {}
     ): Observable<TransformedOrdersResponse> {
         let params = new HttpParams().set('page', page.toString());
+
+        // Client-scoped filtering
+        const clientInfo = this.authService.getClientInfo();
+        if (clientInfo?.code) {
+            params = params.set('user.client.code', clientInfo.code);
+        }
 
         // Add sorting parameters
         if (sortField && sortDirection) {
@@ -221,6 +231,17 @@ export class OrderService {
         }
         // Default to 1 if we can't determine
         return 1;
+    }
+
+    /**
+     * Submit a draft order (moves it to active/submitted status)
+     */
+    submitOrder(id: string): Observable<Order> {
+        return this.http.post<Order>(
+            `${this.apiUrl}/${id}/submit`,
+            {},
+            this.httpOptions
+        );
     }
 
     /**
