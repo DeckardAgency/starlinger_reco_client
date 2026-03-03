@@ -20,6 +20,11 @@ export const routes: Routes = [
     loadComponent: () => import('@features/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
     title: 'Reco | Reset Password'
   },
+  {
+    path: 'no-client',
+    loadComponent: () => import('@features/no-client/no-client.component').then(m => m.NoClientComponent),
+    title: 'Reco | Account Not Configured'
+  },
 
   // ============================================================================
   // SUPER ADMIN ROUTES - Redirected to Admin Client (port 4201)

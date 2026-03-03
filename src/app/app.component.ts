@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
   isAuthPage: boolean = false;
   is404Page: boolean = false;
 
-  private readonly authRoutes = ['/login', '/forgot-password'];
+  private readonly authRoutes = ['/login', '/forgot-password', '/no-client'];
 
   private destroyRef = inject(DestroyRef);
   private logger!: ScopedLogger;

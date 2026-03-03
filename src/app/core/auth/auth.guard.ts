@@ -40,6 +40,14 @@ export class AuthGuard {
         return false;
       }
 
+      // Customer routes require a client assignment
+      const isCustomerRoute = state.url.startsWith('/customer');
+      if (isCustomerRoute && !this.authService.hasClient()) {
+        this.logger.warn('User has no client assigned. Redirecting to no-client page.');
+        this.router.navigate(['/no-client']);
+        return false;
+      }
+
       return true;
     }
 
