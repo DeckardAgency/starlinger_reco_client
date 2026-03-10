@@ -100,7 +100,7 @@
             <ui-icon name="upload" size="sm"></ui-icon>
             <span>Save draft</span>
           </button>
-          <button class="cart-sheet__btn cart-sheet__btn--checkout" type="button" (click)="onCheckout()">
+          <button class="cart-sheet__btn cart-sheet__btn--checkout" type="button" [disabled]="itemCount() === 0" (click)="onCheckout()">
             <span>Checkout</span>
             <ui-icon name="chevron-right" size="sm"></ui-icon>
           </button>

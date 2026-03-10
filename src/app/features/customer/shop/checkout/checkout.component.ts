@@ -241,7 +241,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   onPlaceOrder(): void {
-    if (this.isPlacingOrder()) {
+    if (this.isPlacingOrder() || this.cartItems().length === 0) {
       return;
     }
 

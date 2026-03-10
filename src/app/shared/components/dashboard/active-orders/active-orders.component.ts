@@ -47,13 +47,13 @@ export class ActiveOrdersComponent implements OnInit {
 
   private mapToCards(orders: DashboardOrder[]): OrderCardData[] {
     return orders
-      .filter(o => !['completed', 'canceled', 'cancelled'].includes((o.status || '').toLowerCase()))
+      .filter(o => !['delivered', 'canceled', 'cancelled', 'reversal'].includes((o.status || '').toLowerCase()))
       .map(order => ({
         id: order.id,
         type: 'order' as const,
         internalReference: order.orderNumber || order.id.slice(0, 8),
         dateCreated: this.formatDate(order.createdAt),
-        partsOrdered: 0,
+        partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
         status: this.normalizeStatus(order.status)
       }))
       .sort((a, b) => {
@@ -73,11 +73,9 @@ export class ActiveOrdersComponent implements OnInit {
   }
 
   private normalizeStatus(status: string): OrderCardStatus {
-    const s = (status || '').toLowerCase().replace(/_/g, '-');
-    const valid: OrderCardStatus[] = ['submitted', 'in-review', 'in-progress', 'more-info', 'confirmed', 'in-transit', 'dispatched', 'completed', 'cancelled', 'draft'];
-    if (valid.includes(s as OrderCardStatus)) return s as OrderCardStatus;
-    if (['in_review', 'more_info', 'information_provided', 'in_progress'].includes((status || '').toLowerCase())) return 'in-review';
-    if (['submitted', 'confirmed'].includes(s)) return 'submitted';
-    return 'draft';
+    const s = (status || '').toLowerCase().replace(/_/g, '-') as OrderCardStatus;
+    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    if (valid.includes(s)) return s;
+    return 'new';
   }
 }

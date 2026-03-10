@@ -176,7 +176,7 @@
               [showDots]="true"
               [infiniteLoop]="true"
               [enableSwipe]="true"
-              aspectRatio="4/3"
+              aspectRatio="16/9"
             ></ui-carousel>
           </div>
 
@@ -200,11 +200,6 @@
               </div>
             </div>
 
-            <div class="product-detail__price-row">
-              <span class="product-detail__price-label">Regular price:</span>
-              <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
-            </div>
-
             <!-- Documents -->
             @if (selectedProduct()!.documents && selectedProduct()!.documents!.length > 0) {
               <div class="product-detail__documents">
@@ -217,6 +212,12 @@
                 }
               </div>
             }
+          </div>
+
+          <!-- Price -->
+          <div class="product-detail__price-section">
+            <span class="product-detail__price-label">Regular price</span>
+            <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
           </div>
 
           <!-- Actions -->

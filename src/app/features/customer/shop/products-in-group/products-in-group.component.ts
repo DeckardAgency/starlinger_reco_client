@@ -361,8 +361,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
 
   selectProduct(product: ShopProduct): void {
     const detail: ProductDetail = {
-      ...product,
-      technicalDescription: '0-400mbar, G1/2", 11-30V DC_PMC11-AA1U1FBWBJA'
+      ...product
     };
     this.selectedProduct.set(detail);
     this.quantity.set(1);

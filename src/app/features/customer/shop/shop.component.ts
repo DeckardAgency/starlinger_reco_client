@@ -2,7 +2,8 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, O
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -59,6 +60,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Search and filter
   searchQuery = signal('');
+  private searchSubject = new Subject<string>();
   selectedGroups = signal<string[]>([]);
   isFilterOpen = signal(false);
 
@@ -114,6 +116,15 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
       this.viewMode.set('list');
     }
     this.loadData();
+
+    // Server-side search with debounce
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery.set(query);
+      this.reloadProducts();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -122,6 +133,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+    this.searchSubject.complete();
   }
 
   private setupIntersectionObserver(): void {
@@ -141,10 +153,11 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadData(): void {
     this.isLoading.set(true);
+    const query = this.searchQuery() || undefined;
 
     // Load products and product groups in parallel
     forkJoin({
-      products: this.productService.getProducts(1, this.itemsPerPage),
+      products: this.productService.getProducts(1, this.itemsPerPage, query),
       groups: this.productGroupService.getProductGroups()
     }).subscribe({
       next: ({ products, groups }) => {
@@ -165,11 +178,31 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private reloadProducts(): void {
+    this.isLoading.set(true);
+    const query = this.searchQuery() || undefined;
+
+    this.productService.getProducts(1, this.itemsPerPage, query).subscribe({
+      next: (products) => {
+        const shopProducts = products.member.map(product => this.mapProductToShopProduct(product));
+        this.products.set(shopProducts);
+        this.totalItems.set(products.totalItems);
+        this.currentPage.set(1);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load products:', error);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   private loadMore(): void {
     const nextPage = this.currentPage() + 1;
     this.isLoadingMore.set(true);
+    const query = this.searchQuery() || undefined;
 
-    this.productService.getProducts(nextPage, this.itemsPerPage).subscribe({
+    this.productService.getProducts(nextPage, this.itemsPerPage, query).subscribe({
       next: (products) => {
         const newProducts = products.member.map(product => this.mapProductToShopProduct(product));
         this.products.update(current => [...current, ...newProducts]);
@@ -242,18 +275,10 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Shop' }
   ];
 
-  // Filtered products
+  // Filtered products (search is server-side, only group filtering client-side)
   filteredProducts = computed(() => {
     let result = this.products();
-    const query = this.searchQuery().toLowerCase();
     const groups = this.selectedGroups();
-
-    if (query) {
-      result = result.filter(p =>
-        p.code.toLowerCase().includes(query) ||
-        p.name.toLowerCase().includes(query)
-      );
-    }
 
     if (groups.length > 0) {
       result = result.filter(p => groups.includes(p.group));
@@ -278,7 +303,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSearchChange(value: string): void {
-    this.searchQuery.set(value);
+    this.searchSubject.next(value);
   }
 
   toggleFilter(): void {

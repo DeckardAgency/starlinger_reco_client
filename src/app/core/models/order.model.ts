@@ -68,6 +68,8 @@ export interface Order {
     cancelledBy?: User;
     // Tax fields
     totalTax?: number;
+    // Archive flag
+    isArchived?: boolean;
 }
 
 // Tracking carrier options

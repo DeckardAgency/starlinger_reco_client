@@ -5,17 +5,16 @@ import { BadgeComponent, ButtonComponent, BadgeVariant } from '@app/ui-kit/atoms
 import { CardComponent } from '../card/card.component';
 
 export type OrderCardType = 'order';
-export type OrderCardStatus = 
-  | 'submitted' 
-  | 'in-review' 
-  | 'in-progress' 
-  | 'more-info' 
-  | 'confirmed'
-  | 'in-transit' 
-  | 'dispatched'
-  | 'completed'
-  | 'cancelled'
-  | 'draft';
+export type OrderCardStatus =
+  | 'draft'
+  | 'new'
+  | 'in-process'
+  | 'waiting-for-payment'
+  | 'ready-for-shipment'
+  | 'shipped'
+  | 'delivered'
+  | 'canceled'
+  | 'reversal';
 
 export interface OrderCardData {
   id: string;
@@ -41,34 +40,32 @@ export class OrderCardComponent {
 
   getStatusLabel(status: OrderCardStatus): string {
     const labels: Record<OrderCardStatus, string> = {
-      'submitted': 'Submitted',
-      'in-review': 'In review',
-      'in-progress': 'In progress',
-      'more-info': 'More info',
-      'confirmed': 'Confirmed',
-      'in-transit': 'In transit',
-      'dispatched': 'Dispatched',
-      'completed': 'Completed',
-      'cancelled': 'Cancelled',
-      'draft': 'Draft'
+      'draft': 'Draft',
+      'new': 'New',
+      'in-process': 'In Process',
+      'waiting-for-payment': 'Waiting for Payment',
+      'ready-for-shipment': 'Ready for Shipment',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'canceled': 'Cancelled',
+      'reversal': 'Reversal'
     };
-    return labels[status];
+    return labels[status] || status;
   }
 
   getStatusVariant(status: OrderCardStatus): BadgeVariant {
     const variants: Record<OrderCardStatus, BadgeVariant> = {
-      'submitted': 'info',      // Purple
-      'in-review': 'warning',   // Yellow
-      'in-progress': 'warning', // Yellow
-      'more-info': 'warning',   // Yellow
-      'confirmed': 'warning',   // Yellow
-      'in-transit': 'info',     // Purple
-      'dispatched': 'success',  // Green
-      'completed': 'success',   // Green
-      'cancelled': 'danger',    // Red
-      'draft': 'secondary'      // Gray
+      'draft': 'secondary',
+      'new': 'info',
+      'in-process': 'warning',
+      'waiting-for-payment': 'warning',
+      'ready-for-shipment': 'info',
+      'shipped': 'info',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'danger'
     };
-    return variants[status];
+    return variants[status] || 'secondary';
   }
 
   getDetailLink(): string {

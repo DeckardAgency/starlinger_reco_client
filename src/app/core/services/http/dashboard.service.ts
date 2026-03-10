@@ -10,6 +10,7 @@ export interface DashboardOrder {
     status: string;
     createdAt: string;
     totalAmount: number;
+    items?: { quantity: number }[];
     user?: {
         id: string;
         firstName: string;

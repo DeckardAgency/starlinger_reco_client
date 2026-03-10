@@ -219,6 +219,12 @@
             </div>
           }
 
+          <!-- Price -->
+          <div class="product-detail__price-section">
+            <span class="product-detail__price-label">Regular price</span>
+            <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
+          </div>
+
           <!-- Actions -->
           <div class="product-detail__actions">
             <ui-quantity-selector

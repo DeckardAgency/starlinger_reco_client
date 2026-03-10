@@ -9,6 +9,7 @@ import {
   QuickActionType,
   OrderCardComponent,
   OrderCardData,
+  OrderCardStatus,
   TabsComponent,
   BadgeComponent,
   ButtonComponent,
@@ -148,8 +149,8 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
         type: 'order' as const,
         internalReference: order.orderNumber || order.id.slice(0, 8),
         dateCreated: this.formatDate(order.createdAt),
-        partsOrdered: 0,
-        status: this.mapOrderStatus(order.status)
+        partsOrdered: (order.items || []).reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 0), 0),
+        status: this.normalizeStatus(order.status)
       }));
   }
 
@@ -160,7 +161,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       type: 'order' as HistoryType,
       dateCreated: this.formatDate(order.createdAt),
       internalReference: order.orderNumber || order.id.slice(0, 8),
-      partsOrdered: 0,
+      partsOrdered: (order.items || []).reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 0), 0),
       status: this.mapToHistoryStatus(order.status)
     })).sort((a, b) =>
       new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
@@ -172,39 +173,19 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
   }
 
-  private mapOrderStatus(status: string): 'submitted' | 'confirmed' | 'in-review' {
-    const statusMap: Record<string, 'submitted' | 'confirmed' | 'in-review'> = {
-      'new': 'submitted',
-      'submitted': 'submitted',
-      'confirmed': 'confirmed',
-      'in_process': 'confirmed',
-      'in_progress': 'confirmed',
-      'waiting_for_payment': 'in-review',
-      'ready_for_shipment': 'confirmed',
-      'shipped': 'confirmed',
-      'in_review': 'in-review',
-      'dispatched': 'confirmed'
-    };
-    return statusMap[status] || 'submitted';
+  private normalizeStatus(status: string): OrderCardStatus {
+    const s = (status || '').toLowerCase().replace(/_/g, '-') as OrderCardStatus;
+    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    if (valid.includes(s)) return s;
+    return 'new';
   }
 
   private mapToHistoryStatus(status: string): HistoryStatus {
-    const statusMap: Record<string, HistoryStatus> = {
-      'delivered': 'completed',
-      'completed': 'completed',
-      'canceled': 'cancelled',
-      'cancelled': 'cancelled',
-      'reversal': 'cancelled',
-      'new': 'in-review',
-      'in_review': 'in-review',
-      'submitted': 'in-review',
-      'in_process': 'in-review',
-      'in_progress': 'in-review',
-      'waiting_for_payment': 'in-review',
-      'ready_for_shipment': 'in-review',
-      'shipped': 'in-review'
-    };
-    return statusMap[status] || 'in-review';
+    const raw = (status || '').toLowerCase().replace(/_/g, '-');
+    if (raw === 'cancelled') return 'canceled';
+    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    if (valid.includes(raw as HistoryStatus)) return raw as HistoryStatus;
+    return 'new';
   }
 
   ngAfterViewInit(): void {
@@ -224,9 +205,9 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
     const tab = this.activeTab();
     const data = this.historyData();
     if (tab === 'completed') {
-      return data.filter(item => item.status === 'completed');
+      return data.filter(item => item.status === 'delivered');
     } else if (tab === 'cancelled') {
-      return data.filter(item => item.status === 'cancelled');
+      return data.filter(item => item.status === 'canceled' || item.status === 'reversal');
     }
     return data;
   }
@@ -248,22 +229,34 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
     return type === 'order' ? 'Order' : 'Manual';
   }
 
-  getStatusBadgeVariant(status: HistoryStatus): 'success' | 'danger' | 'warning' {
-    const variants: Record<HistoryStatus, 'success' | 'danger' | 'warning'> = {
-      'completed': 'success',
-      'cancelled': 'danger',
-      'in-review': 'warning'
+  getStatusBadgeVariant(status: HistoryStatus): 'success' | 'danger' | 'warning' | 'info' | 'secondary' {
+    const variants: Record<HistoryStatus, 'success' | 'danger' | 'warning' | 'info' | 'secondary'> = {
+      'draft': 'secondary',
+      'new': 'info',
+      'in-process': 'warning',
+      'waiting-for-payment': 'warning',
+      'ready-for-shipment': 'info',
+      'shipped': 'info',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'danger'
     };
-    return variants[status];
+    return variants[status] || 'secondary';
   }
 
   getStatusLabel(status: HistoryStatus): string {
     const labels: Record<HistoryStatus, string> = {
-      'completed': 'Completed',
-      'cancelled': 'Cancelled',
-      'in-review': 'In review'
+      'draft': 'Draft',
+      'new': 'New',
+      'in-process': 'In Process',
+      'waiting-for-payment': 'Waiting for Payment',
+      'ready-for-shipment': 'Ready for Shipment',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'canceled': 'Cancelled',
+      'reversal': 'Reversal'
     };
-    return labels[status];
+    return labels[status] || status;
   }
 
   dropdownMenuItems: DropdownMenuItem[] = [

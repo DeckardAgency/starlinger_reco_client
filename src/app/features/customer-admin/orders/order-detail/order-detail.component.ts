@@ -40,6 +40,7 @@ interface OrderDetailLogMessage {
 
 interface OrderDetail {
   id: number;
+  orderNumber?: string;
   type: 'order';
   internalRef: string;
   dateCreated: string;
@@ -171,10 +172,11 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
     return {
       id: order.id,
+      orderNumber: order.orderNumber,
       type: 'order',
       internalRef: String(order.orderNumber || order.id),
       dateCreated: this.formatDate(order.createdAt),
-      partsOrdered: order.items?.length || 0,
+      partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
       status: order.status,
       productGroups,
       totalPrice: order.totalAmount,
@@ -218,11 +220,23 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   // Actions
   onExport(): void {
-    console.log('Export order...');
+    const order = this.order();
+    if (!order) return;
+    this.orderService.exportOrderPdf(String(order.id)).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `order-${order.orderNumber || order.id}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => console.error('Export failed:', error)
+    });
   }
 
   onPrint(): void {
-    console.log('Print order...');
+    window.print();
   }
 
   onDelete(): void {
@@ -255,18 +269,33 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   getStatusBadgeVariant(status: string): 'success' | 'warning' | 'danger' | 'info' | 'secondary' {
-    switch (status.toLowerCase()) {
-      case 'completed': return 'success';
-      case 'in progress':
-      case 'in_progress': return 'warning';
-      case 'cancelled': return 'danger';
-      case 'pending': return 'info';
-      default: return 'secondary';
-    }
+    const variants: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'secondary'> = {
+      'draft': 'secondary',
+      'new': 'info',
+      'in_process': 'warning',
+      'waiting_for_payment': 'warning',
+      'ready_for_shipment': 'info',
+      'shipped': 'info',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'danger'
+    };
+    return variants[status.toLowerCase()] || 'secondary';
   }
 
   getStatusLabel(status: string): string {
-    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+    const labels: Record<string, string> = {
+      'draft': 'Draft',
+      'new': 'New',
+      'in_process': 'In Process',
+      'waiting_for_payment': 'Waiting for Payment',
+      'ready_for_shipment': 'Ready for Shipment',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'canceled': 'Cancelled',
+      'reversal': 'Reversal'
+    };
+    return labels[status.toLowerCase()] || status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
   }
 
   formatCurrency(value: number): string {

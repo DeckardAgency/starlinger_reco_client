@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SectionHeaderComponent, TabsComponent, BadgeComponent, AvatarComponent, TableActionsDropdownComponent, TableAction, ActionClickEvent } from '@app/ui-kit';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms';
+import { Router } from '@angular/router';
 import { DashboardService, DashboardOrder } from '@core/services/http/dashboard.service';
+import { OrderService } from '@core/services/http/order.service';
+import { Order } from '@core/models/order.model';
 
-export type HistoryStatus = 'completed' | 'cancelled' | 'in-review';
+export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
 export type HistoryType = 'order' | 'manual';
 
 export interface HistoryItem {
@@ -38,6 +41,8 @@ export interface HistoryItem {
 })
 export class HistoryComponent implements OnInit, AfterViewInit {
   private dashboardService = inject(DashboardService);
+  private orderService = inject(OrderService);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('typeCell', { static: true }) typeCell!: TemplateRef<any>;
@@ -95,7 +100,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       internalReference: o.orderNumber || o.id.slice(0, 8),
       customerInitials: this.getInitials(o.user),
       customerName: this.getUserName(o.user),
-      partsOrdered: 0,
+      partsOrdered: (o.items || []).reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 0), 0),
       status: this.mapStatus(o.status)
     })).sort((a, b) => {
       const parse = (d: string) => { const [day, month, year] = d.split('-'); return new Date(Number(year), Number(month) - 1, Number(day)).getTime(); };
@@ -127,11 +132,11 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   }
 
   private mapStatus(status: string): HistoryStatus {
-    const s = (status || '').toLowerCase();
-    if (['completed', 'delivered', 'answered'].includes(s)) return 'completed';
-    if (['cancelled', 'canceled', 'rejected'].includes(s)) return 'cancelled';
-    if (['in_review', 'in-review', 'more_info', 'in_progress'].includes(s)) return 'in-review';
-    return 'in-review';
+    const s = (status || '').toLowerCase().replace(/_/g, '-') as HistoryStatus;
+    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    if (valid.includes(s)) return s;
+    if (s === 'cancelled') return 'canceled';
+    return 'new';
   }
 
   ngAfterViewInit(): void {
@@ -151,9 +156,9 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     const tab = this.activeTab();
     const data = this.allData();
     if (tab === 'completed') {
-      return data.filter(item => item.status === 'completed');
+      return data.filter(item => item.status === 'delivered');
     } else if (tab === 'cancelled') {
-      return data.filter(item => item.status === 'cancelled');
+      return data.filter(item => item.status === 'canceled' || item.status === 'reversal');
     }
     return data;
   }
@@ -175,22 +180,34 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     return type === 'order' ? 'Order' : 'Manual';
   }
 
-  getStatusBadgeVariant(status: HistoryStatus): 'success' | 'danger' | 'warning' {
-    const variants: Record<HistoryStatus, 'success' | 'danger' | 'warning'> = {
-      'completed': 'success',
-      'cancelled': 'danger',
-      'in-review': 'warning'
+  getStatusBadgeVariant(status: HistoryStatus): 'success' | 'danger' | 'warning' | 'info' | 'secondary' {
+    const variants: Record<HistoryStatus, 'success' | 'danger' | 'warning' | 'info' | 'secondary'> = {
+      'draft': 'secondary',
+      'new': 'info',
+      'in-process': 'warning',
+      'waiting-for-payment': 'warning',
+      'ready-for-shipment': 'info',
+      'shipped': 'info',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'danger'
     };
-    return variants[status];
+    return variants[status] || 'secondary';
   }
 
   getStatusLabel(status: HistoryStatus): string {
     const labels: Record<HistoryStatus, string> = {
-      'completed': 'Completed',
-      'cancelled': 'Cancelled',
-      'in-review': 'In review'
+      'draft': 'Draft',
+      'new': 'New',
+      'in-process': 'In Process',
+      'waiting-for-payment': 'Waiting for Payment',
+      'ready-for-shipment': 'Ready for Shipment',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'canceled': 'Cancelled',
+      'reversal': 'Reversal'
     };
-    return labels[status];
+    return labels[status] || status;
   }
 
   tableActions: TableAction[] = [
@@ -209,17 +226,28 @@ export class HistoryComponent implements OnInit, AfterViewInit {
 
   onActionClick(event: ActionClickEvent): void {
     const row = event.row as HistoryItem;
-    console.log(`Action ${event.actionId} for row:`, row);
-    // Handle actions here
+    this.closeMenu();
     switch (event.actionId) {
       case 'view':
-        // Navigate to view page or show details
+        this.router.navigate(['/customer-admin/orders', row.orderId]);
         break;
       case 'archive':
-        // Archive the item
+        this.orderService.updateOrder(row.orderId, { isArchived: true } as Partial<Order>).subscribe({
+          next: () => {
+            this.allData.update(list => list.filter(o => o.orderId !== row.orderId));
+            this.cdr.markForCheck();
+          },
+          error: (error) => console.error('Error archiving order:', error)
+        });
         break;
       case 'delete':
-        // Delete the item
+        this.orderService.deleteOrder(row.orderId).subscribe({
+          next: () => {
+            this.allData.update(list => list.filter(o => o.orderId !== row.orderId));
+            this.cdr.markForCheck();
+          },
+          error: (error) => console.error('Error deleting order:', error)
+        });
         break;
     }
   }

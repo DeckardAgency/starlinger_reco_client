@@ -438,6 +438,8 @@
 
   &__image-wrapper {
     margin-bottom: 16px;
+    max-height: 280px;
+    overflow: hidden;
 
     ui-carousel {
       ::ng-deep .ui-carousel__viewport {
@@ -537,17 +539,27 @@
     color: #18181b;
   }
 
-  &__price-row {
+  &__price-section {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
   }
 
-  &__price-label,
-  &__price-value {
-    font-size: 14px;
-    font-weight: 400;
+  &__price-label {
+    font-size: 12px;
+    font-weight: 500;
     color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__price-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #18181b;
   }
 
   &__documents {

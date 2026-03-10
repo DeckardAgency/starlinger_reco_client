@@ -30,7 +30,8 @@ interface OrderHistoryItem {
     avatar?: string;
   };
   partsOrdered: number;
-  status: 'completed' | 'cancelled' | 'pending' | 'draft';
+  status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
+  isArchived: boolean;
 }
 
 @Component({
@@ -110,21 +111,25 @@ export class OrdersComponent implements AfterViewInit, OnInit {
 
     let filtered: OrderHistoryItem[];
 
+    const doneStatuses: OrderHistoryItem['status'][] = ['delivered', 'canceled', 'reversal'];
+    const activeStatuses: OrderHistoryItem['status'][] = ['new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped'];
+
     // Route-level filtering
     if (filter === 'archive') {
-      if (tab === 'completed') filtered = all.filter(o => o.status === 'completed');
-      else if (tab === 'cancelled') filtered = all.filter(o => o.status === 'cancelled');
-      else filtered = all.filter(o => o.status === 'completed' || o.status === 'cancelled');
+      const archived = all.filter(o => o.isArchived);
+      if (tab === 'completed') filtered = archived.filter(o => o.status === 'delivered');
+      else if (tab === 'cancelled') filtered = archived.filter(o => o.status === 'canceled' || o.status === 'reversal');
+      else filtered = archived;
     } else if (filter === 'drafts') {
-      filtered = all.filter(o => o.status === 'draft');
+      filtered = all.filter(o => o.status === 'draft' && !o.isArchived);
     } else if (tab === 'completed') {
-      filtered = all.filter(o => o.status === 'completed');
+      filtered = all.filter(o => o.status === 'delivered' && !o.isArchived);
     } else if (tab === 'cancelled') {
-      filtered = all.filter(o => o.status === 'cancelled');
+      filtered = all.filter(o => (o.status === 'canceled' || o.status === 'reversal') && !o.isArchived);
     } else if (!filter) {
-      filtered = all.filter(o => o.status === 'pending');
+      filtered = all.filter(o => !o.isArchived && !doneStatuses.includes(o.status) && o.status !== 'draft');
     } else {
-      filtered = all;
+      filtered = all.filter(o => !o.isArchived);
     }
 
     // Apply search
@@ -167,6 +172,12 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       this.tableActions = [
         { id: 'view', label: 'View', icon: 'eye' },
         { id: 'add-to-cart', label: 'Add to Cart', icon: 'cart' },
+        { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+      ];
+    } else if (filter === 'archive') {
+      this.tableActions = [
+        { id: 'view', label: 'View', icon: 'eye' },
+        { id: 'unarchive', label: 'Unarchive', icon: 'archive' },
         { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
       ];
     } else {
@@ -244,8 +255,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         name: userName,
         initials
       },
-      partsOrdered: order.items?.length || 0,
-      status: this.mapOrderStatus(order.status, order.isDraft)
+      partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
+      status: this.mapOrderStatus(order.status, order.isDraft),
+      isArchived: order.isArchived === true
     };
   }
 
@@ -269,12 +281,13 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     return new Date(year, month - 1, day);
   }
 
-  private mapOrderStatus(status: string, isDraft?: boolean): 'completed' | 'cancelled' | 'pending' | 'draft' {
+  private mapOrderStatus(status: string, isDraft?: boolean): OrderHistoryItem['status'] {
     if (isDraft || (status || '').toLowerCase() === 'draft') return 'draft';
-    const lowerStatus = (status || '').toLowerCase();
-    if (lowerStatus === 'completed' || lowerStatus === 'delivered') return 'completed';
-    if (lowerStatus === 'cancelled' || lowerStatus === 'canceled') return 'cancelled';
-    return 'pending';
+    const raw = (status || '').toLowerCase().replace(/_/g, '-');
+    if (raw === 'cancelled') return 'canceled';
+    const valid: OrderHistoryItem['status'][] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    if (valid.includes(raw as OrderHistoryItem['status'])) return raw as OrderHistoryItem['status'];
+    return 'new';
   }
 
   private initColumns(): void {
@@ -304,7 +317,35 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   }
 
   onExport(): void {
-    console.log('Exporting data...');
+    const filter = this.routeFilter();
+    const filters: { status?: string[]; isDraft?: boolean; isArchived?: boolean } = {};
+
+    if (filter === 'drafts') {
+      filters.isDraft = true;
+    } else if (filter === 'archive') {
+      filters.isArchived = true;
+    } else {
+      // Active orders
+      filters.isDraft = false;
+      filters.status = ['new', 'in_process', 'waiting_for_payment', 'ready_for_shipment', 'shipped'];
+    }
+
+    this.orderService.exportOrdersToExcel(
+      this.sortColumn || undefined,
+      this.sortDirection || undefined,
+      this.searchQuery() ? { query: this.searchQuery() } : {},
+      filters
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `orders-export-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => console.error('Export failed:', error)
+    });
   }
 
   toggleDropdown(orderId: number, event?: Event): void {
@@ -334,6 +375,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       case 'archive':
         this.onArchive(order);
         break;
+      case 'unarchive':
+        this.onUnarchive(order);
+        break;
       case 'delete':
         this.onDelete(order);
         break;
@@ -359,22 +403,25 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     });
   }
 
-  async onArchive(order: OrderHistoryItem): Promise<void> {
+  onArchive(order: OrderHistoryItem): void {
     this.closeDropdown();
-    const reason = await this.alertService.prompt(
-      `Please provide a reason for canceling order "${order.internalRef}".`,
-      'Cancel Order',
-      'Enter cancellation reason...'
-    );
-    if (!reason) {
-      return;
-    }
-    this.orderService.updateOrder(String(order.id), { status: 'canceled', cancellationReason: reason } as Partial<Order>).subscribe({
+    this.orderService.updateOrder(String(order.id), { isArchived: true } as Partial<Order>).subscribe({
       next: () => {
         this.allOrders.update(list => list.filter(o => o.id !== order.id));
         this.cdr.markForCheck();
       },
       error: (error) => console.error('Error archiving order:', error)
+    });
+  }
+
+  onUnarchive(order: OrderHistoryItem): void {
+    this.closeDropdown();
+    this.orderService.updateOrder(String(order.id), { isArchived: false } as Partial<Order>).subscribe({
+      next: () => {
+        this.allOrders.update(list => list.filter(o => o.id !== order.id));
+        this.cdr.markForCheck();
+      },
+      error: (error) => console.error('Error unarchiving order:', error)
     });
   }
 
@@ -406,22 +453,32 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   }
 
   getStatusLabel(status: string): string {
-    switch (status) {
-      case 'completed': return 'Completed';
-      case 'cancelled': return 'Cancelled';
-      case 'pending': return 'Pending';
-      case 'draft': return 'Draft';
-      default: return status;
-    }
+    const labels: Record<string, string> = {
+      'draft': 'Draft',
+      'new': 'New',
+      'in-process': 'In Process',
+      'waiting-for-payment': 'Waiting for Payment',
+      'ready-for-shipment': 'Ready for Shipment',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'canceled': 'Cancelled',
+      'reversal': 'Reversal'
+    };
+    return labels[status] || status;
   }
 
-  getStatusVariant(status: string): 'success' | 'danger' | 'warning' | 'secondary' {
-    switch (status) {
-      case 'completed': return 'success';
-      case 'cancelled': return 'danger';
-      case 'pending': return 'success';
-      case 'draft': return 'secondary';
-      default: return 'secondary';
-    }
+  getStatusVariant(status: string): 'success' | 'danger' | 'warning' | 'secondary' | 'info' {
+    const variants: Record<string, 'success' | 'danger' | 'warning' | 'secondary' | 'info'> = {
+      'draft': 'secondary',
+      'new': 'info',
+      'in-process': 'warning',
+      'waiting-for-payment': 'warning',
+      'ready-for-shipment': 'info',
+      'shipped': 'info',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'danger'
+    };
+    return variants[status] || 'secondary';
   }
 }
