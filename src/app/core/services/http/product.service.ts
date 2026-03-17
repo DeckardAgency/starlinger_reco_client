@@ -17,7 +17,7 @@ export class ProductService extends BaseHttpService {
   getProducts(page: number = 1, itemsPerPage: number = 30, search?: string): Observable<ProductsCollection> {
     const paramObj: Record<string, any> = { page, itemsPerPage };
     if (search) {
-      paramObj['partNo'] = search;
+      paramObj['search'] = search;
     }
     const params = this.buildParams(paramObj);
 

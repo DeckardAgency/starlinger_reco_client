@@ -10,6 +10,7 @@ import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
 import { OrderService } from '@core/services/http/order.service';
 import { CartService } from '@core/services/cart.service';
+import { AlertService } from '@core/services/alert.service';
 import { Order } from '@core/models/order.model';
 
 // Display interfaces
@@ -74,6 +75,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private orderService = inject(OrderService);
   private cartService = inject(CartService);
+  private alertService = inject(AlertService);
   private destroy$ = new Subject<void>();
 
   // Loading state
@@ -221,26 +223,47 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   // Actions
   onExport(): void {
     const order = this.order();
-    if (!order) return;
-    this.orderService.exportOrderPdf(String(order.id)).subscribe({
+    if (!order?.id) return;
+    const orderNumber = order.orderNumber || String(order.id);
+    this.orderService.exportOrdersToExcel(
+      undefined,
+      undefined,
+      { query: orderNumber }
+    ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `order-${order.orderNumber || order.id}.pdf`;
+        a.download = `order-${orderNumber}.xlsx`;
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (error) => console.error('Export failed:', error)
+      error: (error) => {
+        console.error('Export failed:', error);
+        this.alertService.error('Failed to export order to Excel.');
+      }
     });
   }
 
   onPrint(): void {
-    window.print();
-  }
-
-  onDelete(): void {
-    console.log('Delete order...');
+    const order = this.order();
+    if (!order?.id) return;
+    this.orderService.exportOrderPdf(String(order.id)).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const printWindow = window.open(url);
+        if (printWindow) {
+          printWindow.onload = () => {
+            printWindow.print();
+            setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+          };
+        }
+      },
+      error: (err) => {
+        console.error('Print failed:', err);
+        this.alertService.error('Failed to generate print preview.');
+      }
+    });
   }
 
   onAddToCart(): void {

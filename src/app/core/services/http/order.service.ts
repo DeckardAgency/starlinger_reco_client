@@ -162,6 +162,12 @@ export class OrderService {
     ): Observable<Blob> {
         let params = new HttpParams();
 
+        // Client-scoped filtering — only export this user's client orders
+        const clientInfo = this.authService.getClientInfo();
+        if (clientInfo?.code) {
+            params = params.set('user.client.code', clientInfo.code);
+        }
+
         // Add sorting parameters
         if (sortField && sortDirection) {
             // Format as order[fieldName]=direction
