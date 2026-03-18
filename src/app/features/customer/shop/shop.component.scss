@@ -407,6 +407,35 @@
   }
 }
 
+.product-card__price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-card__price--original {
+  font-size: 13px;
+  color: #a1a1aa;
+  text-decoration: line-through;
+}
+
+.product-card__price--discounted {
+  font-size: 16px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.product-card__discount-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
 // Product Detail Panel
 .product-detail {
   flex: 1;
@@ -575,6 +604,31 @@
     font-size: 24px;
     font-weight: 700;
     color: #18181b;
+
+    &--original {
+      font-size: 16px;
+      font-weight: 500;
+      color: #a1a1aa;
+      text-decoration: line-through;
+    }
+  }
+
+  &__discount-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &__discount-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
   }
 
   &__documents {

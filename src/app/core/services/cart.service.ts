@@ -7,6 +7,7 @@ export interface CartItem {
   product: ShopProduct;
   quantity: number;
   isFavorite: boolean;
+  discountPercent: number;
 }
 
 const STORAGE_KEY = 'cart_items';
@@ -55,7 +56,8 @@ export class CartService {
           id: `cart-${product.id}`,
           product,
           quantity,
-          isFavorite: false
+          isFavorite: false,
+          discountPercent: product.discountPercent || 0
         }
       ]);
     }
@@ -111,7 +113,8 @@ export class CartService {
         group: ''
       },
       quantity: item.quantity,
-      isFavorite: false
+      isFavorite: false,
+      discountPercent: 0
     }));
     this._cartItems.set(items);
     this.saveToStorage();

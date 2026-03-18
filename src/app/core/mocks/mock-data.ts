@@ -986,6 +986,9 @@ export interface ShopProduct {
   weight?: string;
   imageGallery?: ShopProductMedia[];
   documents?: ShopProductMedia[];
+  discountedPrice?: number;
+  discountPercent?: number;
+  hasDiscount?: boolean;
 }
 
 export const mockShopProducts: ShopProduct[] = [

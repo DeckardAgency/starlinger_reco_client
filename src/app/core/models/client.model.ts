@@ -128,6 +128,11 @@ export interface ClientAddress {
         name: string;
         code: string;
         defaultTaxPercent?: string | null;
+        taxType?: {
+            id: number;
+            name: string;
+            percent: string;
+        } | null;
     };
     isBilling: boolean;
     isDelivery: boolean;

@@ -124,7 +124,15 @@
                 <span class="product-card__name">{{ product.name }}</span>
               </div>
               <div class="product-card__divider"></div>
-              <div class="product-card__price">{{ formatPrice(product.price) }}</div>
+              @if (product.discountPercent! > 0) {
+                <div class="product-card__price-row">
+                  <span class="product-card__price product-card__price--original">{{ formatPrice(product.price) }}</span>
+                  <span class="product-card__discount-badge">-{{ product.discountPercent }}%</span>
+                </div>
+                <div class="product-card__price product-card__price--discounted">{{ formatPrice(product.discountedPrice!) }}</div>
+              } @else {
+                <div class="product-card__price">{{ formatPrice(product.price) }}</div>
+              }
             </div>
             <!-- Arrow button: visible on selected product (desktop list view) or all cards (mobile) -->
             <button
@@ -221,8 +229,18 @@
 
           <!-- Price -->
           <div class="product-detail__price-section">
-            <span class="product-detail__price-label">Regular price</span>
-            <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
+            @if (selectedProduct()!.discountPercent! > 0) {
+              <span class="product-detail__price-label">Regular price</span>
+              <span class="product-detail__price-value product-detail__price-value--original">{{ formatPrice(selectedProduct()!.price) }}</span>
+              <div class="product-detail__discount-row">
+                <span class="product-detail__price-label">Discounted price</span>
+                <span class="product-detail__discount-badge">-{{ selectedProduct()!.discountPercent }}%</span>
+              </div>
+              <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.discountedPrice!) }}</span>
+            } @else {
+              <span class="product-detail__price-label">Regular price</span>
+              <span class="product-detail__price-value">{{ formatPrice(selectedProduct()!.price) }}</span>
+            }
           </div>
 
           <!-- Actions -->

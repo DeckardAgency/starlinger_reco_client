@@ -29,6 +29,12 @@ export interface Product {
   updatedAt: string;
   imageGallery: MediaItem[];
   documents: string[];
+  discountPercent?: number | null;
+  discountPrice?: number | null;
+  hasDiscount?: boolean;
+  campaignDiscountPercent?: number;
+  discountedPrice?: number | null;
+  discountSource?: string | null;
 }
 
 export interface ProductsCollection {

@@ -159,6 +159,13 @@
 
   &__price {
     @include customer.product-price;
+
+    &--original {
+      font-size: 12px;
+      font-weight: 400;
+      color: #a1a1aa;
+      text-decoration: line-through;
+    }
   }
 }
 
@@ -356,5 +363,12 @@
   .cart-item__price {
     font-size: 14px;
     font-weight: 600;
+
+    &--original {
+      font-size: 12px;
+      font-weight: 400;
+      color: #a1a1aa;
+      text-decoration: line-through;
+    }
   }
 }

@@ -197,6 +197,10 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private mapProductToShopProduct(product: Product): ShopProduct {
+    const hasDiscount = product.hasDiscount ?? false;
+    const discountPercent = product.campaignDiscountPercent ?? product.discountPercent ?? 0;
+    const discountedPrice = product.discountedPrice ?? product.price;
+
     return {
       id: product.id,
       code: product.partNo,
@@ -208,6 +212,9 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription,
       weight: product.weight || undefined,
+      hasDiscount,
+      discountPercent,
+      discountedPrice,
       imageGallery: (product.imageGallery || []).map(img => ({
         id: img.id,
         filePath: img.filePath,

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Product, ProductsCollection } from '@core/models';
 import { BaseHttpService } from './base-http.service';
 
@@ -12,7 +11,7 @@ export class ProductService extends BaseHttpService {
   private readonly endpoint = `${this.apiUrl}/products`;
 
   /**
-   * Get all products with optional pagination
+   * Get products with pagination and optional search
    */
   getProducts(page: number = 1, itemsPerPage: number = 30, search?: string): Observable<ProductsCollection> {
     const paramObj: Record<string, any> = { page, itemsPerPage };
@@ -20,7 +19,6 @@ export class ProductService extends BaseHttpService {
       paramObj['search'] = search;
     }
     const params = this.buildParams(paramObj);
-
     return this.getWithJsonLd<ProductsCollection>(this.endpoint, params);
   }
 

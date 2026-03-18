@@ -71,7 +71,7 @@ export class CheckoutComponent implements OnInit {
       id: item.id,
       product: item.product,
       quantity: item.quantity,
-      discount: 0,
+      discount: item.product.discountPercent || item.discountPercent || 0,
       isFavorite: item.isFavorite
     }))
   );
@@ -91,7 +91,7 @@ export class CheckoutComponent implements OnInit {
 
   subtotal = computed(() =>
     this.cartItems().reduce((sum, item) => {
-      const discountedPrice = item.product.price * (1 - item.discount / 100);
+      const discountedPrice = item.product.discountedPrice ?? (item.product.price * (1 - item.discount / 100));
       return sum + (discountedPrice * item.quantity);
     }, 0)
   );
@@ -112,7 +112,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   getDiscountedPrice(item: CheckoutItem): number {
-    return item.product.price * (1 - item.discount / 100);
+    return item.product.discountedPrice ?? (item.product.price * (1 - item.discount / 100));
   }
 
   getItemTotal(item: CheckoutItem): number {
@@ -189,8 +189,9 @@ export class CheckoutComponent implements OnInit {
       const shipping = addresses.find(a => a.isDelivery && a.isActive);
       if (shipping) {
         this.shippingAddress.set(this.addressService.formatAddress(shipping));
-        if (shipping.country?.defaultTaxPercent) {
-          this.shippingTaxPercent.set(parseFloat(shipping.country.defaultTaxPercent));
+        const taxPercent = shipping.country?.taxType?.percent ?? shipping.country?.defaultTaxPercent;
+        if (taxPercent) {
+          this.shippingTaxPercent.set(parseFloat(taxPercent));
         }
         if (shipping.country?.id) {
           this.shippingCountryId.set(shipping.country.id);

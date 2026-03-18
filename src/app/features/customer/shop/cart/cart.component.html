@@ -50,7 +50,12 @@
                   <ui-icon name="trash" size="lg"></ui-icon>
                 </button>
               </div>
-              <span class="cart-item__price">{{ formatPrice(item.product.price * item.quantity) }}</span>
+              @if (item.product.discountPercent! > 0) {
+                <span class="cart-item__price cart-item__price--original">{{ formatPrice(item.product.price * item.quantity) }}</span>
+                <span class="cart-item__price">{{ formatPrice(item.product.discountedPrice! * item.quantity) }}</span>
+              } @else {
+                <span class="cart-item__price">{{ formatPrice(item.product.price * item.quantity) }}</span>
+              }
             </div>
           </div>
         </div>
