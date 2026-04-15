@@ -30,13 +30,9 @@
             Add to Cart
           </ui-button>
         }
-        <ui-button variant="outline" (clicked)="onExport()">
-          <ui-icon name="export" size="sm"></ui-icon>
-          Export
-        </ui-button>
-        <ui-button variant="outline" (clicked)="onPrint()">
-          <ui-icon name="printer" size="sm"></ui-icon>
-          Print
+        <ui-button variant="outline" (clicked)="onDownloadPdf()">
+          <ui-icon name="download" size="sm"></ui-icon>
+          Download
         </ui-button>
       </div>
     </div>
@@ -160,11 +156,8 @@
 
   <!-- Mobile Footer -->
   <ui-mobile-footer
-    primaryLabel="Export"
-    primaryIcon="export"
-    secondaryLabel="Print"
-    secondaryIcon="printer"
-    (primaryClick)="onExport()"
-    (secondaryClick)="onPrint()"
+    primaryLabel="Download"
+    primaryIcon="download"
+    (primaryClick)="onDownloadPdf()"
   ></ui-mobile-footer>
 </div>

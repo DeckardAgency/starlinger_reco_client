@@ -232,6 +232,29 @@
   &__price-label,
   &__price-value {
     @include customer.product-price;
+
+    &--original {
+      font-size: 14px;
+      color: #a1a1aa;
+      text-decoration: line-through;
+    }
+
+    &--discounted {
+      font-size: 20px;
+      font-weight: 700;
+      color: #18181b;
+    }
+  }
+
+  &__discount-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
   }
 
   &__cart-row {
@@ -332,6 +355,29 @@
 
   &__price {
     @include customer.product-price;
+
+    &--original {
+      font-size: 13px;
+      color: #a1a1aa;
+      text-decoration: line-through;
+    }
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__discount-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
   }
 }
 

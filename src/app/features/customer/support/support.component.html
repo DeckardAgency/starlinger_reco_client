@@ -1,0 +1,133 @@
+<div class="support-page">
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="chevron"
+    [items]="[{ label: 'Support' }]"
+    homeRoute="/customer/dashboard"
+  ></ui-breadcrumbs>
+
+  <main class="page-content">
+    <div class="page-header">
+      <h2 class="page-title">Support Tickets</h2>
+      <ui-button variant="primary" size="sm" (click)="onCreateTicket()">
+        <ui-icon name="plus" size="sm"></ui-icon>
+        New Ticket
+      </ui-button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading support tickets...</p>
+      </div>
+    } @else if (tickets().length === 0) {
+      <div class="empty-state">
+        <ui-icon name="headphones" size="xl"></ui-icon>
+        <h3>No Support Tickets</h3>
+        <p>You haven't created any support tickets yet.</p>
+        <ui-button variant="primary" (click)="onCreateTicket()">
+          Create Your First Ticket
+        </ui-button>
+      </div>
+    } @else {
+      <div class="tickets-list">
+        @for (ticket of tickets(); track ticket.id) {
+          <div class="ticket-card" (click)="onViewTicket(ticket)">
+            <div class="ticket-card__header">
+              <span class="ticket-id">#{{ ticket.id }}</span>
+              <div class="ticket-badges">
+                <ui-badge [variant]="getUrgencyVariant(ticket.urgency)" size="sm">
+                  {{ getUrgencyLabel(ticket.urgency) }}
+                </ui-badge>
+                <ui-badge [variant]="getStatusVariant(ticket.status)" size="sm">
+                  {{ getStatusLabel(ticket.status) }}
+                </ui-badge>
+              </div>
+            </div>
+            <h3 class="ticket-subject">{{ ticket.subject }}</h3>
+            <p class="ticket-message">{{ ticket.message }}</p>
+            <div class="ticket-footer">
+              <span class="ticket-date">{{ formatDate(ticket.createdAt) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Ticket Detail View -->
+    @if (selectedTicket()) {
+      <div class="ticket-detail-overlay" (click)="onCloseDetail()">
+        <div class="ticket-detail" (click)="$event.stopPropagation()">
+          <div class="ticket-detail__header">
+            <h2>Ticket #{{ selectedTicket()?.id }}</h2>
+            <ui-button variant="ghost" size="sm" (click)="onCloseDetail()">
+              <ui-icon name="x" size="sm"></ui-icon>
+            </ui-button>
+          </div>
+          <div class="ticket-detail__content">
+            <div class="detail-row">
+              <span class="detail-label">Subject</span>
+              <span class="detail-value">{{ selectedTicket()?.subject }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status</span>
+              <ui-badge [variant]="getStatusVariant(selectedTicket()?.status || '')">
+                {{ getStatusLabel(selectedTicket()?.status || '') }}
+              </ui-badge>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Urgency</span>
+              <ui-badge [variant]="getUrgencyVariant(selectedTicket()?.urgency || '')">
+                {{ getUrgencyLabel(selectedTicket()?.urgency || '') }}
+              </ui-badge>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Created</span>
+              <span class="detail-value">{{ formatDate(selectedTicket()?.createdAt || '') }}</span>
+            </div>
+            <div class="detail-row full-width">
+              <span class="detail-label">Message</span>
+              <p class="detail-message">{{ selectedTicket()?.message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Create Ticket Drawer -->
+    <ui-drawer
+      title="Create Support Ticket"
+      [isOpen]="showCreateDrawer()"
+      (closed)="onCloseDrawer()"
+    >
+      <div class="drawer-form">
+        <ui-form-field label="Subject" [required]="true">
+          <ui-input
+            [(ngModel)]="formData.subject"
+            placeholder="Brief description of your issue"
+          ></ui-input>
+        </ui-form-field>
+
+        <ui-form-field label="Urgency">
+          <ui-select
+            [(ngModel)]="formData.urgency"
+            [options]="urgencyOptions"
+          ></ui-select>
+        </ui-form-field>
+
+        <ui-form-field label="Message" [required]="true">
+          <textarea
+            class="message-textarea"
+            [(ngModel)]="formData.message"
+            placeholder="Describe your issue in detail..."
+            rows="6"
+          ></textarea>
+        </ui-form-field>
+
+        <div class="drawer-actions">
+          <ui-button variant="ghost" (click)="onCloseDrawer()">Cancel</ui-button>
+          <ui-button variant="primary" (click)="onSubmitTicket()">Submit Ticket</ui-button>
+        </div>
+      </div>
+    </ui-drawer>
+  </main>
+</div>

@@ -89,9 +89,19 @@
 
           <!-- Actions -->
           <div class="product-card__actions">
-            <div class="product-card__price-row">
-              <span class="product-card__price-label">{{ formatPrice(product()!.price) }}</span>
-            </div>
+            @if (product()!.discountPercent! > 0) {
+              <div class="product-card__price-row">
+                <span class="product-card__price-label product-card__price-label--original">{{ formatPrice(product()!.price) }}</span>
+                <span class="product-card__discount-badge">-{{ product()!.discountPercent }}%</span>
+              </div>
+              <div class="product-card__price-row">
+                <span class="product-card__price-label product-card__price-label--discounted">{{ formatPrice(product()!.discountedPrice!) }}</span>
+              </div>
+            } @else {
+              <div class="product-card__price-row">
+                <span class="product-card__price-label">{{ formatPrice(product()!.price) }}</span>
+              </div>
+            }
             <div class="product-card__cart-row">
               <ui-quantity-selector
                 [value]="quantity()"
@@ -136,7 +146,15 @@
                   <span class="related-card__name">{{ relatedProduct.name }}</span>
                 </div>
                 <div class="related-card__divider"></div>
-                <span class="related-card__price">{{ formatPrice(relatedProduct.price) }}</span>
+                @if (relatedProduct.discountPercent! > 0) {
+                  <div class="related-card__price-row">
+                    <span class="related-card__price related-card__price--original">{{ formatPrice(relatedProduct.price) }}</span>
+                    <span class="related-card__discount-badge">-{{ relatedProduct.discountPercent }}%</span>
+                  </div>
+                  <span class="related-card__price">{{ formatPrice(relatedProduct.discountedPrice!) }}</span>
+                } @else {
+                  <span class="related-card__price">{{ formatPrice(relatedProduct.price) }}</span>
+                }
               </div>
             </div>
           }

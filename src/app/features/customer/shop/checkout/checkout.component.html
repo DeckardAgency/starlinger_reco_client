@@ -139,7 +139,7 @@
           <div class="checkout__summary-row">
             <div class="checkout__summary-label">
               <ui-icon name="receipt" size="md"></ui-icon>
-              <span>Tax ({{ shippingTaxPercent() }}%)</span>
+              <span>{{ taxLabel() }}</span>
             </div>
             <span class="checkout__summary-value">{{ formatPrice(estimatedTax()) }}</span>
           </div>

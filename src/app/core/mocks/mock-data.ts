@@ -986,6 +986,7 @@ export interface ShopProduct {
   weight?: string;
   imageGallery?: ShopProductMedia[];
   documents?: ShopProductMedia[];
+  taxPercent?: number | null;
   discountedPrice?: number;
   discountPercent?: number;
   hasDiscount?: boolean;

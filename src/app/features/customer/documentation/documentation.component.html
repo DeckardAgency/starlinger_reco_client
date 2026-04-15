@@ -1,0 +1,85 @@
+<div class="documentation-page">
+  <ui-breadcrumbs
+    variant="page-header"
+    separator="chevron"
+    [items]="[{ label: 'Documentation' }]"
+    homeRoute="/customer/dashboard"
+  ></ui-breadcrumbs>
+
+  <main class="page-content">
+    <div class="page-header">
+      <h2 class="page-title">Documentation</h2>
+      <div class="search-box">
+        <ui-input
+          [(ngModel)]="searchQuery"
+          placeholder="Search documentation..."
+          (keyup.enter)="onSearch()"
+        ></ui-input>
+        <ui-button variant="secondary" size="sm" (click)="onSearch()">
+          <ui-icon name="search" size="sm"></ui-icon>
+        </ui-button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading documentation...</p>
+      </div>
+    } @else if (documents().length === 0) {
+      <div class="empty-state">
+        <ui-icon name="file-text" size="xl"></ui-icon>
+        <h3>No Documentation Found</h3>
+        <p>There are no documentation articles available at the moment.</p>
+      </div>
+    } @else {
+      <div class="docs-grid">
+        @for (doc of documents(); track doc.id) {
+          <div class="doc-card" (click)="onViewDoc(doc)">
+            <div class="doc-card__header">
+              <ui-icon name="file-text" size="md"></ui-icon>
+              @if (doc.category) {
+                <ui-badge variant="secondary" size="sm">{{ getCategoryLabel(doc.category) }}</ui-badge>
+              }
+            </div>
+            <h3 class="doc-title">{{ doc.title }}</h3>
+            @if (doc.content) {
+              <p class="doc-excerpt">{{ getExcerpt(doc.content) }}</p>
+            }
+            <div class="doc-footer">
+              <span class="doc-date">Updated: {{ formatDate(doc.updatedAt) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Document Detail View -->
+    @if (selectedDoc()) {
+      <div class="doc-detail-overlay" (click)="onCloseDoc()">
+        <div class="doc-detail" (click)="$event.stopPropagation()">
+          <div class="doc-detail__header">
+            <div>
+              <h2>{{ selectedDoc()?.title }}</h2>
+              @if (selectedDoc()?.category) {
+                <ui-badge variant="secondary">{{ getCategoryLabel(selectedDoc()?.category || '') }}</ui-badge>
+              }
+            </div>
+            <ui-button variant="ghost" size="sm" (click)="onCloseDoc()">
+              <ui-icon name="x" size="sm"></ui-icon>
+            </ui-button>
+          </div>
+          <div class="doc-detail__content">
+            @if (selectedDoc()?.content) {
+              <div class="doc-content">{{ selectedDoc()?.content }}</div>
+            } @else {
+              <p class="no-content">No content available for this document.</p>
+            }
+          </div>
+          <div class="doc-detail__footer">
+            <span>Last updated: {{ formatDate(selectedDoc()?.updatedAt || '') }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+</div>

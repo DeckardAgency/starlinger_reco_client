@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Variables
 $color-primary: #0077cc;
 $color-success: #10b981;
@@ -157,7 +159,7 @@ $transition-duration: 0.2s;
             color: white;
 
             &:hover {
-                background-color: darken($color-primary, 10%);
+                background-color: color.adjust($color-primary, $lightness: -10%);
             }
         }
 
@@ -168,7 +170,7 @@ $transition-duration: 0.2s;
 
             &:hover {
                 background-color: #f9fafb;
-                border-color: darken($color-border, 10%);
+                border-color: color.adjust($color-border, $lightness: -10%);
             }
         }
 
@@ -177,7 +179,7 @@ $transition-duration: 0.2s;
             color: white;
 
             &:hover {
-                background-color: darken($color-error, 10%);
+                background-color: color.adjust($color-error, $lightness: -10%);
             }
         }
     }

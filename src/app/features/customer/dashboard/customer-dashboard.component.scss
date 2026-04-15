@@ -113,7 +113,10 @@
 // Modal Dialog (Centered)
 .modal-sheet {
   @include customer.modal-dialog-responsive;
-  animation: fadeIn 0.2s ease-out;
+
+  & {
+    animation: fadeIn 0.2s ease-out;
+  }
 
   @keyframes fadeIn {
     from {

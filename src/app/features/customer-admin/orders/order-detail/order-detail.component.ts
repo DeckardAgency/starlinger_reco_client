@@ -221,47 +221,18 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   // Actions
-  onExport(): void {
-    const order = this.order();
-    if (!order?.id) return;
-    const orderNumber = order.orderNumber || String(order.id);
-    this.orderService.exportOrdersToExcel(
-      undefined,
-      undefined,
-      { query: orderNumber }
-    ).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `order-${orderNumber}.xlsx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: (error) => {
-        console.error('Export failed:', error);
-        this.alertService.error('Failed to export order to Excel.');
-      }
-    });
-  }
-
-  onPrint(): void {
+  onDownloadPdf(): void {
     const order = this.order();
     if (!order?.id) return;
     this.orderService.exportOrderPdf(String(order.id)).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-        const printWindow = window.open(url);
-        if (printWindow) {
-          printWindow.onload = () => {
-            printWindow.print();
-            setTimeout(() => window.URL.revokeObjectURL(url), 60000);
-          };
-        }
+        window.open(url, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(url), 60000);
       },
       error: (err) => {
-        console.error('Print failed:', err);
-        this.alertService.error('Failed to generate print preview.');
+        console.error('Download failed:', err);
+        this.alertService.error('Failed to generate PDF.');
       }
     });
   }

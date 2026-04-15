@@ -233,6 +233,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription,
       weight: product.weight || undefined,
+      taxPercent: product.taxPercent ?? null,
       hasDiscount,
       discountPercent,
       discountedPrice,

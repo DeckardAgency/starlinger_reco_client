@@ -131,6 +131,10 @@ export class ProductDetailComponent implements OnInit {
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription,
       weight: product.weight || undefined,
+      taxPercent: product.taxPercent ?? null,
+      hasDiscount: product.hasDiscount ?? false,
+      discountPercent: product.campaignDiscountPercent ?? product.discountPercent ?? 0,
+      discountedPrice: product.discountedPrice ?? product.price,
       imageGallery: (product.imageGallery || []).map(img => ({
         id: img.id,
         filePath: img.filePath,
@@ -156,6 +160,7 @@ export class ProductDetailComponent implements OnInit {
       isFavorite: false,
       group: 'general',
       weight: product.weight || undefined,
+      taxPercent: product.taxPercent ?? null,
       hasDiscount: product.hasDiscount ?? false,
       discountPercent: product.campaignDiscountPercent ?? product.discountPercent ?? 0,
       discountedPrice: product.discountedPrice ?? product.price,

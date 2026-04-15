@@ -29,6 +29,8 @@ export interface Product {
   updatedAt: string;
   imageGallery: MediaItem[];
   documents: string[];
+  taxTypeId?: number | null;
+  taxPercent?: number | null;
   discountPercent?: number | null;
   discountPrice?: number | null;
   hasDiscount?: boolean;

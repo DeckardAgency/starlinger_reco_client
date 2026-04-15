@@ -218,9 +218,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * Get the correct support link based on user role
    */
   getSupportLink(): string {
-    if (this.isAdmin) {
-      return '/admin/support';
-    } else if (this.isCustomerAdmin) {
+    if (this.isAdmin || this.isCustomerAdmin) {
       return '/customer-admin/support';
     } else {
       return '/customer/support';
@@ -231,9 +229,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
    * Get the correct documentation link based on user role
    */
   getDocumentationLink(): string {
-    if (this.isAdmin) {
-      return '/admin/documentation';
-    } else if (this.isCustomerAdmin) {
+    if (this.isAdmin || this.isCustomerAdmin) {
       return '/customer-admin/documentation';
     } else {
       return '/customer/documentation';
