@@ -5,6 +5,10 @@ import { environment } from '@env/environment';
 
 export interface DeliveryCostResult {
     deliveryCost: number;
+    fuelSurchargeMultiplier: number;
+    fuelSurchargeCost: number;
+    packagingCost: number;
+    totalShippingCost: number;
     deliveryDays: number | null;
     deliveryTypeName?: string;
     dhlZone?: number;
@@ -35,7 +39,7 @@ export class DeliveryCostService {
         return this.http.get<DeliveryCostResult>(this.apiUrl, { params }).pipe(
             catchError(error => {
                 console.error('Error calculating delivery cost:', error);
-                return of({ deliveryCost: 0, deliveryDays: null, message: 'Could not calculate delivery cost' });
+                return of({ deliveryCost: 0, fuelSurchargeMultiplier: 1.0, fuelSurchargeCost: 0, packagingCost: 0, totalShippingCost: 0, deliveryDays: null, message: 'Could not calculate delivery cost' });
             })
         );
     }

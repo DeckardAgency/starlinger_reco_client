@@ -85,7 +85,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private calculateDeliveryCost(countryId: number): void {
     const weight = this.totalWeight();
     this.deliveryCostService.calculateDeliveryCost(countryId, weight).subscribe(result => {
-      this.shippingCost.set(result.deliveryCost);
+      this.shippingCost.set(result.totalShippingCost);
       this.isLoadingShipping.set(false);
     });
   }
