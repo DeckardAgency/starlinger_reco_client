@@ -132,6 +132,12 @@ export class CartComponent implements OnInit, OnDestroy {
     this.recalculateDeliveryCost();
   }
 
+  onQuantityAdjusted(event: { original: number; adjusted: number; step: number }): void {
+    this.toastType.set('success');
+    this.toastMessage.set(`Quantity adjusted to ${event.adjusted} to match the minimum step of ${event.step}.`);
+    this.showToast.set(true);
+  }
+
   incrementQuantity(item: CartItem): void {
     this.cartService.updateQuantity(item.id, item.quantity + 1);
     this.recalculateDeliveryCost();

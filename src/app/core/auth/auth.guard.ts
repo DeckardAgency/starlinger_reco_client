@@ -48,6 +48,19 @@ export class AuthGuard {
         return false;
       }
 
+      // Finance users are notification-only: they can sign in but cannot use the webshop.
+      // Treat them as "no access" for any /customer/* route.
+      if (isCustomerRoute && this.isFinanceOnly()) {
+        this.logger.warn('Finance user has no webshop access. Logging out.');
+        this.authService.logout();
+        this.router.navigate(['/']);
+        setTimeout(() => {
+          this.loginModalService.open();
+          alert('This account is for order notifications only and does not have webshop access.');
+        }, 200);
+        return false;
+      }
+
       return true;
     }
 
@@ -65,5 +78,12 @@ export class AuthGuard {
 
     // Return false to prevent navigation when not authenticated
     return false;
+  }
+
+  private isFinanceOnly(): boolean {
+    return this.authService.hasRole('ROLE_FINANCE')
+      && !this.authService.hasRole('ROLE_CLIENT')
+      && !this.authService.hasRole('ROLE_CLIENT_ADMIN')
+      && !this.authService.hasRole('ROLE_ADMIN');
   }
 }

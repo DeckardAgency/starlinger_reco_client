@@ -32,10 +32,13 @@ export class TopBarComponent implements OnInit, OnDestroy {
     ngOnInit(): void {}
 
     /**
-     * Check if current user has client role (show cart/wishlist in client app)
+     * Check if current user can shop (show cart/wishlist in client app)
+     * Includes all roles that can place orders: ROLE_CLIENT, ROLE_CLIENT_ADMIN, ROLE_ADMIN
      */
     get isCustomer(): boolean {
-        return this.authService.hasRole('ROLE_CLIENT');
+        return this.authService.hasRole('ROLE_CLIENT')
+            || this.authService.hasRole('ROLE_CLIENT_ADMIN')
+            || this.authService.hasRole('ROLE_ADMIN');
     }
 
     get cartItemCount(): number {

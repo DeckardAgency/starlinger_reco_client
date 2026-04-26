@@ -198,7 +198,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
 
   private mapProductToShopProduct(product: Product): ShopProduct {
     const hasDiscount = product.hasDiscount ?? false;
-    const discountPercent = product.campaignDiscountPercent ?? product.discountPercent ?? 0;
+    const discountPercent = product.campaignDiscountPercent ?? 0;
     const discountedPrice = product.discountedPrice ?? product.price;
 
     return {

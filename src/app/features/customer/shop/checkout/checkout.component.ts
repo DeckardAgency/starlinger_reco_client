@@ -61,6 +61,10 @@ export class CheckoutComponent implements OnInit {
   selectedDeliveryTypeId = signal<number | null>(null);
   shippingTaxPercent = signal(0);
 
+  // Multiple delivery addresses for customer to choose from
+  availableShippingAddresses = signal<ClientAddress[]>([]);
+  selectedShippingAddressId = signal<number | null>(null);
+
   breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Cart', route: '/customer/shop/cart' }
   ];
@@ -200,23 +204,43 @@ export class CheckoutComponent implements OnInit {
         this.billingAddress.set(this.addressService.formatAddress(billing));
       }
 
-      const shipping = addresses.find(a => a.isDelivery && a.isActive);
-      if (shipping) {
-        this.shippingAddress.set(this.addressService.formatAddress(shipping));
-        const taxPercent = shipping.country?.taxType?.percent ?? shipping.country?.defaultTaxPercent;
-        if (taxPercent) {
-          this.shippingTaxPercent.set(parseFloat(taxPercent));
-        }
-        if (shipping.country?.id) {
-          this.shippingCountryId.set(shipping.country.id);
-          this.calculateDeliveryCost(shipping.country.id);
-        } else {
-          this.isLoadingShipping.set(false);
-        }
+      // Multiple delivery addresses are now allowed; user picks one at checkout.
+      const deliveryAddresses = addresses.filter(a => a.isDelivery && a.isActive);
+      this.availableShippingAddresses.set(deliveryAddresses);
+
+      if (deliveryAddresses.length > 0) {
+        // Default to the first one
+        this.applyShippingAddress(deliveryAddresses[0]);
       } else {
         this.isLoadingShipping.set(false);
       }
     });
+  }
+
+  onShippingAddressChange(addressId: number | string): void {
+    const id = Number(addressId);
+    const address = this.availableShippingAddresses().find(a => a.id === id);
+    if (address) {
+      this.applyShippingAddress(address);
+    }
+  }
+
+  formatAddressOption(addr: ClientAddress): string {
+    return this.addressService.formatAddress(addr);
+  }
+
+  private applyShippingAddress(address: ClientAddress): void {
+    this.selectedShippingAddressId.set(address.id);
+    this.shippingAddress.set(this.addressService.formatAddress(address));
+    const taxPercent = address.country?.taxType?.percent;
+    this.shippingTaxPercent.set(taxPercent ? parseFloat(taxPercent) : 0);
+    if (address.country?.id) {
+      this.shippingCountryId.set(address.country.id);
+      this.calculateDeliveryCost(address.country.id);
+    } else {
+      this.shippingCountryId.set(null);
+      this.isLoadingShipping.set(false);
+    }
   }
 
   private loadPaymentTypes(): void {
@@ -272,6 +296,7 @@ export class CheckoutComponent implements OnInit {
       isDraft: false,
       billingAddress: this.billingAddress(),
       shippingAddress: this.shippingAddress(),
+      shippingAddressId: this.selectedShippingAddressId(),
       paymentType: this.selectedPaymentTypeId() ? `/api/v1/payment_types/${this.selectedPaymentTypeId()}` : null,
       deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null
     };
@@ -309,6 +334,7 @@ export class CheckoutComponent implements OnInit {
       isDraft: true,
       billingAddress: this.billingAddress(),
       shippingAddress: this.shippingAddress(),
+      shippingAddressId: this.selectedShippingAddressId(),
       paymentType: this.selectedPaymentTypeId() ? `/api/v1/payment_types/${this.selectedPaymentTypeId()}` : null,
       deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null
     };

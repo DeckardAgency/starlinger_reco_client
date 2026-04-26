@@ -42,9 +42,11 @@
                 <ui-quantity-selector
                   size="sm"
                   [value]="item.quantity"
-                  [min]="1"
-                  [showInput]="false"
+                  [min]="item.product.qtyStep || 1"
+                  [step]="item.product.qtyStep || 1"
+                  [showInput]="true"
                   (quantityChange)="onQuantityChange(item, $event)"
+                  (quantityAdjusted)="onQuantityAdjusted($event)"
                 ></ui-quantity-selector>
                 <button class="cart-item__delete" type="button" (click)="removeItem(item)">
                   <ui-icon name="trash" size="lg"></ui-icon>

@@ -219,7 +219,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private mapProductToShopProduct(product: Product): ShopProduct {
     const hasDiscount = product.hasDiscount ?? false;
-    const discountPercent = product.campaignDiscountPercent ?? product.discountPercent ?? 0;
+    const discountPercent = product.campaignDiscountPercent ?? 0;
     const discountedPrice = product.discountedPrice ?? product.price;
 
     return {
@@ -233,6 +233,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription,
       weight: product.weight || undefined,
+      qtyStep: product.qtyStep ?? null,
       taxPercent: product.taxPercent ?? null,
       hasDiscount,
       discountPercent,

@@ -126,6 +126,25 @@
         >
       </div>
 
+      <!-- Shipping address selector -->
+      @if (availableShippingAddresses().length > 0) {
+        <div class="checkout__shipping-address">
+          <label class="checkout__field-label">Shipping address</label>
+          @if (availableShippingAddresses().length > 1) {
+            <select
+              class="checkout__reference-input"
+              [value]="selectedShippingAddressId()"
+              (change)="onShippingAddressChange($any($event.target).value)">
+              @for (addr of availableShippingAddresses(); track addr.id) {
+                <option [value]="addr.id">{{ formatAddressOption(addr) }}</option>
+              }
+            </select>
+          } @else {
+            <div class="checkout__shipping-address-static">{{ shippingAddress() }}</div>
+          }
+        </div>
+      }
+
       <!-- Summary -->
       <div class="checkout__summary">
         <div class="checkout__summary-row">

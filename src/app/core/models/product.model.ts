@@ -29,10 +29,10 @@ export interface Product {
   updatedAt: string;
   imageGallery: MediaItem[];
   documents: string[];
+  qty?: number | null;
+  qtyStep?: number | null;
   taxTypeId?: number | null;
   taxPercent?: number | null;
-  discountPercent?: number | null;
-  discountPrice?: number | null;
   hasDiscount?: boolean;
   campaignDiscountPercent?: number;
   discountedPrice?: number | null;

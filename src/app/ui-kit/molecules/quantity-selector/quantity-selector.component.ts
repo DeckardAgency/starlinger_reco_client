@@ -48,6 +48,7 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
   }
 
   @Output() quantityChange = new EventEmitter<number>();
+  @Output() quantityAdjusted = new EventEmitter<{ original: number; adjusted: number; step: number }>();
 
   protected _value = signal(1);
 
@@ -92,8 +93,12 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
     const numValue = parseInt(target.value, 10);
 
     if (!isNaN(numValue)) {
-      const newValue = this.clampValue(numValue);
-      this.updateValue(newValue);
+      const clamped = this.clampValue(numValue);
+      const stepped = this.roundUpToStep(clamped);
+      if (stepped !== numValue && this.step > 1) {
+        this.quantityAdjusted.emit({ original: numValue, adjusted: stepped, step: this.step });
+      }
+      this.updateValue(stepped);
     }
   }
 
@@ -109,6 +114,13 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
 
   private clampValue(value: number): number {
     return Math.min(Math.max(value, this.min), this.max);
+  }
+
+  private roundUpToStep(value: number): number {
+    if (this.step <= 1) return value;
+    const remainder = value % this.step;
+    if (remainder === 0) return value;
+    return Math.min(value + (this.step - remainder), this.max);
   }
 
   get containerClasses(): string[] {
