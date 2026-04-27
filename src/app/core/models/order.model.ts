@@ -10,6 +10,7 @@ export interface OrderProduct {
     partNo: string;
     weight: string;
     price: number;
+    qtyStep?: number | null;
 }
 
 export interface OrderItem {

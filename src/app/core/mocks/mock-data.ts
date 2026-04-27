@@ -987,7 +987,6 @@ export interface ShopProduct {
   imageGallery?: ShopProductMedia[];
   documents?: ShopProductMedia[];
   qtyStep?: number | null;
-  taxPercent?: number | null;
   discountedPrice?: number;
   discountPercent?: number;
   hasDiscount?: boolean;
@@ -1316,11 +1315,7 @@ export const mockProductDetail = {
   productGroup: 'electrical',
   catalogCode: 'AIVS-01197',
   basePrice: 284.23,
-  retailPrice: 0.00,
-  taxPercent: 'PDV20',
   currency: 'EUR',
-  discountPercent: 0.00,
-  discountPrice: 0.00,
   shortDescription: ''
 };
 

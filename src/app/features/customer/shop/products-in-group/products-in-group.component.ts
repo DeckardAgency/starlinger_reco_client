@@ -212,6 +212,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
       technicalDescription: product.technicalDescription,
       shortDescription: product.shortDescription,
       weight: product.weight || undefined,
+      qtyStep: product.qtyStep ?? null,
       hasDiscount,
       discountPercent,
       discountedPrice,

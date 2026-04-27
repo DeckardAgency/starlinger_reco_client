@@ -39,13 +39,18 @@ export class CartService {
   }
 
   addItem(product: ShopProduct, quantity: number = 1): void {
+    // If the product has a qtyStep, ensure quantity is at least one step
+    // and is rounded up to the nearest multiple
+    const step = product.qtyStep || 1;
+    const normalizedQty = this.roundUpToStep(Math.max(quantity, step), step);
+
     const existingItem = this._cartItems().find(item => item.product.id === product.id);
 
     if (existingItem) {
       this._cartItems.update(items =>
         items.map(item =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: this.roundUpToStep(item.quantity + normalizedQty, step) }
             : item
         )
       );
@@ -55,13 +60,19 @@ export class CartService {
         {
           id: `cart-${product.id}`,
           product,
-          quantity,
+          quantity: normalizedQty,
           isFavorite: false,
           discountPercent: product.discountPercent || 0
         }
       ]);
     }
     this.saveToStorage();
+  }
+
+  private roundUpToStep(value: number, step: number): number {
+    if (step <= 1) return value;
+    const remainder = value % step;
+    return remainder === 0 ? value : value + (step - remainder);
   }
 
   updateQuantity(itemId: string, quantity: number): void {
@@ -110,7 +121,8 @@ export class CartService {
         price: item.unitPrice || item.product.price || 0,
         image: '',
         isFavorite: false,
-        group: ''
+        group: '',
+        qtyStep: item.product.qtyStep ?? null
       },
       quantity: item.quantity,
       isFavorite: false,

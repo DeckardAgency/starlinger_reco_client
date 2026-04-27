@@ -101,23 +101,14 @@ export class CheckoutComponent implements OnInit {
   );
 
   estimatedTax = computed(() => {
-    const countryTaxPercent = this.shippingTaxPercent();
-    return this.cartItems().reduce((sum, item) => {
-      const taxPercent = item.product.taxPercent ?? countryTaxPercent;
-      if (taxPercent <= 0) return sum;
-      const price = item.product.discountedPrice ?? (item.product.price * (1 - item.discount / 100));
-      return sum + Math.round(price * item.quantity * taxPercent / 100 * 100) / 100;
-    }, 0);
+    const taxPercent = this.shippingTaxPercent();
+    if (taxPercent <= 0) return 0;
+    return Math.round(this.subtotal() * taxPercent / 100 * 100) / 100;
   });
 
   taxLabel = computed(() => {
-    const countryTax = this.shippingTaxPercent();
-    const rates = new Set(this.cartItems().map(item => item.product.taxPercent ?? countryTax));
-    if (rates.size === 1) {
-      const rate = rates.values().next().value;
-      return `Tax (${rate}%)`;
-    }
-    return 'Tax';
+    const rate = this.shippingTaxPercent();
+    return rate > 0 ? `Tax (${rate}%)` : 'Tax';
   });
 
   total = computed(() => {

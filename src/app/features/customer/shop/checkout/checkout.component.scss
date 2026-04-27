@@ -210,6 +210,27 @@
     @include customer.reference-input;
   }
 
+  &__shipping-address {
+    @include customer.reference-section;
+    padding: 0;
+    background: none;
+    margin-top: 16px;
+  }
+
+  &__field-label {
+    @include customer.reference-label;
+  }
+
+  &__shipping-address-static {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #232323;
+    padding: 8px 12px;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+
   &__summary {
     @include customer.summary-container;
   }

@@ -147,6 +147,15 @@
 
       <!-- Summary -->
       <div class="checkout__summary">
+        @if (totalWeight() > 0) {
+          <div class="checkout__summary-row">
+            <div class="checkout__summary-label">
+              <ui-icon name="package" size="md"></ui-icon>
+              <span>Total weight</span>
+            </div>
+            <span class="checkout__summary-value">{{ totalWeight() | number:'1.2-2' }} kg</span>
+          </div>
+        }
         <div class="checkout__summary-row">
           <div class="checkout__summary-label">
             <ui-icon name="truck" size="md"></ui-icon>
