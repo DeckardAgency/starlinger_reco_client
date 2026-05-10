@@ -91,19 +91,30 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
   onInputChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const numValue = parseInt(target.value, 10);
+    if (isNaN(numValue)) return;
 
-    if (!isNaN(numValue)) {
-      const clamped = this.clampValue(numValue);
-      const stepped = this.roundUpToStep(clamped);
-      if (stepped !== numValue && this.step > 1) {
-        this.quantityAdjusted.emit({ original: numValue, adjusted: stepped, step: this.step });
-      }
-      this.updateValue(stepped);
-    }
+    // While typing: keep the raw value (only cap at max so users can't enter > max).
+    // Min and step rounding are deferred to onBlur so users can freely type intermediate digits.
+    const capped = Math.min(numValue, this.max);
+    this._value.set(capped);
+    this.onChange(capped);
+    this.quantityChange.emit(capped);
   }
 
   onBlur(): void {
     this.onTouched();
+
+    // On blur, finalize: ensure value is at least min and snapped up to a valid step.
+    const current = this._value();
+    const clamped = this.clampValue(current);
+    const stepped = this.roundUpToStep(clamped);
+
+    if (stepped !== current) {
+      if (this.step > 1 && stepped !== current) {
+        this.quantityAdjusted.emit({ original: current, adjusted: stepped, step: this.step });
+      }
+      this.updateValue(stepped);
+    }
   }
 
   private updateValue(newValue: number): void {

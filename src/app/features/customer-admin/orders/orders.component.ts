@@ -167,12 +167,22 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     const filter = this.route.snapshot.data['filter'] as string | undefined;
     this.routeFilter.set(filter || null);
 
-    // Configure table actions based on route
+    // Plain customers (non-admin) should NOT be able to cancel/archive their own orders.
+    // The shared component is also used at /customer-admin/orders for company admins.
+    const isCustomerView = !this.router.url.startsWith('/customer-admin');
+
+    // Configure table actions based on route + role
     if (filter === 'drafts') {
+      // Drafts are user-owned: keep View + Delete in both views.
       this.tableActions = [
         { id: 'view', label: 'View', icon: 'eye' },
         { id: 'add-to-cart', label: 'Add to Cart', icon: 'cart' },
         { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+      ];
+    } else if (isCustomerView) {
+      // Plain customer: View only (no Cancel, no Archive).
+      this.tableActions = [
+        { id: 'view', label: 'View', icon: 'eye' }
       ];
     } else if (filter === 'archive') {
       this.tableActions = [
