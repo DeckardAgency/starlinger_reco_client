@@ -58,9 +58,11 @@
                     <ui-quantity-selector
                       size="sm"
                       [value]="item.quantity"
-                      [min]="1"
-                      [showInput]="false"
+                      [min]="item.product.qtyStep || 1"
+                      [step]="item.product.qtyStep || 1"
+                      [showInput]="true"
                       (quantityChange)="onQuantityChange(item, $event)"
+                      (quantityAdjusted)="onQuantityAdjusted($event)"
                     ></ui-quantity-selector>
                     <button class="checkout__delete-btn checkout__delete-btn--mobile" type="button" (click)="removeItem(item)">
                       <ui-icon name="trash" size="lg"></ui-icon>
@@ -90,9 +92,11 @@
               <ui-quantity-selector
                 size="sm"
                 [value]="item.quantity"
-                [min]="1"
-                [showInput]="false"
+                [min]="item.product.qtyStep || 1"
+                [step]="item.product.qtyStep || 1"
+                [showInput]="true"
                 (quantityChange)="onQuantityChange(item, $event)"
+                (quantityAdjusted)="onQuantityAdjusted($event)"
               ></ui-quantity-selector>
             </div>
 
@@ -194,4 +198,19 @@
       </div>
     </div>
   </div>
+
+  @if (showToast()) {
+    <div class="checkout__toast">
+      <ui-toast
+        [type]="toastType()"
+        variant="dark"
+        title="{{ toastType() === 'success' ? 'Success!' : 'Error' }}"
+        [message]="toastMessage()"
+        [showIcon]="false"
+        [showClose]="false"
+        [duration]="3000"
+        (closed)="onToastClosed()"
+      ></ui-toast>
+    </div>
+  }
 </div>

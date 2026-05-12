@@ -6,6 +6,7 @@ import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/brea
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
 import { FavoriteButtonComponent } from '@app/ui-kit/atoms/favorite-button/favorite-button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
+import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { OrderService } from '@core/services/http/order.service';
@@ -35,7 +36,8 @@ export interface CheckoutItem {
     BreadcrumbsComponent,
     QuantitySelectorComponent,
     FavoriteButtonComponent,
-    IconComponent
+    IconComponent,
+    ToastComponent
   ],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
@@ -54,6 +56,9 @@ export class CheckoutComponent implements OnInit {
 
   isPlacingOrder = signal(false);
   orderError = signal<string | null>(null);
+  showToast = signal(false);
+  toastMessage = signal('');
+  toastType = signal<'success' | 'error'>('success');
   billingAddress = signal('');
   shippingAddress = signal('');
   shippingCountryId = signal<number | null>(null);
@@ -131,6 +136,16 @@ export class CheckoutComponent implements OnInit {
   onQuantityChange(item: CheckoutItem, quantity: number): void {
     this.cartService.updateQuantity(item.id, quantity);
     this.recalculateDeliveryCost();
+  }
+
+  onQuantityAdjusted(event: { original: number; adjusted: number; step: number }): void {
+    this.toastType.set('success');
+    this.toastMessage.set(`Quantity adjusted to ${event.adjusted} to match the minimum step of ${event.step}.`);
+    this.showToast.set(true);
+  }
+
+  onToastClosed(): void {
+    this.showToast.set(false);
   }
 
   removeItem(item: CheckoutItem): void {
