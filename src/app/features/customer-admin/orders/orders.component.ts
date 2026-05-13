@@ -180,9 +180,10 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
       ];
     } else if (isCustomerView) {
-      // Plain customer: View only (no Cancel, no Archive).
+      // Plain customer: View + Archive (Archive is global; affects company admin's view too).
       this.tableActions = [
-        { id: 'view', label: 'View', icon: 'eye' }
+        { id: 'view', label: 'View', icon: 'eye' },
+        { id: 'archive', label: 'Archive', icon: 'archive' }
       ];
     } else if (filter === 'archive') {
       this.tableActions = [
