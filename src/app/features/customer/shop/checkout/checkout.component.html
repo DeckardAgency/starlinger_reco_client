@@ -137,10 +137,11 @@
           @if (availableShippingAddresses().length > 1) {
             <select
               class="checkout__reference-input"
-              [value]="selectedShippingAddressId()"
-              (change)="onShippingAddressChange($any($event.target).value)">
+              [ngModel]="selectedShippingAddressId()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onShippingAddressChange($event)">
               @for (addr of availableShippingAddresses(); track addr.id) {
-                <option [value]="addr.id">{{ formatAddressOption(addr) }}</option>
+                <option [ngValue]="addr.id">{{ formatAddressOption(addr) }}</option>
               }
             </select>
           } @else {
