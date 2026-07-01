@@ -29,7 +29,31 @@
         </div>
 
         <!-- Data Rows -->
-        @for (item of cartItems(); track item.id) {
+        @if (isAgent) {
+          <!-- Agent checkout: grouped by managed client -->
+          @for (group of groupedByClient(); track group.clientId) {
+            <div class="checkout__group-header">
+              <span class="checkout__group-title">Client: {{ group.clientName }}</span>
+              @if (group.clientCode) {
+                <span class="checkout__group-code">({{ group.clientCode }})</span>
+              }
+              <span class="checkout__group-count">{{ group.items.length }}</span>
+            </div>
+            @for (item of group.items; track item.id) {
+              <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: item }"></ng-container>
+            }
+          }
+        } @else {
+          <!-- Regular checkout: flat list -->
+          @for (item of cartItems(); track item.id) {
+            <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: item }"></ng-container>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Checkout row (shared by grouped + flat views) -->
+    <ng-template #rowTpl let-item>
           <div class="checkout__table-row">
             <!-- Item Cell -->
             <div class="checkout__cell checkout__cell--item">
@@ -112,9 +136,7 @@
               </button>
             </div>
           </div>
-        }
-      </div>
-    </div>
+    </ng-template>
 
     <!-- Sidebar -->
     <div class="checkout__sidebar">

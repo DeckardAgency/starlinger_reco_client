@@ -1,0 +1,70 @@
+@use '../../../../ui-kit/customer-shared' as customer;
+
+.client-detail {
+  @include customer.page-container;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border: 1px solid #e3e8ee;
+    border-radius: 10px;
+    background: #fff;
+    max-width: 640px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: #1d2733;
+  }
+
+  &__meta {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+
+    div {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.9375rem;
+    }
+
+    dt {
+      flex: 0 0 96px;
+      color: #7a8aa0;
+      margin: 0;
+    }
+
+    dd {
+      margin: 0;
+      color: #2b3a4b;
+      word-break: break-word;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+}

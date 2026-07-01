@@ -69,7 +69,7 @@ describe('AuthService', () => {
     };
 
     const mockUser: User = {
-      id: '1',
+      id: 1,
       email: 'test@test.com',
       firstName: 'Test',
       lastName: 'User',
@@ -116,7 +116,7 @@ describe('AuthService', () => {
         client: {
           '@id': '/api/clients/1',
           '@type': 'Client',
-          id: '1',
+          id: 1,
           name: 'Test Client',
           code: 'TC',
           isActive: false,
@@ -198,7 +198,7 @@ describe('AuthService', () => {
   describe('getCurrentUser', () => {
     it('should return user from behavior subject', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'Test',
         lastName: 'User',
@@ -221,7 +221,7 @@ describe('AuthService', () => {
   describe('hasRole', () => {
     it('should return true when user has role', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'admin@test.com',
         firstName: 'Admin',
         lastName: 'User',
@@ -236,7 +236,7 @@ describe('AuthService', () => {
 
     it('should return false when user does not have role', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'admin@test.com',
         firstName: 'Admin',
         lastName: 'User',
@@ -256,7 +256,7 @@ describe('AuthService', () => {
   describe('client information', () => {
     it('should return client info when available', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'Test',
         lastName: 'User',
@@ -264,7 +264,7 @@ describe('AuthService', () => {
         client: {
           '@id': '/api/clients/1',
           '@type': 'Client',
-          id: '1',
+          id: 1,
           name: 'Test Company',
           code: 'TC',
           isActive: true,
@@ -280,7 +280,7 @@ describe('AuthService', () => {
 
     it('should return null when no client info', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'Test',
         lastName: 'User',
@@ -294,7 +294,7 @@ describe('AuthService', () => {
 
     it('should check if client is archived', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'Test',
         lastName: 'User',
@@ -302,7 +302,7 @@ describe('AuthService', () => {
         client: {
           '@id': '/api/clients/1',
           '@type': 'Client',
-          id: '1',
+          id: 1,
           name: 'Test Company',
           code: 'TC',
           isActive: false,
@@ -319,7 +319,7 @@ describe('AuthService', () => {
   describe('getUserFullName', () => {
     it('should return full name when both names are available', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -333,7 +333,7 @@ describe('AuthService', () => {
 
     it('should return first name only when last name is missing', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: 'John',
         lastName: '',
@@ -347,7 +347,7 @@ describe('AuthService', () => {
 
     it('should return email when name is not available', () => {
       const user: User = {
-        id: '1',
+        id: 1,
         email: 'test@test.com',
         firstName: '',
         lastName: '',

@@ -8,6 +8,7 @@ import { OrderService } from '@core/services/http/order.service';
 import { AddressService } from '@core/services/http/address.service';
 import { DeliveryCostService } from '@core/services/http/delivery-cost.service';
 import { AuthService } from '@core/auth/auth.service';
+import { USER_ROLES } from '@core/models/auth.model';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -105,6 +106,47 @@ export class CartComponent implements OnInit, OnDestroy {
   isLoadingShipping = signal(true);
 
   cartItems = this.cartService.cartItems;
+
+  /** Client agents see the cart grouped into a collapsible section per managed client. */
+  get isAgent(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT_AGENT);
+  }
+
+  /**
+   * Per-client grouping of the cart for the agent view. Lines are already
+   * de-duplicated per (product, client) by the cart service, so each client's
+   * items are distinct. Lines with no client fall into a "My Company" group.
+   */
+  groupedByClient = computed(() => {
+    const groups = new Map<number, { clientId: number; clientName: string; clientCode: string; items: CartItem[] }>();
+    for (const item of this.cartItems()) {
+      const key = item.clientId ?? -1;
+      const g = groups.get(key)
+        ?? {
+          clientId: key,
+          clientName: item.clientName ?? 'My Company',
+          clientCode: item.clientCode ?? '',
+          items: []
+        };
+      g.items.push(item);
+      groups.set(key, g);
+    }
+    return Array.from(groups.values());
+  });
+
+  private collapsedGroups = signal<Set<number>>(new Set());
+
+  isExpanded(clientId: number): boolean {
+    return !this.collapsedGroups().has(clientId);
+  }
+
+  toggleGroup(clientId: number): void {
+    this.collapsedGroups.update(prev => {
+      const next = new Set(prev);
+      next.has(clientId) ? next.delete(clientId) : next.add(clientId);
+      return next;
+    });
+  }
 
   itemCount = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
 

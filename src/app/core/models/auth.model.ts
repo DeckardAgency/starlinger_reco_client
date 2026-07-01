@@ -110,6 +110,7 @@ export const USER_ROLES = {
   USER: 'ROLE_USER',
   CLIENT: 'ROLE_CLIENT',
   CLIENT_ADMIN: 'ROLE_CLIENT_ADMIN',
+  CLIENT_AGENT: 'ROLE_USER_CLIENT_AGENT',
   ADMIN: 'ROLE_ADMIN'
 } as const;
 
@@ -164,4 +165,12 @@ export function isCustomerAdmin(user: User | null): boolean {
  */
 export function isAdmin(user: User | null): boolean {
   return hasRole(user, USER_ROLES.ADMIN);
+}
+
+/**
+ * Check if user is a Client Agent (ROLE_USER_CLIENT_AGENT) — can place orders
+ * on behalf of the clients their company manages.
+ */
+export function isClientAgent(user: User | null): boolean {
+  return hasRole(user, USER_ROLES.CLIENT_AGENT);
 }

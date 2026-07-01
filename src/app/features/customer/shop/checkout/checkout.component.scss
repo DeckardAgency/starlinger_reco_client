@@ -66,6 +66,43 @@
     }
   }
 
+  &__group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f4f6f9;
+    border-bottom: 1px solid #e4e4e7;
+    position: sticky;
+    left: 0;
+  }
+
+  &__group-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #18181b;
+  }
+
+  &__group-code {
+    color: #6b7785;
+    font-size: 13px;
+  }
+
+  &__group-count {
+    margin-left: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #18181b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   &__cell {
     padding: 16px;
     display: flex;

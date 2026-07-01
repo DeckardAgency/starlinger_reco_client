@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@core/auth/auth.guard';
+import { RoleGuard } from '@core/auth/role.guard';
 
 export const routes: Routes = [
   // ============================================================================
@@ -127,6 +128,21 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('@features/customer/dashboard/customer-dashboard.component').then(m => m.CustomerDashboardComponent),
     title: 'Reco | Dashboard'
+      },
+      // My Clients (client agents only)
+      {
+        path: 'my-clients',
+        loadComponent: () => import('@features/customer/my-clients/my-clients.component').then(m => m.MyClientsComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['ROLE_USER_CLIENT_AGENT'] },
+        title: 'Reco | My Clients'
+      },
+      {
+        path: 'my-clients/:id/view',
+        loadComponent: () => import('@features/customer/my-clients/client-detail/client-detail.component').then(m => m.ClientDetailComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['ROLE_USER_CLIENT_AGENT'] },
+        title: 'Reco | Client Details'
       },
       // Shop
       {

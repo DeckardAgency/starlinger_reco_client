@@ -13,6 +13,34 @@
       <span class="shop__count">{{ totalCount() }}</span>
     </div>
     <div class="shop__list-header-right">
+      @if (isAgent && cartClientBadges().length > 0) {
+        <div class="shop__cart-badges">
+          @for (badge of cartClientBadges(); track badge.clientId) {
+            <div class="shop__cart-badge">
+              <ui-icon name="user" size="sm"></ui-icon>
+              <span class="shop__cart-badge-name">{{ badge.clientName }}</span>
+              <span class="shop__cart-badge-count">{{ badge.itemCount }}</span>
+
+              <!-- Hover dropdown: products in this client's cart -->
+              <div class="shop__cart-badge-popover">
+                <div class="shop__cart-badge-popover-head">
+                  <span class="shop__cart-badge-popover-client">{{ badge.clientName }}</span>
+                  <span class="shop__cart-badge-popover-count">{{ badge.itemCount }} item(s)</span>
+                </div>
+                <ul class="shop__cart-badge-popover-list">
+                  @for (p of badge.products; track p.code) {
+                    <li class="shop__cart-badge-popover-item">
+                      <span class="shop__cart-badge-popover-code">{{ p.code }}</span>
+                      <span class="shop__cart-badge-popover-pname">{{ p.name }}</span>
+                      <span class="shop__cart-badge-popover-qty">×{{ p.quantity }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          }
+        </div>
+      }
       <button
         class="shop__view-btn"
         [class.shop__view-btn--active]="viewMode() === 'grid'"
@@ -79,6 +107,16 @@
             </div>
           }
         </div>
+
+        <!-- Client-agent: pick who you're ordering for + per-client cart summary -->
+        @if (isAgent) {
+          <div class="shop__agent-bar">
+            <div class="shop__agent-select">
+              <span class="shop__agent-label">Choose client(s):</span>
+              <app-agent-client-select></app-agent-client-select>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Active Filters -->

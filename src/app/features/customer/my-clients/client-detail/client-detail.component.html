@@ -1,0 +1,55 @@
+<div class="client-detail">
+  <ui-section-header title="Client details" icon="user"></ui-section-header>
+
+  @if (isLoading()) {
+    <div class="client-detail__loading">
+      <ui-spinner size="lg"></ui-spinner>
+    </div>
+  } @else if (error()) {
+    <ui-empty-state
+      icon="error"
+      title="Couldn't load this client"
+      [description]="error()!"
+    ></ui-empty-state>
+    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my clients</ui-button>
+  } @else if (notFound()) {
+    <ui-empty-state
+      icon="user"
+      title="Client not found"
+      description="This client isn't managed by your company (any more)."
+    ></ui-empty-state>
+    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my clients</ui-button>
+  } @else if (client(); as c) {
+    <div class="client-detail__card">
+      <header class="client-detail__head">
+        <h2 class="client-detail__name">{{ c.name }}</h2>
+        <ui-badge variant="default" size="md">{{ c.code }}</ui-badge>
+        @if (c.isArchived) {
+          <ui-badge variant="warning" size="md">Archived</ui-badge>
+        } @else if (c.isActive) {
+          <ui-badge variant="success" size="md">Active</ui-badge>
+        }
+        @if (isSelected()) {
+          <ui-badge variant="primary" size="md" [rounded]="true">Selected</ui-badge>
+        }
+      </header>
+
+      <dl class="client-detail__meta">
+        @if (c.address) { <div><dt>Address</dt><dd>{{ c.address }}</dd></div> }
+        @if (c.email) { <div><dt>Email</dt><dd>{{ c.email }}</dd></div> }
+        @if (c.phoneNumber) { <div><dt>Phone</dt><dd>{{ c.phoneNumber }}</dd></div> }
+        @if (c.vatNumber) { <div><dt>VAT</dt><dd>{{ c.vatNumber }}</dd></div> }
+        @if (c.description) { <div><dt>Notes</dt><dd>{{ c.description }}</dd></div> }
+      </dl>
+
+      <footer class="client-detail__actions">
+        <ui-button variant="primary" size="md" iconLeft="cart" (clicked)="selectAndShop()">
+          Select &amp; shop
+        </ui-button>
+        <ui-button variant="secondary" size="md" iconLeft="arrow-left" (clicked)="back()">
+          Back
+        </ui-button>
+      </footer>
+    </div>
+  }
+</div>

@@ -1,0 +1,92 @@
+<div class="my-clients">
+  <ui-section-header title="My Clients" icon="users"></ui-section-header>
+
+  <!-- Active selection banner -->
+  @if (selectedClientId() !== null) {
+    <div class="my-clients__selection">
+      <ui-icon name="user" size="sm"></ui-icon>
+      <span class="my-clients__selection-text">
+        Ordering on behalf of <strong>{{ selectedClientName() }}</strong>
+      </span>
+      <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">Clear</ui-button>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="my-clients__loading">
+      <ui-spinner size="lg"></ui-spinner>
+    </div>
+  } @else if (error()) {
+    <!-- Error -->
+    <ui-empty-state
+      icon="error"
+      title="Couldn't load your clients"
+      [description]="error()!"
+      actionLabel="Retry"
+      (actionClick)="retry()"
+    ></ui-empty-state>
+  } @else if (clients().length === 0) {
+    <!-- Empty -->
+    <ui-empty-state
+      icon="user"
+      title="No managed clients"
+      description="Your company doesn't manage any clients yet."
+    ></ui-empty-state>
+  } @else {
+    <!-- Client grid -->
+    <div class="my-clients__grid">
+      @for (client of clients(); track client.id) {
+        <article
+          class="client-card"
+          [class.client-card--selected]="isSelected(client)"
+        >
+          <header class="client-card__header">
+            <h3 class="client-card__name">{{ client.name }}</h3>
+            <ui-badge variant="default" size="sm">{{ client.code }}</ui-badge>
+          </header>
+
+          <dl class="client-card__meta">
+            @if (client.address) {
+              <div><dt>Address</dt><dd>{{ client.address }}</dd></div>
+            }
+            @if (client.email) {
+              <div><dt>Email</dt><dd>{{ client.email }}</dd></div>
+            }
+            @if (client.phoneNumber) {
+              <div><dt>Phone</dt><dd>{{ client.phoneNumber }}</dd></div>
+            }
+          </dl>
+
+          <div class="client-card__status">
+            @if (client.isArchived) {
+              <ui-badge variant="warning" size="sm">Archived</ui-badge>
+            } @else if (client.isActive) {
+              <ui-badge variant="success" size="sm">Active</ui-badge>
+            } @else {
+              <ui-badge variant="default" size="sm">Inactive</ui-badge>
+            }
+            @if (isSelected(client)) {
+              <ui-badge variant="primary" size="sm" [rounded]="true">Selected</ui-badge>
+            }
+          </div>
+
+          <footer class="client-card__actions">
+            @if (isSelected(client)) {
+              <ui-button variant="primary" size="sm" iconLeft="cart" (clicked)="selectAndShop(client)">
+                Continue to shop
+              </ui-button>
+            } @else {
+              <ui-button variant="primary" size="sm" (clicked)="selectAndShop(client)">
+                Select &amp; shop
+              </ui-button>
+            }
+            <ui-button variant="secondary" size="sm" (clicked)="viewClient(client)">
+              View
+            </ui-button>
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</div>

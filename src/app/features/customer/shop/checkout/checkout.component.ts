@@ -15,6 +15,7 @@ import { DeliveryCostService } from '@core/services/http/delivery-cost.service';
 import { PaymentTypeService } from '@core/services/http/payment-type.service';
 import { DeliveryTypeService } from '@core/services/http/delivery-type.service';
 import { AuthService } from '@core/auth/auth.service';
+import { USER_ROLES } from '@core/models/auth.model';
 import { ClientAddress } from '@core/models/client.model';
 import { ShopProduct } from '@core/mocks/mock-data';
 
@@ -24,6 +25,9 @@ export interface CheckoutItem {
   quantity: number;
   discount: number;
   isFavorite: boolean;
+  clientId?: number;
+  clientName?: string;
+  clientCode?: string;
 }
 
 @Component({
@@ -81,9 +85,35 @@ export class CheckoutComponent implements OnInit {
       product: item.product,
       quantity: item.quantity,
       discount: item.product.discountPercent || item.discountPercent || 0,
-      isFavorite: item.isFavorite
+      isFavorite: item.isFavorite,
+      clientId: item.clientId,
+      clientName: item.clientName,
+      clientCode: item.clientCode
     }))
   );
+
+  /** Client agents review the order grouped into a section per managed client. */
+  get isAgent(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT_AGENT);
+  }
+
+  /** Per-client grouping of the checkout items for the agent view. */
+  groupedByClient = computed(() => {
+    const groups = new Map<number, { clientId: number; clientName: string; clientCode: string; items: CheckoutItem[] }>();
+    for (const item of this.cartItems()) {
+      const key = item.clientId ?? -1;
+      const g = groups.get(key)
+        ?? {
+          clientId: key,
+          clientName: item.clientName ?? 'My Company',
+          clientCode: item.clientCode ?? '',
+          items: []
+        };
+      g.items.push(item);
+      groups.set(key, g);
+    }
+    return Array.from(groups.values());
+  });
 
   internalReference = signal('#0001');
   shippingCost = signal(0);
@@ -295,16 +325,14 @@ export class CheckoutComponent implements OnInit {
 
     const orderData: Record<string, unknown> = {
       notes: this.internalReference(),
-      items: this.cartItems().map(item => ({
-        product: `/api/v1/products/${item.product.id}`,
-        quantity: item.quantity
-      })),
+      items: this.cartItems().map(item => this.toOrderItem(item)),
       isDraft: false,
       billingAddress: this.billingAddress(),
       shippingAddress: this.shippingAddress(),
       shippingAddressId: this.selectedShippingAddressId(),
       paymentType: this.selectedPaymentTypeId() ? `/api/v1/payment_types/${this.selectedPaymentTypeId()}` : null,
-      deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null
+      deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null,
+      onBehalfOfClient: this.orderLevelOnBehalfOfIri()
     };
 
     this.orderService.createOrder(orderData).subscribe({
@@ -323,6 +351,27 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  /**
+   * Order-level on-behalf-of IRI — set only when the entire cart is for a single
+   * managed client. Mixed-client carts carry the client per line instead (and the
+   * order-level stays null). The backend re-validates and strips for non-agents.
+   */
+  private orderLevelOnBehalfOfIri(): string | null {
+    const ids = new Set(
+      this.cartItems().map(i => i.clientId).filter((id): id is number => id != null)
+    );
+    return ids.size === 1 ? `/api/v1/clients/${[...ids][0]}` : null;
+  }
+
+  /** Maps a cart line to its API item payload, stamping per-line on-behalf-of. */
+  private toOrderItem(item: CheckoutItem): Record<string, unknown> {
+    return {
+      product: `/api/v1/products/${item.product.id}`,
+      quantity: item.quantity,
+      ...(item.clientId ? { onBehalfOfClient: `/api/v1/clients/${item.clientId}` } : {})
+    };
+  }
+
   onSaveDraft(): void {
     if (this.isPlacingOrder() || this.cartItems().length === 0) {
       return;
@@ -333,16 +382,14 @@ export class CheckoutComponent implements OnInit {
 
     const orderData: Record<string, unknown> = {
       notes: this.internalReference(),
-      items: this.cartItems().map(item => ({
-        product: `/api/v1/products/${item.product.id}`,
-        quantity: item.quantity
-      })),
+      items: this.cartItems().map(item => this.toOrderItem(item)),
       isDraft: true,
       billingAddress: this.billingAddress(),
       shippingAddress: this.shippingAddress(),
       shippingAddressId: this.selectedShippingAddressId(),
       paymentType: this.selectedPaymentTypeId() ? `/api/v1/payment_types/${this.selectedPaymentTypeId()}` : null,
-      deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null
+      deliveryType: this.selectedDeliveryTypeId() ? `/api/v1/delivery_types/${this.selectedDeliveryTypeId()}` : null,
+      onBehalfOfClient: this.orderLevelOnBehalfOfIri()
     };
 
     this.orderService.createOrder(orderData).subscribe({

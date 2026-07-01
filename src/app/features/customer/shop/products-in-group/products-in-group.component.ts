@@ -397,8 +397,9 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
 
   addToCart(): void {
     const product = this.selectedProduct();
-    if (product) {
-      this.cartService.addItem(product, this.quantity());
+    // addItem returns false when an agent hasn't selected a client (shows its
+    // own notification); only show the success toast when actually added.
+    if (product && this.cartService.addItem(product, this.quantity())) {
       this.showToast.set(true);
     }
   }

@@ -215,8 +215,9 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     const product = this.product();
-    if (product) {
-      this.cartService.addItem(product, this.quantity());
+    // addItem returns false when an agent hasn't selected a client (shows its
+    // own notification); only show the success toast when actually added.
+    if (product && this.cartService.addItem(product, this.quantity())) {
       this.showToast.set(true);
     }
   }

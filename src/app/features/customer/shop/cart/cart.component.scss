@@ -97,6 +97,58 @@
   }
 }
 
+// Cart client group (agent view)
+.cart-group {
+  margin-bottom: 12px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    background: #f4f6f9;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: #18181b;
+  }
+
+  &__chevron {
+    flex: 0 0 auto;
+    transition: transform 0.15s ease;
+
+    &--collapsed {
+      transform: rotate(-90deg);
+    }
+  }
+
+  &__title {
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  &__code {
+    color: #6b7785;
+    font-size: 0.8125rem;
+  }
+
+  &__count {
+    @include customer.count-badge;
+    margin-left: auto;
+  }
+
+  &__body {
+    padding-top: 12px;
+
+    .cart-item:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
 // Cart Item
 .cart-item {
   @include customer.item-card;

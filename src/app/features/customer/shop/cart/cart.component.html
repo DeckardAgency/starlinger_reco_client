@@ -14,55 +14,89 @@
 
     <!-- Cart Items -->
     <div class="cart-sheet__items">
-      @for (item of cartItems(); track item.id) {
-        <div class="cart-item">
-          <div class="cart-item__image-wrapper">
-            <img [src]="item.product.image" [alt]="item.product.name" class="cart-item__image">
-            <ui-favorite-button
-              class="cart-item__favorite"
-              size="sm"
-              [active]="item.isFavorite"
-              (toggleFavorite)="toggleFavorite(item)"
-            ></ui-favorite-button>
-          </div>
-          <div class="cart-item__info">
-            <div class="cart-item__details">
-              <div class="cart-item__code-section">
-                <span class="cart-item__label">Product code</span>
-                <span class="cart-item__code">{{ item.product.code }}</span>
-              </div>
-              <div class="cart-item__name-section">
-                <span class="cart-item__label">Product name</span>
-                <span class="cart-item__name">{{ item.product.name }}</span>
-              </div>
-            </div>
-            <div class="cart-item__controls">
-              <div class="cart-item__divider"></div>
-              <div class="cart-item__quantity-row">
-                <ui-quantity-selector
-                  size="sm"
-                  [value]="item.quantity"
-                  [min]="item.product.qtyStep || 1"
-                  [step]="item.product.qtyStep || 1"
-                  [showInput]="true"
-                  (quantityChange)="onQuantityChange(item, $event)"
-                  (quantityAdjusted)="onQuantityAdjusted($event)"
-                ></ui-quantity-selector>
-                <button class="cart-item__delete" type="button" (click)="removeItem(item)">
-                  <ui-icon name="trash" size="lg"></ui-icon>
-                </button>
-              </div>
-              @if (item.product.discountPercent! > 0) {
-                <span class="cart-item__price cart-item__price--original">{{ formatPrice(item.product.price * item.quantity) }}</span>
-                <span class="cart-item__price">{{ formatPrice(item.product.discountedPrice! * item.quantity) }}</span>
-              } @else {
-                <span class="cart-item__price">{{ formatPrice(item.product.price * item.quantity) }}</span>
+      @if (isAgent) {
+        <!-- Agent cart: grouped into a collapsible section per managed client -->
+        @for (group of groupedByClient(); track group.clientId) {
+          <div class="cart-group">
+            <button class="cart-group__header" type="button" (click)="toggleGroup(group.clientId)">
+              <ui-icon
+                class="cart-group__chevron"
+                [class.cart-group__chevron--collapsed]="!isExpanded(group.clientId)"
+                name="chevron-down"
+                size="sm"
+              ></ui-icon>
+              <span class="cart-group__title">Client: {{ group.clientName }}</span>
+              @if (group.clientCode) {
+                <span class="cart-group__code">({{ group.clientCode }})</span>
               }
-            </div>
+              <span class="cart-group__count">{{ group.items.length }}</span>
+            </button>
+            @if (isExpanded(group.clientId)) {
+              <div class="cart-group__body">
+                @for (item of group.items; track item.id) {
+                  <ng-container *ngTemplateOutlet="itemCard; context: { $implicit: item }"></ng-container>
+                }
+              </div>
+            }
           </div>
-        </div>
+        }
+      } @else {
+        <!-- Regular cart: flat list -->
+        @for (item of cartItems(); track item.id) {
+          <ng-container *ngTemplateOutlet="itemCard; context: { $implicit: item }"></ng-container>
+        }
       }
     </div>
+
+    <!-- Cart item card (shared by grouped + flat views) -->
+    <ng-template #itemCard let-item>
+      <div class="cart-item">
+        <div class="cart-item__image-wrapper">
+          <img [src]="item.product.image" [alt]="item.product.name" class="cart-item__image">
+          <ui-favorite-button
+            class="cart-item__favorite"
+            size="sm"
+            [active]="item.isFavorite"
+            (toggleFavorite)="toggleFavorite(item)"
+          ></ui-favorite-button>
+        </div>
+        <div class="cart-item__info">
+          <div class="cart-item__details">
+            <div class="cart-item__code-section">
+              <span class="cart-item__label">Product code</span>
+              <span class="cart-item__code">{{ item.product.code }}</span>
+            </div>
+            <div class="cart-item__name-section">
+              <span class="cart-item__label">Product name</span>
+              <span class="cart-item__name">{{ item.product.name }}</span>
+            </div>
+          </div>
+          <div class="cart-item__controls">
+            <div class="cart-item__divider"></div>
+            <div class="cart-item__quantity-row">
+              <ui-quantity-selector
+                size="sm"
+                [value]="item.quantity"
+                [min]="item.product.qtyStep || 1"
+                [step]="item.product.qtyStep || 1"
+                [showInput]="true"
+                (quantityChange)="onQuantityChange(item, $event)"
+                (quantityAdjusted)="onQuantityAdjusted($event)"
+              ></ui-quantity-selector>
+              <button class="cart-item__delete" type="button" (click)="removeItem(item)">
+                <ui-icon name="trash" size="lg"></ui-icon>
+              </button>
+            </div>
+            @if (item.product.discountPercent! > 0) {
+              <span class="cart-item__price cart-item__price--original">{{ formatPrice(item.product.price * item.quantity) }}</span>
+              <span class="cart-item__price">{{ formatPrice(item.product.discountedPrice! * item.quantity) }}</span>
+            } @else {
+              <span class="cart-item__price">{{ formatPrice(item.product.price * item.quantity) }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </ng-template>
 
     <!-- Bottom Section -->
     <div class="cart-sheet__bottom">

@@ -103,7 +103,9 @@ export class AppComponent implements OnInit {
   }
 
   get isCustomer(): boolean {
-    return this.authService.hasRole('ROLE_CLIENT');
+    // Client agents shop on behalf of managed clients, so they get the cart UI too.
+    return this.authService.hasRole('ROLE_CLIENT')
+      || this.authService.hasRole('ROLE_USER_CLIENT_AGENT');
   }
 
   /**

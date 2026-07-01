@@ -190,6 +190,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if current user is a Client Agent (can order on behalf of managed clients)
+   */
+  get isClientAgent(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT_AGENT);
+  }
+
+  /**
    * Navigate to company profile page
    */
   navigateToCompany(): void {

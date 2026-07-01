@@ -70,13 +70,15 @@
   &__filters {
     display: flex;
     align-items: center;
-    gap: 32px;
+    flex-wrap: wrap;
+    gap: 16px 32px;
     max-width: 500px;
     margin-bottom: 16px;
   }
 
   &__search {
-    width: 200px;
+    flex: 1 1 200px;
+    min-width: 0; // allow shrinking so search + filter stay on one row in the narrow split view
     max-width: 200px;
     @include admin.search-input-wrapper;
   }
@@ -95,6 +97,7 @@
   }
 
   &__filter-dropdown {
+    flex: 0 0 auto; // keep filter on the search row; let search shrink instead of wrapping
     @include customer.filter-dropdown;
   }
 
@@ -842,5 +845,154 @@
   // Hide detail side panel on mobile — user navigates to detail page instead
   .product-detail {
     display: none;
+  }
+}
+
+/* Client-agent bar (selector + per-client cart badges) */
+.shop__agent-bar {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  flex: 1 1 100%;
+  width: 100%;
+  order: 1; // ensure it sits below the search + filter row
+}
+
+.shop__agent-select {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 100%;
+
+  .shop__agent-label {
+    flex: 0 0 auto;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #3f4753;
+    white-space: nowrap;
+  }
+}
+
+.shop__cart-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.shop__cart-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #d6e2f0;
+  background: #f2f7fd;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: #2b3a4b;
+  cursor: default;
+
+  // Reveal the product list on hover/focus.
+  &:hover,
+  &:focus-within {
+    .shop__cart-badge-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  &-name { font-weight: 500; }
+
+  &-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #18181b;
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+}
+
+.shop__cart-badge-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 240px;
+  max-width: 320px;
+  padding: 0.5rem 0;
+  background: #fff;
+  border: 1px solid #d6e2f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 35, 65, 0.14);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+  cursor: default;
+
+  &-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0 0.75rem 0.375rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid #eef3f9;
+  }
+
+  &-client {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: #1f2a37;
+  }
+
+  &-count {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    color: #6b7785;
+  }
+
+  &-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  &-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  &-code {
+    font-weight: 600;
+    color: #18181b;
+    white-space: nowrap;
+  }
+
+  &-pname {
+    color: #2b3a4b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-qty {
+    flex: 0 0 auto;
+    color: #6b7785;
+    white-space: nowrap;
   }
 }

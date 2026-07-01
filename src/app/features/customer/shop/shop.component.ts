@@ -15,6 +15,9 @@ import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
+import { AuthService } from '@core/auth/auth.service';
+import { USER_ROLES } from '@core/models/auth.model';
+import { AgentClientSelectComponent } from './agent-client-select/agent-client-select.component';
 import { ShopProduct } from '@core/mocks/mock-data';
 import { Product, ProductGroup } from '@core/models';
 import { environment } from '@env/environment';
@@ -40,7 +43,8 @@ interface FilterGroup {
     CarouselComponent,
     EmptyStateComponent,
     FavoriteButtonComponent,
-    IconComponent
+    IconComponent,
+    AgentClientSelectComponent
   ],
   templateUrl: './shop.component.html',
   styleUrls: ['./shop.component.scss'],
@@ -102,6 +106,32 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   // Cart & Wishlist
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
+  private authService = inject(AuthService);
+
+  /** Client agents see the "ordering for" bar + per-client cart badges. */
+  get isAgent(): boolean {
+    return this.authService.hasRole(USER_ROLES.CLIENT_AGENT);
+  }
+
+  /** Per-client summary of what's currently in the cart (agent flow). */
+  cartClientBadges = computed(() => {
+    type Badge = {
+      clientId: number;
+      clientName: string;
+      itemCount: number;
+      products: { code: string; name: string; quantity: number }[];
+    };
+    const groups = new Map<number, Badge>();
+    for (const item of this.cartService.cartItems()) {
+      if (item.clientId == null) continue;
+      const g = groups.get(item.clientId)
+        ?? { clientId: item.clientId, clientName: item.clientName ?? '', itemCount: 0, products: [] };
+      g.itemCount += 1;
+      g.products.push({ code: item.product.code, name: item.product.name, quantity: item.quantity });
+      groups.set(item.clientId, g);
+    }
+    return Array.from(groups.values());
+  });
 
   constructor(router: Router) {
     this.router = router;
@@ -430,8 +460,9 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addToCart(): void {
     const product = this.selectedProduct();
-    if (product) {
-      this.cartService.addItem(product, this.quantity());
+    // addItem returns false when an agent hasn't picked a client yet (it shows
+    // its own notification); only surface the success toast when it was added.
+    if (product && this.cartService.addItem(product, this.quantity())) {
       this.showToast.set(true);
     }
   }

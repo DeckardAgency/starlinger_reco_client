@@ -1,0 +1,35 @@
+<div class="acs" [class.acs--open]="open()">
+  <button type="button" class="acs__trigger" (click)="toggle()">
+    <span class="acs__value" [class.acs__value--placeholder]="!selected()">
+      {{ selected()?.name || 'Select' }}
+    </span>
+    <svg class="acs__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"
+         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+
+  @if (open()) {
+    <div class="acs__panel">
+      @for (client of clients(); track client.id) {
+        <button type="button" class="acs__option" (click)="choose(client)">
+          <span class="acs__check" [class.acs__check--on]="isSelected(client)">
+            @if (isSelected(client)) {
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2.5 6.2l2.3 2.3 4.7-5" stroke="#fff" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            }
+          </span>
+          <span class="acs__name">{{ client.name }}</span>
+          <span class="acs__code">{{ client.code }}</span>
+        </button>
+      }
+      @if (clients().length === 0) {
+        <div class="acs__empty">No managed clients</div>
+      }
+    </div>
+  }
+</div>

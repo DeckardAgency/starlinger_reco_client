@@ -53,6 +53,11 @@ export class RoleGuard {
         if (userRoles.includes(USER_ROLES.CLIENT_ADMIN)) {
             return this.router.createUrlTree(['/customer-admin/orders']);
         }
+        // Client agents hold only ROLE_USER_CLIENT_AGENT (no ROLE_CLIENT) and
+        // start from their client hub, where they pick who they're ordering for.
+        if (userRoles.includes(USER_ROLES.CLIENT_AGENT)) {
+            return this.router.createUrlTree(['/customer/my-clients']);
+        }
         if (userRoles.includes(USER_ROLES.CLIENT)) {
             return this.router.createUrlTree(['/customer/dashboard']);
         }
