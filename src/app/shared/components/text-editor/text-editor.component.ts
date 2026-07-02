@@ -1,7 +1,8 @@
 // text-editor.component.ts
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, HostListener } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, SecurityContext, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-text-editor',
@@ -43,11 +44,16 @@ export class TextEditorComponent implements OnInit {
     isUnderline: boolean = false;
     currentAlignment: string = 'left';
 
-    constructor() {}
+    constructor(private sanitizer: DomSanitizer) {}
+
+    /** Strip dangerous markup from stored rich text before writing it to the DOM. */
+    private sanitizeHtml(html: string | null | undefined): string {
+        return this.sanitizer.sanitize(SecurityContext.HTML, html ?? '') ?? '';
+    }
 
     ngOnInit(): void {
         if (this.initialContent) {
-            this.editorElement.nativeElement.innerHTML = this.initialContent;
+            this.editorElement.nativeElement.innerHTML = this.sanitizeHtml(this.initialContent);
         }
         this.editorElement.nativeElement.addEventListener('input', () => {
             this.emitContentChange();
@@ -194,7 +200,7 @@ export class TextEditorComponent implements OnInit {
     }
 
     setContent(html: string): void {
-        this.editorElement.nativeElement.innerHTML = html;
+        this.editorElement.nativeElement.innerHTML = this.sanitizeHtml(html);
         this.emitContentChange();
     }
 }
