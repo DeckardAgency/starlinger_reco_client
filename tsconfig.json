@@ -3,7 +3,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,
@@ -25,15 +24,15 @@
       "dom"
     ],
     "paths": {
-      "@core/*": ["src/app/core/*"],
-      "@shared/*": ["src/app/shared/*"],
-      "@features/*": ["src/app/features/*"],
-      "@models/*": ["src/app/core/models/*"],
-      "@services/*": ["src/app/core/services/*"],
-      "@utils/*": ["src/app/utils/*"],
-      "@env/*": ["src/environments/*"],
-      "@app/ui-kit": ["src/app/ui-kit/index.ts"],
-      "@app/ui-kit/*": ["src/app/ui-kit/*"]
+      "@core/*": ["./src/app/core/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@features/*": ["./src/app/features/*"],
+      "@models/*": ["./src/app/core/models/*"],
+      "@services/*": ["./src/app/core/services/*"],
+      "@utils/*": ["./src/app/utils/*"],
+      "@env/*": ["./src/environments/*"],
+      "@app/ui-kit": ["./src/app/ui-kit/index.ts"],
+      "@app/ui-kit/*": ["./src/app/ui-kit/*"]
     }
   },
   "angularCompilerOptions": {
