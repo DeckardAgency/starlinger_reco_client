@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ColumnDefinition } from '@shared/components/column-selector/column-selector.component';
 
 @Injectable({
@@ -6,6 +7,8 @@ import { ColumnDefinition } from '@shared/components/column-selector/column-sele
 })
 export class ColumnSettingsService {
     private readonly STORAGE_PREFIX = 'table-columns-';
+    // localStorage does not exist during SSR — all reads/writes are no-ops there
+    private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
     /**
      * Load column settings from localStorage and merge with default columns
@@ -32,6 +35,9 @@ export class ColumnSettingsService {
      * @param columns Current column definitions
      */
     saveColumns(storageKey: string, columns: ColumnDefinition[]): void {
+        if (!this.isBrowser) {
+            return;
+        }
         const visibilityMap: Record<string, boolean> = {};
         columns.forEach(col => {
             visibilityMap[col.key] = col.visible;
@@ -44,6 +50,9 @@ export class ColumnSettingsService {
      * @param storageKey Unique key for the table
      */
     resetColumns(storageKey: string): void {
+        if (!this.isBrowser) {
+            return;
+        }
         localStorage.removeItem(this.getFullKey(storageKey));
     }
 
@@ -65,6 +74,9 @@ export class ColumnSettingsService {
      * Get saved settings from localStorage
      */
     private getSavedSettings(storageKey: string): Record<string, boolean> | null {
+        if (!this.isBrowser) {
+            return null;
+        }
         const saved = localStorage.getItem(this.getFullKey(storageKey));
         if (!saved) {
             return null;

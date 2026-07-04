@@ -12,6 +12,15 @@ import { SelectComponent } from '@app/ui-kit/atoms/select/select.component';
 import { SupportTicketService } from '@core/services/http/support-ticket.service';
 import { SupportTicket } from '@core/models/support-ticket.model';
 
+// Display row: API ticket + precomputed labels (avoid per-row method calls in the template)
+interface SupportTicketRow extends SupportTicket {
+  statusLabel: string;
+  statusVariant: 'success' | 'warning' | 'info' | 'secondary';
+  urgencyLabel: string;
+  urgencyVariant: 'success' | 'warning' | 'danger';
+  createdAtLabel: string;
+}
+
 @Component({
   selector: 'app-customer-admin-support',
   standalone: true,
@@ -36,9 +45,9 @@ export class SupportComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   isLoading = signal(true);
-  tickets = signal<SupportTicket[]>([]);
+  tickets = signal<SupportTicketRow[]>([]);
   showCreateDrawer = signal(false);
-  selectedTicket = signal<SupportTicket | null>(null);
+  selectedTicket = signal<SupportTicketRow | null>(null);
 
   // Form data for new ticket
   formData = {
@@ -62,7 +71,7 @@ export class SupportComponent implements OnInit {
 
     this.supportTicketService.getSupportTickets().subscribe({
       next: (response) => {
-        this.tickets.set(response.tickets);
+        this.tickets.set(response.tickets.map(ticket => this.mapTicketToRow(ticket)));
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -85,7 +94,7 @@ export class SupportComponent implements OnInit {
     this.resetForm();
   }
 
-  onViewTicket(ticket: SupportTicket): void {
+  onViewTicket(ticket: SupportTicketRow): void {
     this.selectedTicket.set(ticket);
   }
 
@@ -104,7 +113,7 @@ export class SupportComponent implements OnInit {
     this.supportTicketService.createSupportTicket(ticketData).subscribe({
       next: (newTicket) => {
         // Add new ticket to the list
-        this.tickets.update(tickets => [newTicket, ...tickets]);
+        this.tickets.update(tickets => [this.mapTicketToRow(newTicket), ...tickets]);
         this.onCloseDrawer();
         this.cdr.markForCheck();
       },
@@ -112,6 +121,17 @@ export class SupportComponent implements OnInit {
         console.error('Failed to create support ticket:', error);
       }
     });
+  }
+
+  private mapTicketToRow(ticket: SupportTicket): SupportTicketRow {
+    return {
+      ...ticket,
+      statusLabel: this.getStatusLabel(ticket.status),
+      statusVariant: this.getStatusVariant(ticket.status),
+      urgencyLabel: this.getUrgencyLabel(ticket.urgency),
+      urgencyVariant: this.getUrgencyVariant(ticket.urgency),
+      createdAtLabel: this.formatDate(ticket.createdAt)
+    };
   }
 
   private resetForm(): void {

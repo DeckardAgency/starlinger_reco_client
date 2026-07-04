@@ -34,6 +34,9 @@
             [alt]="slide.alt || slide.title || 'Slide ' + (i + 1)"
             class="ui-carousel__image"
             draggable="false"
+            decoding="async"
+            [attr.loading]="i === 0 ? null : 'lazy'"
+            [attr.fetchpriority]="i === 0 ? 'high' : null"
           />
           <div *ngIf="slide.title || slide.description" class="ui-carousel__caption">
             <h4 *ngIf="slide.title" class="ui-carousel__title">{{ slide.title }}</h4>

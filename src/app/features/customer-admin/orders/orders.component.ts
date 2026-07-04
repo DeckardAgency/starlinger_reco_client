@@ -32,6 +32,10 @@ interface OrderHistoryItem {
   partsOrdered: number;
   status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
   isArchived: boolean;
+  // Precomputed display fields (avoid per-row method calls in the template)
+  typeLabel: string;
+  statusLabel: string;
+  statusVariant: 'success' | 'danger' | 'warning' | 'secondary' | 'info';
 }
 
 @Component({
@@ -256,6 +260,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   private mapOrderToHistoryItem(order: Order): OrderHistoryItem {
     const userName = order.user ? `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() : 'Unknown';
     const initials = this.getInitials(userName);
+    const status = this.mapOrderStatus(order.status, order.isDraft);
 
     return {
       id: order.id,
@@ -266,9 +271,12 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         name: userName,
         initials
       },
-      partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
-      status: this.mapOrderStatus(order.status, order.isDraft),
-      isArchived: order.isArchived === true
+      partsOrdered: order.totalQuantity ?? 0,
+      status,
+      isArchived: order.isArchived === true,
+      typeLabel: this.getTypeLabel('order'),
+      statusLabel: this.getStatusLabel(status),
+      statusVariant: this.getStatusVariant(status)
     };
   }
 

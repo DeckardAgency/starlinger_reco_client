@@ -100,7 +100,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       internalReference: o.orderNumber || o.id.slice(0, 8),
       customerInitials: this.getInitials(o.user),
       customerName: this.getUserName(o.user),
-      partsOrdered: (o.items || []).reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 0), 0),
+      partsOrdered: o.totalQuantity ?? 0,
       status: this.mapStatus(o.status)
     })).sort((a, b) => {
       const parse = (d: string) => { const [day, month, year] = d.split('-'); return new Date(Number(year), Number(month) - 1, Number(day)).getTime(); };

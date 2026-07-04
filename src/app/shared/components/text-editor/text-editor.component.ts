@@ -1,5 +1,5 @@
 // text-editor.component.ts
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, SecurityContext, ViewChild, HostListener } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, SecurityContext, ViewChild, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -8,7 +8,8 @@ import { DomSanitizer } from '@angular/platform-browser';
     selector: 'app-text-editor',
     imports: [CommonModule, FormsModule],
     templateUrl: './text-editor.component.html',
-    styleUrls: ['./text-editor.component.scss']
+    styleUrls: ['./text-editor.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextEditorComponent implements OnInit {
     @Input() placeholder: string = 'Start typing.';
@@ -44,7 +45,10 @@ export class TextEditorComponent implements OnInit {
     isUnderline: boolean = false;
     currentAlignment: string = 'left';
 
-    constructor(private sanitizer: DomSanitizer) {}
+    constructor(
+        private sanitizer: DomSanitizer,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     /** Strip dangerous markup from stored rich text before writing it to the DOM. */
     private sanitizeHtml(html: string | null | undefined): string {
@@ -110,6 +114,9 @@ export class TextEditorComponent implements OnInit {
         if (fontSize) {
             this.selectedSize = fontSize;
         }
+
+        // Format state may be updated from raw DOM listeners (mouseup/keyup/click) — mark for check (OnPush)
+        this.cdr.markForCheck();
     }
 
     execCommand(command: string, value: string | undefined = undefined): void {

@@ -7,9 +7,11 @@ import {
   booleanAttribute,
   HostListener,
   signal,
-  effect
+  effect,
+  inject,
+  PLATFORM_ID
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -62,10 +64,12 @@ export class ModalComponent {
   @Output() closed = new EventEmitter<void>();
 
   private _isOpen = signal(false);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor() {
     effect(() => {
-      if (this.preventBodyScroll) {
+      // document does not exist on the server; the effect runs during SSR too
+      if (this.isBrowser && this.preventBodyScroll) {
         document.body.style.overflow = this._isOpen() ? 'hidden' : '';
       }
     });
@@ -83,7 +87,7 @@ export class ModalComponent {
     this.isOpenChange.emit(false);
     this.closed.emit();
 
-    if (this.preventBodyScroll) {
+    if (this.isBrowser && this.preventBodyScroll) {
       document.body.style.overflow = '';
     }
   }

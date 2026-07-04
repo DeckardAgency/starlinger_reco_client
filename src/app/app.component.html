@@ -12,26 +12,34 @@
     <router-outlet></router-outlet>
   </main>
 
-  <!-- Login Modal Component -->
-  <app-login-modal
-    *ngIf="!isAuthPage"
-    [isOpen]="(loginModalService.isOpen$ | async) === true && !isAuthenticated"
-    [allowClose]="false"
-    (isOpenChange)="onLoginModalOpenChange($event)"
-    (loginSuccess)="onLoginSuccess()">
-  </app-login-modal>
+  <!-- Login Modal Component (deferred: chunk loads on first open; once loaded, the
+       inner *ngIf/[isOpen] bindings behave exactly as before) -->
+  @defer (when loginModalOpen && !isAuthenticated && !isAuthPage) {
+    <app-login-modal
+      *ngIf="!isAuthPage"
+      [isOpen]="loginModalOpen && !isAuthenticated"
+      [allowClose]="false"
+      (isOpenChange)="onLoginModalOpenChange($event)"
+      (loginSuccess)="onLoginSuccess()">
+    </app-login-modal>
+  }
 
-  <!-- Cart Popup (Customer only) -->
-  <app-cart
-    *ngIf="isCustomer && cartService.isCartOpen()"
-    (close)="cartService.closeCart()">
-  </app-cart>
+  <!-- Cart Popup (Customer only, deferred: chunk loads on first open; the inner *ngIf
+       keeps the original mount/unmount-on-toggle behavior) -->
+  @defer (when isCustomer && cartService.isCartOpen()) {
+    <app-cart
+      *ngIf="isCustomer && cartService.isCartOpen()"
+      (close)="cartService.closeCart()">
+    </app-cart>
+  }
 
-  <!-- Wishlist Popup (Customer only) -->
-  <app-wishlist
-    *ngIf="isCustomer && wishlistService.isWishlistOpen()"
-    (close)="wishlistService.closeWishlist()">
-  </app-wishlist>
+  <!-- Wishlist Popup (Customer only, deferred: chunk loads on first open) -->
+  @defer (when isCustomer && wishlistService.isWishlistOpen()) {
+    <app-wishlist
+      *ngIf="isCustomer && wishlistService.isWishlistOpen()"
+      (close)="wishlistService.closeWishlist()">
+    </app-wishlist>
+  }
 
   <!-- Global Alert/Confirmation Modal -->
   <app-alert></app-alert>

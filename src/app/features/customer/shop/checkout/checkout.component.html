@@ -59,7 +59,7 @@
             <div class="checkout__cell checkout__cell--item">
               <div class="checkout__product-card">
                 <div class="checkout__product-image">
-                  <img [src]="item.product.image" [alt]="item.product.name">
+                  <img [src]="item.product.image" [alt]="item.product.name" loading="lazy" decoding="async">
                   <ui-favorite-button
                     class="checkout__favorite-btn"
                     size="sm"

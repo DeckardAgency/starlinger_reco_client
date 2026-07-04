@@ -17,7 +17,7 @@
       @for (item of wishlistItems(); track item.id) {
         <div class="wishlist-item">
           <div class="wishlist-item__image-wrapper">
-            <img [src]="item.imageUrl" [alt]="item.productName" class="wishlist-item__image">
+            <img [src]="item.imageUrl" [alt]="item.productName" class="wishlist-item__image" loading="lazy" decoding="async">
             <ui-favorite-button
               class="wishlist-item__favorite"
               size="sm"

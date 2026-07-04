@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { SearchComponent, SearchSuggestion } from '@app/ui-kit/molecules/search/search.component';
 import { MobileMenuService } from '@services/mobile-menu.service';
 import { CartService } from '@core/services/cart.service';
@@ -10,9 +10,10 @@ import { Subject } from 'rxjs';
 @Component({
     selector: 'app-top-bar',
     standalone: true,
-    imports: [CommonModule, SearchComponent],
+    imports: [CommonModule, NgOptimizedImage, SearchComponent],
     templateUrl: './top-bar.component.html',
-    styleUrls: ['./top-bar.component.scss']
+    styleUrls: ['./top-bar.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopBarComponent implements OnInit, OnDestroy {
     showNotificationDropdown = false;
@@ -26,7 +27,8 @@ export class TopBarComponent implements OnInit, OnDestroy {
         private mobileMenuService: MobileMenuService,
         public cartService: CartService,
         public wishlistService: WishlistService,
-        public authService: AuthService
+        public authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {}
@@ -95,6 +97,7 @@ export class TopBarComponent implements OnInit, OnDestroy {
                 { id: '2', label: 'AIVV-01210 Power Panel T30', description: 'Spare part', type: 'Part' },
             ].filter(s => s.label.toLowerCase().includes(query.toLowerCase()));
             this.searchLoading = false;
+            this.cdr.markForCheck();
         }, 300);
     }
 

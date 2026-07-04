@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -30,19 +30,24 @@ import { AlertService, AlertEvent, AlertButton } from '@services/alert.service';
                 animate('150ms ease-in', style({ opacity: 0, transform: 'scale(0.95) translateY(-10px)' }))
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlertComponent implements OnInit, OnDestroy {
     currentAlert: AlertEvent | null = null;
     promptValue: string = '';
     private subscription!: Subscription;
 
-    constructor(private alertService: AlertService) {}
+    constructor(
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     ngOnInit(): void {
         this.subscription = this.alertService.alert$.subscribe(alert => {
             this.currentAlert = alert;
             this.promptValue = '';
+            this.cdr.markForCheck();
         });
     }
 

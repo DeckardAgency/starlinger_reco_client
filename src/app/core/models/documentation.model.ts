@@ -17,7 +17,10 @@ export interface Documentation {
   id: number;
   title: string;
   slug: string;
-  content: string;
+  /** Full content — present on DETAIL responses only, NOT on list responses. */
+  content?: string;
+  /** Plain-text excerpt (max 160 chars) — present on LIST responses. */
+  excerpt?: string;
   category: string | null;
   sortOrder: number;
   isPublished: boolean;

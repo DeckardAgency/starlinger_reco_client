@@ -57,6 +57,63 @@
       </div>
     </div>
 
+    <!-- Tracking Card -->
+    @if (order()?.trackingNumber) {
+      <div class="tracking-card">
+        <div class="tracking-card__header">
+          <ui-icon name="truck" size="md" color="#71717A"></ui-icon>
+          <h2 class="tracking-card__title">Track shipment</h2>
+        </div>
+        <div class="tracking-card__body">
+          <div class="tracking-card__row">
+            <span class="tracking-card__label">Carrier</span>
+            <span class="tracking-card__value">{{ order()?.trackingCarrier || '—' }}</span>
+          </div>
+          <div class="tracking-card__row">
+            <span class="tracking-card__label">Tracking number</span>
+            <span class="tracking-card__value">{{ order()?.trackingNumber }}</span>
+          </div>
+          @if (order()?.dispatchedAt) {
+            <div class="tracking-card__row">
+              <span class="tracking-card__label">Dispatched</span>
+              <span class="tracking-card__value">{{ order()?.dispatchedAt }}</span>
+            </div>
+          }
+        </div>
+        @if (order()?.trackingUrl) {
+          <a class="tracking-card__cta" [href]="order()?.trackingUrl" target="_blank" rel="noopener">
+            Track now
+            <ui-icon name="external-link" size="sm"></ui-icon>
+          </a>
+        }
+
+        @if ((order()?.trackingEvents?.length ?? 0) > 0) {
+          <div class="tracking-card__timeline">
+            <h3 class="tracking-card__timeline-title">Shipment progress</h3>
+            <ol class="tracking-timeline">
+              @for (event of order()?.trackingEvents; track event.id) {
+                <li class="tracking-timeline__event">
+                  <span class="tracking-timeline__marker"></span>
+                  <div class="tracking-timeline__body">
+                    <div class="tracking-timeline__head">
+                      <span class="tracking-timeline__status">{{ event.statusLabel }}</span>
+                      <span class="tracking-timeline__date">{{ event.occurredAt }}</span>
+                    </div>
+                    @if (event.location) {
+                      <div class="tracking-timeline__location">{{ event.location }}</div>
+                    }
+                    @if (event.description) {
+                      <div class="tracking-timeline__description">{{ event.description }}</div>
+                    }
+                  </div>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </div>
+    }
+
     <!-- Products Ordered Section -->
     <div class="products-section">
       <div class="products-section__header">

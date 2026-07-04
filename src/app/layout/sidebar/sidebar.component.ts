@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, ElementRef, HostListener, HostBinding } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ElementRef, HostListener, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { SidebarService } from '@services/sidebar.service';
@@ -40,7 +40,8 @@ type SectionKey = 'customer' | 'actions' | 'product' | 'ecommerce' | 'user' | 's
                 animate('200ms ease-in-out')
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   // Disable animations when sidebar is collapsed
@@ -64,6 +65,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private router: Router,
     private elementRef: ElementRef,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +73,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateUserDisplay();
+      this.cdr.markForCheck();
+    });
+
+    // Re-render on navigation so isRouteActive() bindings stay in sync (OnPush)
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.cdr.markForCheck();
     });
 
     // Initialize with current user

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatePickerComponent } from "@shared/components/date-picker/date-picker.component";
 import { ReactiveFormsModule, FormGroup, FormBuilder } from "@angular/forms";
@@ -44,7 +44,8 @@ interface DashboardResponse {
     selector: 'app-performance-overview',
     imports: [CommonModule, DatePickerComponent, ReactiveFormsModule, IconComponent, ButtonComponent],
     templateUrl: './performance-overview.component.html',
-    styleUrls: ['./performance-overview.component.scss']
+    styleUrls: ['./performance-overview.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerformanceOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() startDate: string = '';

@@ -1,5 +1,5 @@
 // login-modal.component.ts
-import {Component, Input, Output, EventEmitter, OnInit, booleanAttribute, inject, DestroyRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, booleanAttribute, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,7 +32,8 @@ import { LoggerService, ScopedLogger } from '@services/logger.service';
                 animate('200ms ease-in', style({ transform: 'translateY(-50px)', opacity: 0 }))
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginModalComponent implements OnInit {
   @Input({transform: booleanAttribute}) isOpen = false;
@@ -54,6 +55,7 @@ export class LoginModalComponent implements OnInit {
   rememberMeId = '';
 
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
   private logger!: ScopedLogger;
 
   constructor(
@@ -124,11 +126,13 @@ export class LoginModalComponent implements OnInit {
           } else {
             this.errorMessage = 'Invalid email or password';
           }
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = 'An error occurred. Please try again.';
           this.logger.error('Login error:', error);
+          this.cdr.markForCheck();
         }
       });
   }

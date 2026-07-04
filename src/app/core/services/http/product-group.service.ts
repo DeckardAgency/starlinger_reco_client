@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError, shareReplay } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { ProductGroup, ProductGroupsCollection } from '@core/models';
 import { BaseHttpService } from './base-http.service';
@@ -11,16 +12,45 @@ export class ProductGroupService extends BaseHttpService {
 
   private readonly endpoint = `${this.apiUrl}/product_groups`;
 
+  // Cached reference-data call (product groups rarely change)
+  private productGroupsCache$: Observable<ProductGroupsCollection> | null = null;
+
   /**
-   * Get all product groups with optional pagination
+   * Get all product groups with optional pagination.
+   * The default (parameter-less) call is cached for the lifetime of the app.
    */
   getProductGroups(page: number = 1, itemsPerPage: number = 30): Observable<ProductGroupsCollection> {
+    const isDefaultCall = page === 1 && itemsPerPage === 30;
+
+    if (isDefaultCall && this.productGroupsCache$) {
+      return this.productGroupsCache$;
+    }
+
     const params = this.buildParams({
       page,
       itemsPerPage
     });
 
-    return this.getWithJsonLd<ProductGroupsCollection>(this.endpoint, params);
+    const request$ = this.getWithJsonLd<ProductGroupsCollection>(this.endpoint, params);
+
+    if (!isDefaultCall) {
+      return request$;
+    }
+
+    this.productGroupsCache$ = request$.pipe(
+      catchError((error) => {
+        // Don't cache failed fetches
+        this.productGroupsCache$ = null;
+        return throwError(() => error);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    return this.productGroupsCache$;
+  }
+
+  clearCache(): void {
+    this.productGroupsCache$ = null;
   }
 
   /**

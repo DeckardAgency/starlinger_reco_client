@@ -32,6 +32,7 @@ export class DocumentationComponent implements OnInit {
   isLoading = signal(true);
   documents = signal<Documentation[]>([]);
   selectedDoc = signal<Documentation | null>(null);
+  isLoadingDoc = signal(false);
   searchQuery = '';
 
   ngOnInit(): void {
@@ -73,11 +74,30 @@ export class DocumentationComponent implements OnInit {
   }
 
   onViewDoc(doc: Documentation): void {
+    // Show the list item immediately (title/category/date), then fetch the full content.
     this.selectedDoc.set(doc);
+    this.isLoadingDoc.set(true);
+
+    this.documentationService.getDocumentation(String(doc.id)).subscribe({
+      next: (fullDoc) => {
+        // Only apply if the user hasn't closed or switched documents meanwhile.
+        if (this.selectedDoc()?.id === doc.id) {
+          this.selectedDoc.set(fullDoc);
+        }
+        this.isLoadingDoc.set(false);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load documentation content:', error);
+        this.isLoadingDoc.set(false);
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   onCloseDoc(): void {
     this.selectedDoc.set(null);
+    this.isLoadingDoc.set(false);
   }
 
   formatDate(dateStr: string): string {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import {
@@ -36,7 +36,8 @@ export type ButtonStyle = 'primary' | 'danger' | 'warning';
                 animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.95) translateY(10px)' }))
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmationModalComponent implements OnChanges {
     private fb = inject(FormBuilder);

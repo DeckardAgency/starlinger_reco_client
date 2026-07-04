@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
-import { catchError, map, switchMap, delay } from 'rxjs/operators';
+import { catchError, map, switchMap, delay, tap, finalize, shareReplay } from 'rxjs/operators';
 import { User } from '@core/models';
 import { environment } from '@env/environment';
 import { AuthResponse } from '@models/api/auth-api.model';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
-import { DUMMY_USER_CREDENTIALS, mockDevelopmentUser } from '@core/mocks/mock-data';
+import { DUMMY_USER_CREDENTIALS, mockDevelopmentUser } from './dev-user';
 
 // Re-export for backward compatibility
 export type { AuthResponse };
@@ -45,6 +46,10 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   private logger!: ScopedLogger;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  /** In-flight /api/me session check, shared so concurrent callers reuse one request. */
+  private sessionCheck$: Observable<User | null> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -213,6 +218,13 @@ export class AuthService {
       return;
     }
 
+    // During SSR there is no localStorage cache and the server-side HttpClient does not
+    // carry the browser's HttpOnly auth cookie, so /api/me would always fail — skip the
+    // round trip entirely and render as unauthenticated. The browser re-validates on boot.
+    if (!this.isBrowser) {
+      return;
+    }
+
     const cached = this.readCachedUser();
     if (cached) {
       this.currentUserSubject.next(cached);
@@ -227,17 +239,39 @@ export class AuthService {
   }
 
   private validateSession(): void {
-    this.fetchMe().subscribe(user => {
-      if (user) {
-        if (user.client?.isArchived) {
-          this.logout();
-          return;
-        }
-        this.setUser(user);
-      } else {
-        this.clearUser();
-      }
-    });
+    this.checkSession().subscribe();
+  }
+
+  /**
+   * Validate the session against /api/me and update local auth state accordingly
+   * (archived client → logout, valid user → refresh cache, no session → clear).
+   *
+   * Concurrent callers share a single in-flight request (so the boot-time validation
+   * and AppComponent's archived-client re-check don't fetch the same payload twice);
+   * once the request completes, the next call triggers a fresh fetch. Emits the fetched
+   * user (with `client.isArchived`) or null; never errors.
+   */
+  checkSession(): Observable<User | null> {
+    if (!this.sessionCheck$) {
+      this.sessionCheck$ = this.fetchMe().pipe(
+        tap(user => {
+          if (user) {
+            if (user.client?.isArchived) {
+              this.logout();
+              return;
+            }
+            this.setUser(user);
+          } else {
+            this.clearUser();
+          }
+        }),
+        finalize(() => {
+          this.sessionCheck$ = null;
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.sessionCheck$;
   }
 
   private setUser(user: User): void {
@@ -279,6 +313,11 @@ export class AuthService {
   }
 
   private isLocalStorageAvailable(): boolean {
+    // Explicit platform guard: on the server `localStorage` is not defined at all
+    // (previously this relied on the try/catch swallowing a ReferenceError).
+    if (!this.isBrowser) {
+      return false;
+    }
     try {
       const testKey = '__test__';
       localStorage.setItem(testKey, testKey);

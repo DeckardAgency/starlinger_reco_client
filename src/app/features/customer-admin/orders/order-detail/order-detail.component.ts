@@ -39,6 +39,15 @@ interface OrderDetailLogMessage {
   message: string;
 }
 
+interface OrderDetailTrackingEvent {
+  id: number;
+  status: string;
+  statusLabel: string;
+  description: string | null;
+  location: string | null;
+  occurredAt: string;
+}
+
 interface OrderDetail {
   id: number;
   orderNumber?: string;
@@ -51,6 +60,11 @@ interface OrderDetail {
   totalPrice?: number;
   amountPaid?: number;
   logMessages: OrderDetailLogMessage[];
+  trackingNumber?: string | null;
+  trackingCarrier?: string | null;
+  trackingUrl?: string | null;
+  dispatchedAt?: string | null;
+  trackingEvents?: OrderDetailTrackingEvent[];
 }
 
 @Component({
@@ -182,8 +196,24 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       status: order.status,
       productGroups,
       totalPrice: order.totalAmount,
-      logMessages
+      logMessages,
+      trackingNumber: order.trackingNumber || null,
+      trackingCarrier: order.trackingCarrier || null,
+      trackingUrl: order.trackingUrl || null,
+      dispatchedAt: (order as any).dispatchedAt ? this.formatDate((order as any).dispatchedAt) : null,
+      trackingEvents: (((order as any).trackingEvents || []) as Array<any>).map(e => ({
+        id: e.id,
+        status: e.status,
+        statusLabel: this.formatTrackingStatus(e.status),
+        description: e.description ?? null,
+        location: e.location ?? null,
+        occurredAt: this.formatDateTime(e.occurredAt),
+      })),
     };
+  }
+
+  formatTrackingStatus(status: string): string {
+    return (status || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 
   private formatDate(dateStr: string): string {

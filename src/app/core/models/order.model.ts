@@ -54,7 +54,12 @@ export interface Order {
     updatedAt: string;
     isDraft?: boolean;
     lastSavedAt: string;
-    items: OrderItem[];
+    /** Full line items — present on DETAIL and write responses only, NOT on list responses. */
+    items?: OrderItem[];
+    /** Number of line items — present on LIST responses. */
+    itemsCount?: number;
+    /** Sum of item quantities — present on LIST responses. */
+    totalQuantity?: number;
     user: User;
     logs?: OrderLog[];
     // Tracking fields (for dispatched status)

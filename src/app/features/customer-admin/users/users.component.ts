@@ -36,6 +36,11 @@ interface CustomerAdminUser {
   email: string;
   status: 'active' | 'inactive';
   transactions: number;
+  // Precomputed display fields (avoid per-row method calls in the template)
+  roleLabel: string;
+  roleVariant: 'warning' | 'info' | 'secondary';
+  statusLabel: string;
+  statusVariant: 'success' | 'danger';
 }
 
 @Component({
@@ -191,7 +196,11 @@ export class UsersComponent implements AfterViewInit, OnInit {
       role,
       email: user.email,
       status: 'active', // Backend doesn't have isActive for users yet
-      transactions: user.orders?.length || 0
+      transactions: user.orders?.length || 0,
+      roleLabel: this.getRoleLabel(role),
+      roleVariant: this.getRoleVariant(role),
+      statusLabel: this.getStatusLabel('active'),
+      statusVariant: this.getStatusVariant('active')
     };
   }
 
@@ -364,7 +373,14 @@ export class UsersComponent implements AfterViewInit, OnInit {
       next: () => {
         // Update local state
         this.allUsers.update(users =>
-          users.map(u => u.id === user.id ? { ...u, status: 'inactive' as const } : u)
+          users.map(u => u.id === user.id
+            ? {
+                ...u,
+                status: 'inactive' as const,
+                statusLabel: this.getStatusLabel('inactive'),
+                statusVariant: this.getStatusVariant('inactive')
+              }
+            : u)
         );
         this.cdr.markForCheck();
       },

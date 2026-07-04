@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
@@ -48,7 +48,8 @@ import { signal } from '@angular/core';
                 animate('300ms ease-in-out')
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MobileMenuComponent implements OnInit {
     isInquiriesExpanded = signal<boolean>(false);
@@ -62,7 +63,8 @@ export class MobileMenuComponent implements OnInit {
         public authService: AuthService,
         private router: Router,
         private elementRef: ElementRef,
-        public mobileMenuService: MobileMenuService
+        public mobileMenuService: MobileMenuService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
@@ -70,17 +72,19 @@ export class MobileMenuComponent implements OnInit {
         this.authService.currentUser$.subscribe(user => {
             this.currentUser = user;
             this.updateUserDisplay();
+            this.cdr.markForCheck();
         });
 
         // Initialize with current user
         this.currentUser = this.authService.getCurrentUser();
         this.updateUserDisplay();
 
-        // Close menu on navigation
+        // Close menu on navigation and re-render so isRouteActive() bindings stay in sync (OnPush)
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
             .subscribe(() => {
                 this.mobileMenuService.close();
+                this.cdr.markForCheck();
             });
     }
 

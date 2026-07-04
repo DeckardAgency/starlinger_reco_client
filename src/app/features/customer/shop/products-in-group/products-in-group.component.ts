@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -13,7 +13,7 @@ import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
-import { ShopProduct } from '@core/mocks/mock-data';
+import { ShopProduct } from '@core/models/shop-product.model';
 import { Product, ProductGroup } from '@core/models';
 import { environment } from '@env/environment';
 
@@ -50,6 +50,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('scrollSentinel') scrollSentinel!: ElementRef<HTMLDivElement>;
   @ViewChild('productsContainer') productsContainer!: ElementRef<HTMLDivElement>;
   private observer: IntersectionObserver | null = null;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -133,6 +134,10 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private setupIntersectionObserver(): void {
+    // IntersectionObserver does not exist on the server
+    if (!this.isBrowser) {
+      return;
+    }
     const root = this.productsContainer?.nativeElement || null;
     this.observer = new IntersectionObserver(
       (entries) => {
@@ -235,8 +240,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
     if (product.featuredImage?.filePath) {
       return `${environment.apiBaseUrl}${product.featuredImage.filePath}`;
     }
-    const encodedName = encodeURIComponent(product.shortDescription || product.name);
-    return `https://placehold.co/200x200/f5f5f5/666?text=${encodedName}`;
+    return '/images/product-placeholder.svg';
   }
 
   getDocumentUrl(doc: { filePath: string }): string {

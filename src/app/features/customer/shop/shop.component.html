@@ -145,7 +145,16 @@
             (click)="onProductClick(product)"
           >
             <div class="product-card__image-container">
-              <img class="product-card__img" [src]="product.image" [alt]="product.name" />
+              <img
+                class="product-card__img"
+                [src]="product.image"
+                [alt]="product.name"
+                width="200"
+                height="200"
+                decoding="async"
+                [attr.loading]="$index < 4 ? null : 'lazy'"
+                [attr.fetchpriority]="$index < 4 ? 'high' : null"
+              />
               <ui-favorite-button
                 class="product-card__favorite"
                 [active]="product.isFavorite"

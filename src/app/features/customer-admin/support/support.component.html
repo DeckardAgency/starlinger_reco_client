@@ -35,18 +35,18 @@
             <div class="ticket-card__header">
               <span class="ticket-id">#{{ ticket.id }}</span>
               <div class="ticket-badges">
-                <ui-badge [variant]="getUrgencyVariant(ticket.urgency)" size="sm">
-                  {{ getUrgencyLabel(ticket.urgency) }}
+                <ui-badge [variant]="ticket.urgencyVariant" size="sm">
+                  {{ ticket.urgencyLabel }}
                 </ui-badge>
-                <ui-badge [variant]="getStatusVariant(ticket.status)" size="sm">
-                  {{ getStatusLabel(ticket.status) }}
+                <ui-badge [variant]="ticket.statusVariant" size="sm">
+                  {{ ticket.statusLabel }}
                 </ui-badge>
               </div>
             </div>
             <h3 class="ticket-subject">{{ ticket.subject }}</h3>
             <p class="ticket-message">{{ ticket.message }}</p>
             <div class="ticket-footer">
-              <span class="ticket-date">{{ formatDate(ticket.createdAt) }}</span>
+              <span class="ticket-date">{{ ticket.createdAtLabel }}</span>
             </div>
           </div>
         }
@@ -70,19 +70,19 @@
             </div>
             <div class="detail-row">
               <span class="detail-label">Status</span>
-              <ui-badge [variant]="getStatusVariant(selectedTicket()?.status || '')">
-                {{ getStatusLabel(selectedTicket()?.status || '') }}
+              <ui-badge [variant]="selectedTicket()?.statusVariant || 'secondary'">
+                {{ selectedTicket()?.statusLabel }}
               </ui-badge>
             </div>
             <div class="detail-row">
               <span class="detail-label">Urgency</span>
-              <ui-badge [variant]="getUrgencyVariant(selectedTicket()?.urgency || '')">
-                {{ getUrgencyLabel(selectedTicket()?.urgency || '') }}
+              <ui-badge [variant]="selectedTicket()?.urgencyVariant || 'warning'">
+                {{ selectedTicket()?.urgencyLabel }}
               </ui-badge>
             </div>
             <div class="detail-row">
               <span class="detail-label">Created</span>
-              <span class="detail-value">{{ formatDate(selectedTicket()?.createdAt || '') }}</span>
+              <span class="detail-value">{{ selectedTicket()?.createdAtLabel }}</span>
             </div>
             <div class="detail-row full-width">
               <span class="detail-label">Message</span>

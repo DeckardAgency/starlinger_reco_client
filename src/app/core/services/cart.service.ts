@@ -1,5 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { ShopProduct } from '@core/mocks/mock-data';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ShopProduct } from '@core/models/shop-product.model';
 import { Order } from '@core/models/order.model';
 import { AuthService } from '@core/auth/auth.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
@@ -27,6 +28,9 @@ export class CartService {
   private auth = inject(AuthService);
   private agentSelection = inject(AgentClientSelectionService);
   private notification = inject(NotificationService);
+  // Must be initialized before _cartItems: loadFromStorage() depends on it.
+  // localStorage does not exist during SSR — reads/writes are explicit no-ops there.
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private _isCartOpen = signal(false);
   private _cartItems = signal<CartItem[]>(this.loadFromStorage());
@@ -176,12 +180,18 @@ export class CartService {
   }
 
   private saveToStorage(): void {
+    if (!this.isBrowser) {
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this._cartItems()));
     } catch { /* storage unavailable */ }
   }
 
   private loadFromStorage(): CartItem[] {
+    if (!this.isBrowser) {
+      return [];
+    }
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : [];

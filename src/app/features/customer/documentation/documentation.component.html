@@ -42,8 +42,8 @@
               }
             </div>
             <h3 class="doc-title">{{ doc.title }}</h3>
-            @if (doc.content) {
-              <p class="doc-excerpt">{{ getExcerpt(doc.content) }}</p>
+            @if (doc.excerpt || doc.content) {
+              <p class="doc-excerpt">{{ doc.excerpt || getExcerpt(doc.content || '') }}</p>
             }
             <div class="doc-footer">
               <span class="doc-date">Updated: {{ formatDate(doc.updatedAt) }}</span>
@@ -71,6 +71,8 @@
           <div class="doc-detail__content">
             @if (selectedDoc()?.content) {
               <div class="doc-content">{{ selectedDoc()?.content }}</div>
+            } @else if (isLoadingDoc()) {
+              <p class="no-content">Loading content...</p>
             } @else {
               <p class="no-content">No content available for this document.</p>
             }

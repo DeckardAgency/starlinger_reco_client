@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaItem } from '@models/media.model';
 import { MediaService } from '@services/http/media.service';
@@ -12,7 +12,8 @@ import {environment} from "@env/environment";
     selector: 'app-product-featured-image',
     imports: [CommonModule],
     templateUrl: './product-featured-image.component.html',
-    styleUrls: ['./product-featured-image.component.scss']
+    styleUrls: ['./product-featured-image.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
     @Input() featuredImage: MediaItem | null = null;
@@ -31,7 +32,8 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
 
     constructor(
         private mediaService: MediaService,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
@@ -112,6 +114,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             this.uploadError = 'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.';
+            this.cdr.markForCheck();
             return;
         }
 
@@ -119,6 +122,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
         const maxSizeBytes = this.maxFileSizeMB * 1024 * 1024;
         if (file.size > maxSizeBytes) {
             this.uploadError = `File is too large. Maximum size is ${this.maxFileSizeMB}MB.`;
+            this.cdr.markForCheck();
             return;
         }
 
@@ -130,6 +134,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
         // Start upload
         this.isUploading = true;
         this.uploadProgress = 0;
+        this.cdr.markForCheck();
 
         // Upload the file using the MediaService
         this.mediaService.uploadFile(file)
@@ -137,6 +142,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
                 takeUntil(this.destroy$),
                 finalize(() => {
                     this.isUploading = false;
+                    this.cdr.markForCheck();
                 })
             )
             .subscribe({
@@ -144,6 +150,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
                     if (event.type === HttpEventType.UploadProgress && event.total) {
                         // Calculate and update progress percentage
                         this.uploadProgress = Math.round(100 * event.loaded / event.total);
+                        this.cdr.markForCheck();
                     } else if (event.type === HttpEventType.Response) {
                         // Upload completed, get the response data
                         const mediaItem = event.body as MediaItem;
@@ -154,6 +161,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
 
                         // Update the image URL
                         this.updateImageUrl();
+                        this.cdr.markForCheck();
                     }
                 },
                 error: (err) => {
@@ -171,6 +179,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
                     } else {
                         this.uploadError = 'Failed to upload image. Please try again.';
                     }
+                    this.cdr.markForCheck();
                 }
             });
     }

@@ -22,7 +22,7 @@
         <article class="group-card" [class.group-card--with-image]="group.imageUrl">
           @if (group.imageUrl) {
             <div class="group-card__image-container">
-              <img class="group-card__image" [src]="group.imageUrl" [alt]="group.name" />
+              <img class="group-card__image" [src]="group.imageUrl" [alt]="group.name" loading="lazy" decoding="async" />
             </div>
           }
           

@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '@core/auth/auth.service';
@@ -10,6 +11,7 @@ import { LoggerService, ScopedLogger } from '@services/logger.service';
 })
 export class AuthGuard {
   private logger!: ScopedLogger;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor(
     private authService: AuthService,
@@ -32,10 +34,13 @@ export class AuthGuard {
         this.authService.logout();
         this.router.navigate(['/']);
 
-        // Show login modal with message
-        setTimeout(() => {
-          this.loginModalService.open();
-        }, 100);
+        // Show login modal with message (browser only — a pending setTimeout macrotask
+        // would delay SSR app stability, and there is no UI to open on the server)
+        if (this.isBrowser) {
+          setTimeout(() => {
+            this.loginModalService.open();
+          }, 100);
+        }
 
         return false;
       }
@@ -54,10 +59,13 @@ export class AuthGuard {
         this.logger.warn('Finance user has no webshop access. Logging out.');
         this.authService.logout();
         this.router.navigate(['/']);
-        setTimeout(() => {
-          this.loginModalService.open();
-          alert('This account is for order notifications only and does not have webshop access.');
-        }, 200);
+        // Browser only: setTimeout stalls SSR stability and alert() does not exist on the server
+        if (this.isBrowser) {
+          setTimeout(() => {
+            this.loginModalService.open();
+            alert('This account is for order notifications only and does not have webshop access.');
+          }, 200);
+        }
         return false;
       }
 
@@ -67,6 +75,14 @@ export class AuthGuard {
     // Store the attempted URL for redirecting after login
     const returnUrl = state.url;
     this.loginModalService.setReturnUrl(returnUrl);
+
+    // On the server there is no login modal to open, and the 100ms setTimeout macrotask
+    // would delay app stability (~100-200ms extra TTFB per guarded SSR request).
+    // Redirect to /login so guarded deep links SSR a real page instead of an empty shell;
+    // the browser re-runs the guard on boot and keeps its modal behavior.
+    if (!this.isBrowser) {
+      return this.router.createUrlTree(['/login']);
+    }
 
     // Delay opening the modal slightly to avoid showing it during page refresh
     // when authentication might still be in progress

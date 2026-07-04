@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -24,13 +24,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             useExisting: forwardRef(() => CustomDateInputComponent),
             multi: true
         }
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomDateInputComponent implements ControlValueAccessor {
     @Input() inputClass: string = '';
 
     displayValue: string = '';
     disabled: boolean = false;
+
+    private cdr = inject(ChangeDetectorRef);
 
     private onChange: (value: any) => void = () => {};
     onTouched: () => void = () => {};
@@ -50,6 +53,7 @@ export class CustomDateInputComponent implements ControlValueAccessor {
         } else {
             this.displayValue = '';
         }
+        this.cdr.markForCheck();
     }
 
     registerOnChange(fn: any): void {
@@ -62,6 +66,7 @@ export class CustomDateInputComponent implements ControlValueAccessor {
 
     setDisabledState?(isDisabled: boolean): void {
         this.disabled = isDisabled;
+        this.cdr.markForCheck();
     }
 
     onInputChange(event: Event): void {

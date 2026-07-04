@@ -44,7 +44,7 @@
 <ng-template #itemTemplate let-row>
   <div class="item-cell">
     <div class="item-cell__image">
-      <img [src]="row.imageUrl" [alt]="row.productName">
+      <img [src]="row.imageUrl" [alt]="row.productName" loading="lazy" decoding="async">
     </div>
     <div class="item-cell__info">
       <div class="item-cell__field">

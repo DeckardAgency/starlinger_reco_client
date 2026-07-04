@@ -10,7 +10,10 @@ export interface DashboardOrder {
     status: string;
     createdAt: string;
     totalAmount: number;
-    items?: { quantity: number }[];
+    /** Line-item count — provided by list responses (items themselves are not). */
+    itemsCount?: number;
+    /** Sum of item quantities — provided by list responses. */
+    totalQuantity?: number;
     user?: {
         id: string;
         firstName: string;

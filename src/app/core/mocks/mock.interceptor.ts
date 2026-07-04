@@ -6,34 +6,44 @@ import {
   HttpInterceptor,
   HttpResponse
 } from '@angular/common/http';
-import { Observable, of, delay } from 'rxjs';
-import {
-  mockUsers,
-  mockClients,
-  mockProducts,
-  mockOrders,
-  mockPerformanceData,
-  mockDashboardPerformance,
-  mockOrderStatusDistribution,
-  mockContacts,
-  mockDiscounts,
-  mockUserList,
-  mockCountries,
-  mockTaxTypes,
-  mockPaymentTypes,
-  mockDeliveryTypes,
-  mockWarehouses,
-  mockDeliveryPrices,
-  mockFuelSurcharges
-} from './mock-data';
+import { Observable, of, delay, from, switchMap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
+// Type-only import: erased at compile time, so the (large) mock data set is NOT
+// pulled into the initial bundle. The data itself is loaded lazily on first use.
+type MockData = typeof import('./mock-data');
 
 @Injectable()
 export class MockInterceptor implements HttpInterceptor {
-  
+
   // Simulate network delay (ms)
   private mockDelay = 300;
 
+  // Lazily-loaded mock data module (cached after first load)
+  private dataPromise: Promise<MockData> | null = null;
+  private data!: MockData;
+
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    if (!environment.useMocks) {
+      return next.handle(request);
+    }
+
+    return from(this.loadData()).pipe(
+      switchMap((data) => {
+        this.data = data;
+        return this.handleWithMocks(request, next);
+      })
+    );
+  }
+
+  private loadData(): Promise<MockData> {
+    if (!this.dataPromise) {
+      this.dataPromise = import('./mock-data');
+    }
+    return this.dataPromise;
+  }
+
+  private handleWithMocks(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const { url, method, body, params } = request;
 
     // Extract path from URL and append query params
@@ -107,145 +117,145 @@ export class MockInterceptor implements HttpInterceptor {
     // DASHBOARD
     // ==========================================================================
     if (path.includes('/dashboard/performance') && method === 'GET') {
-      return mockDashboardPerformance;
+      return this.data.mockDashboardPerformance;
     }
 
     if (path.includes('/dashboard/order-status-distribution') && method === 'GET') {
-      return mockOrderStatusDistribution;
+      return this.data.mockOrderStatusDistribution;
     }
 
     // ==========================================================================
     // ORDERS
     // ==========================================================================
     if (path.match(/\/orders$/) && method === 'GET') {
-      return this.paginatedResponse(mockOrders, '/api/v1/orders');
+      return this.paginatedResponse(this.data.mockOrders, '/api/v1/orders');
     }
 
     if (path.match(/\/orders\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockOrders.find(o => o.id === id) || mockOrders[0];
+      return this.data.mockOrders.find(o => o.id === id) || this.data.mockOrders[0];
     }
 
     // ==========================================================================
     // PRODUCTS
     // ==========================================================================
     if (path.match(/\/products$/) && method === 'GET') {
-      return this.paginatedResponse(mockProducts, '/api/v1/products');
+      return this.paginatedResponse(this.data.mockProducts, '/api/v1/products');
     }
 
     if (path.match(/\/products\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockProducts.find(p => p.id === id) || mockProducts[0];
+      return this.data.mockProducts.find(p => p.id === id) || this.data.mockProducts[0];
     }
 
     // ==========================================================================
     // CLIENTS / ACCOUNTS
     // ==========================================================================
     if (path.match(/\/clients$/) && method === 'GET') {
-      return this.paginatedResponse(mockClients, '/api/v1/clients');
+      return this.paginatedResponse(this.data.mockClients, '/api/v1/clients');
     }
 
     if (path.match(/\/clients\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockClients.find(c => c.id === id) || mockClients[0];
+      return this.data.mockClients.find(c => c.id === id) || this.data.mockClients[0];
     }
 
     // ==========================================================================
     // CONTACTS
     // ==========================================================================
     if (path.match(/\/contacts$/) && method === 'GET') {
-      return this.paginatedResponse(mockContacts, '/api/v1/contacts');
+      return this.paginatedResponse(this.data.mockContacts, '/api/v1/contacts');
     }
 
     // ==========================================================================
     // DISCOUNTS
     // ==========================================================================
     if (path.match(/\/discounts$/) && method === 'GET') {
-      return this.paginatedResponse(mockDiscounts, '/api/v1/discounts');
+      return this.paginatedResponse(this.data.mockDiscounts, '/api/v1/discounts');
     }
 
     // ==========================================================================
     // COUNTRIES
     // ==========================================================================
     if (path.match(/\/countries$/) && method === 'GET') {
-      return this.paginatedResponse(mockCountries, '/api/v1/countries');
+      return this.paginatedResponse(this.data.mockCountries, '/api/v1/countries');
     }
 
     if (path.match(/\/countries\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockCountries.find(c => c.id === id) || mockCountries[0];
+      return this.data.mockCountries.find(c => c.id === id) || this.data.mockCountries[0];
     }
 
     // ==========================================================================
     // TAX TYPES
     // ==========================================================================
     if (path.match(/\/tax-types$/) && method === 'GET') {
-      return this.paginatedResponse(mockTaxTypes, '/api/v1/tax-types');
+      return this.paginatedResponse(this.data.mockTaxTypes, '/api/v1/tax-types');
     }
 
     if (path.match(/\/tax-types\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockTaxTypes.find(t => t.id === id) || mockTaxTypes[0];
+      return this.data.mockTaxTypes.find(t => t.id === id) || this.data.mockTaxTypes[0];
     }
 
     // ==========================================================================
     // PAYMENT TYPES
     // ==========================================================================
     if (path.match(/\/payment-types$/) && method === 'GET') {
-      return this.paginatedResponse(mockPaymentTypes, '/api/v1/payment-types');
+      return this.paginatedResponse(this.data.mockPaymentTypes, '/api/v1/payment-types');
     }
 
     if (path.match(/\/payment-types\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockPaymentTypes.find(p => p.id === id) || mockPaymentTypes[0];
+      return this.data.mockPaymentTypes.find(p => p.id === id) || this.data.mockPaymentTypes[0];
     }
 
     // ==========================================================================
     // DELIVERY TYPES
     // ==========================================================================
     if (path.match(/\/delivery-types$/) && method === 'GET') {
-      return this.paginatedResponse(mockDeliveryTypes, '/api/v1/delivery-types');
+      return this.paginatedResponse(this.data.mockDeliveryTypes, '/api/v1/delivery-types');
     }
 
     if (path.match(/\/delivery-types\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockDeliveryTypes.find(d => d.id === id) || mockDeliveryTypes[0];
+      return this.data.mockDeliveryTypes.find(d => d.id === id) || this.data.mockDeliveryTypes[0];
     }
 
     // ==========================================================================
     // WAREHOUSES
     // ==========================================================================
     if (path.match(/\/warehouses$/) && method === 'GET') {
-      return this.paginatedResponse(mockWarehouses, '/api/v1/warehouses');
+      return this.paginatedResponse(this.data.mockWarehouses, '/api/v1/warehouses');
     }
 
     if (path.match(/\/warehouses\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockWarehouses.find(w => w.id === id) || mockWarehouses[0];
+      return this.data.mockWarehouses.find(w => w.id === id) || this.data.mockWarehouses[0];
     }
 
     // ==========================================================================
     // DELIVERY PRICES
     // ==========================================================================
     if (path.match(/\/delivery-prices$/) && method === 'GET') {
-      return this.paginatedResponse(mockDeliveryPrices, '/api/v1/delivery-prices');
+      return this.paginatedResponse(this.data.mockDeliveryPrices, '/api/v1/delivery-prices');
     }
 
     if (path.match(/\/delivery-prices\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockDeliveryPrices.find(dp => dp.id === id) || mockDeliveryPrices[0];
+      return this.data.mockDeliveryPrices.find(dp => dp.id === id) || this.data.mockDeliveryPrices[0];
     }
 
     // ==========================================================================
     // FUEL SURCHARGES
     // ==========================================================================
     if (path.match(/\/fuel-surcharges$/) && method === 'GET') {
-      return this.paginatedResponse(mockFuelSurcharges, '/api/v1/fuel-surcharges');
+      return this.paginatedResponse(this.data.mockFuelSurcharges, '/api/v1/fuel-surcharges');
     }
 
     if (path.match(/\/fuel-surcharges\/[^\/]+$/) && method === 'GET') {
       const id = path.split('/').pop();
-      return mockFuelSurcharges.find(fs => fs.id === id) || mockFuelSurcharges[0];
+      return this.data.mockFuelSurcharges.find(fs => fs.id === id) || this.data.mockFuelSurcharges[0];
     }
 
     // No mock found
@@ -265,16 +275,16 @@ export class MockInterceptor implements HttpInterceptor {
     if (password === 'recouser123!') {
       switch (username) {
         case 'super@starlinger.com':
-          user = mockUsers.superAdmin;
+          user = this.data.mockUsers.superAdmin;
           break;
         case 'admin@starlinger.com':
-          user = { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+          user = { ...this.data.mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
           break;
         case 'clientadmin@starlinger.com':
-          user = mockUsers.customerAdmin;
+          user = this.data.mockUsers.customerAdmin;
           break;
         case 'recouser@starlinger.com':
-          user = mockUsers.customer;
+          user = this.data.mockUsers.customer;
           break;
         default:
           return { error: 'Invalid credentials', code: 401 };
@@ -284,13 +294,13 @@ export class MockInterceptor implements HttpInterceptor {
     else if (password === 'password123') {
       switch (username) {
         case 'super@test.com':
-          user = mockUsers.superAdmin;
+          user = this.data.mockUsers.superAdmin;
           break;
         case 'admin@test.com':
-          user = mockUsers.customerAdmin;
+          user = this.data.mockUsers.customerAdmin;
           break;
         case 'user@test.com':
-          user = mockUsers.customer;
+          user = this.data.mockUsers.customer;
           break;
         default:
           return { error: 'Invalid credentials', code: 401 };
@@ -342,10 +352,14 @@ export class MockInterceptor implements HttpInterceptor {
   private getCurrentUser(): any {
     // Try to get user from stored token
     const user = this.getStoredUser();
-    return user || mockUsers.customer;
+    return user || this.data.mockUsers.customer;
   }
 
   private getStoredUser(): any {
+    // localStorage does not exist during SSR — fall back to the default mock user
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
     // This is a simplified approach - in real app, decode from token
     // Auth service uses 'auth_token' as the key
     const token = localStorage.getItem('auth_token');
@@ -355,14 +369,14 @@ export class MockInterceptor implements HttpInterceptor {
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1]));
           // Find matching user - new test users
-          if (payload.email === 'super@starlinger.com') return mockUsers.superAdmin;
-          if (payload.email === 'admin@starlinger.com') return { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
-          if (payload.email === 'clientadmin@starlinger.com') return mockUsers.customerAdmin;
-          if (payload.email === 'recouser@starlinger.com') return mockUsers.customer;
+          if (payload.email === 'super@starlinger.com') return this.data.mockUsers.superAdmin;
+          if (payload.email === 'admin@starlinger.com') return { ...this.data.mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+          if (payload.email === 'clientadmin@starlinger.com') return this.data.mockUsers.customerAdmin;
+          if (payload.email === 'recouser@starlinger.com') return this.data.mockUsers.customer;
           // Legacy test users
-          if (payload.email === 'super@test.com') return mockUsers.superAdmin;
-          if (payload.email === 'admin@test.com') return mockUsers.customerAdmin;
-          if (payload.email === 'user@test.com') return mockUsers.customer;
+          if (payload.email === 'super@test.com') return this.data.mockUsers.superAdmin;
+          if (payload.email === 'admin@test.com') return this.data.mockUsers.customerAdmin;
+          if (payload.email === 'user@test.com') return this.data.mockUsers.customer;
         }
       } catch (e) {
         // Token parsing failed
@@ -372,7 +386,7 @@ export class MockInterceptor implements HttpInterceptor {
   }
 
   private getUsers(): any {
-    return this.paginatedResponse(mockUserList, '/api/v1/users');
+    return this.paginatedResponse(this.data.mockUserList, '/api/v1/users');
   }
 
   private getUserByEmail(email: string): any {
@@ -381,30 +395,30 @@ export class MockInterceptor implements HttpInterceptor {
     switch (email) {
       // New test users
       case 'super@starlinger.com':
-        user = mockUsers.superAdmin;
+        user = this.data.mockUsers.superAdmin;
         break;
       case 'admin@starlinger.com':
-        user = { ...mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
+        user = { ...this.data.mockUsers.superAdmin, email: 'admin@starlinger.com', roles: ['ROLE_ADMIN'] };
         break;
       case 'clientadmin@starlinger.com':
-        user = mockUsers.customerAdmin;
+        user = this.data.mockUsers.customerAdmin;
         break;
       case 'recouser@starlinger.com':
-        user = mockUsers.customer;
+        user = this.data.mockUsers.customer;
         break;
       // Legacy test users
       case 'super@test.com':
-        user = mockUsers.superAdmin;
+        user = this.data.mockUsers.superAdmin;
         break;
       case 'admin@test.com':
-        user = mockUsers.customerAdmin;
+        user = this.data.mockUsers.customerAdmin;
         break;
       case 'user@test.com':
-        user = mockUsers.customer;
+        user = this.data.mockUsers.customer;
         break;
       default:
         // Try to find in user list
-        user = mockUserList.find(u => u.email === email);
+        user = this.data.mockUserList.find(u => u.email === email);
     }
 
     if (user) {

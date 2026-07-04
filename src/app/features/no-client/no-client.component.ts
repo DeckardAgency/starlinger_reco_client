@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 
@@ -80,7 +80,8 @@ import { AuthService } from '@core/auth/auth.service';
     .no-client__button:hover {
       background: #f4f4f5;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NoClientComponent {
   private authService = inject(AuthService);

@@ -128,7 +128,7 @@
           @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
             <div class="related-card" (click)="onRelatedProductClick(relatedProduct)">
               <div class="related-card__image-wrapper">
-                <img [src]="relatedProduct.image" [alt]="relatedProduct.name" class="related-card__image">
+                <img [src]="relatedProduct.image" [alt]="relatedProduct.name" class="related-card__image" width="200" height="200" loading="lazy" decoding="async">
                 <ui-favorite-button
                   class="related-card__favorite"
                   size="sm"

@@ -3,6 +3,8 @@ export * from './ui.model';
 export * from './auth.model';
 export * from './pagination.model';
 export * from './product.model';
+export * from './shop-product.model';
+export * from './order-history.model';
 export * from './product-group.model';
 export * from './country.model';
 export * from './tax-type.model';

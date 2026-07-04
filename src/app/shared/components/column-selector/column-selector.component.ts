@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, HostListener, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, HostListener, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ColumnDefinition } from './column-selector.model';
@@ -10,7 +10,8 @@ export type { ColumnDefinition } from './column-selector.model';
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './column-selector.component.html',
-    styleUrls: ['./column-selector.component.scss']
+    styleUrls: ['./column-selector.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ColumnSelectorComponent {
     @Input() columns: ColumnDefinition[] = [];

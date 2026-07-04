@@ -7,9 +7,11 @@ import {
   ContentChildren,
   QueryList,
   AfterContentInit,
+  OnDestroy,
   booleanAttribute,
   signal
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger, state } from '@angular/animations';
 import { IconComponent } from '../../atoms/icon/icon.component';
@@ -176,22 +178,43 @@ export class AccordionItemComponent {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccordionComponent implements AfterContentInit {
+export class AccordionComponent implements AfterContentInit, OnDestroy {
   @Input({ transform: booleanAttribute }) multiple = false;
   @Input({ transform: booleanAttribute }) bordered = false;
 
   @ContentChildren(AccordionItemComponent) items!: QueryList<AccordionItemComponent>;
 
+  private itemSubscriptions: Subscription[] = [];
+  private itemsChangesSubscription?: Subscription;
+
   ngAfterContentInit(): void {
     if (!this.multiple) {
-      this.items.forEach(item => {
-        item.expandedChange.subscribe(() => {
-          if (item.expanded()) {
-            this.collapseOthers(item);
-          }
-        });
-      });
+      this.subscribeToItems();
+      // Re-subscribe when projected items are added/removed, dropping the old
+      // subscriptions first so stale items don't leak or fire twice.
+      this.itemsChangesSubscription = this.items.changes.subscribe(() => this.subscribeToItems());
     }
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeFromItems();
+    this.itemsChangesSubscription?.unsubscribe();
+  }
+
+  private subscribeToItems(): void {
+    this.unsubscribeFromItems();
+    this.itemSubscriptions = this.items.map(item =>
+      item.expandedChange.subscribe(() => {
+        if (item.expanded()) {
+          this.collapseOthers(item);
+        }
+      })
+    );
+  }
+
+  private unsubscribeFromItems(): void {
+    this.itemSubscriptions.forEach(sub => sub.unsubscribe());
+    this.itemSubscriptions = [];
   }
 
   private collapseOthers(expandedItem: AccordionItemComponent): void {

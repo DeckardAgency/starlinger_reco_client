@@ -7,8 +7,9 @@
  * - user@test.com / password123 - Customer
  */
 
-import { QuickActionCardData } from '@app/ui-kit/molecules/quick-action-card/quick-action-card.component';
 import { OrderCardData } from '@app/ui-kit/molecules/order-card/order-card.component';
+import { ShopProduct } from '@core/models/shop-product.model';
+import { HistoryItem } from '@core/models/order-history.model';
 
 // =============================================================================
 // MOCK USERS
@@ -966,59 +967,33 @@ export const mockCustomerAdminUsers: CustomerAdminUser[] = [
 // MOCK SHOP PRODUCTS (Customer Shop)
 // =============================================================================
 
-export interface ShopProductMedia {
-  id: number;
-  filePath: string;
-  filename: string;
-  mimeType: string;
-}
-
-export interface ShopProduct {
-  id: number;
-  code: string;
-  name: string;
-  price: number;
-  image: string;
-  isFavorite: boolean;
-  group: string;
-  technicalDescription?: string;
-  shortDescription?: string;
-  weight?: string;
-  imageGallery?: ShopProductMedia[];
-  documents?: ShopProductMedia[];
-  qtyStep?: number | null;
-  discountedPrice?: number;
-  discountPercent?: number;
-  hasDiscount?: boolean;
-}
-
 export const mockShopProducts: ShopProduct[] = [
   // Pelletizer group products
-  { id: 1, code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 4, code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 5, code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
-  { id: 6, code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'pelletizer' },
+  { id: 1, code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
+  { id: 4, code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
+  { id: 5, code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
+  { id: 6, code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
   // Electrical component group
-  { id: 8, code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Sensor', isFavorite: false, group: 'electrical' },
-  { id: 10, code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Motor', isFavorite: false, group: 'electrical' },
-  { id: 12, code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: 'https://placehold.co/200x200/f5f5f5/666?text=Heater', isFavorite: false, group: 'electrical' },
+  { id: 8, code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
+  { id: 10, code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
+  { id: 12, code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
   // Filtration group
-  { id: 11, code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
-  { id: 13, code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Filter', isFavorite: false, group: 'filtration' },
+  { id: 11, code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: '/images/product-placeholder.svg', isFavorite: false, group: 'filtration' },
+  { id: 13, code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'filtration' },
   // Knives group
-  { id: 14, code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
-  { id: 15, code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: 'https://placehold.co/200x200/f5f5f5/666?text=Knife', isFavorite: false, group: 'knives' },
+  { id: 14, code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'knives' },
+  { id: 15, code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: '/images/product-placeholder.svg', isFavorite: false, group: 'knives' },
   // Seals group
-  { id: 2, code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
-  { id: 3, code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: 'https://placehold.co/200x200/f5f5f5/666?text=Seal', isFavorite: false, group: 'seals' },
+  { id: 2, code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: '/images/product-placeholder.svg', isFavorite: false, group: 'seals' },
+  { id: 3, code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: '/images/product-placeholder.svg', isFavorite: false, group: 'seals' },
   // Category X group
-  { id: 9, code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
-  { id: 16, code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: 'https://placehold.co/200x200/f5f5f5/666?text=Bearing', isFavorite: false, group: 'category-x' },
+  { id: 9, code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-x' },
+  { id: 16, code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-x' },
   // Category Y group
-  { id: 17, code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: 'https://placehold.co/200x200/f5f5f5/666?text=Gasket', isFavorite: false, group: 'category-y' },
+  { id: 17, code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-y' },
   // Category Z group
-  { id: 18, code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' },
-  { id: 19, code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: 'https://placehold.co/200x200/f5f5f5/666?text=Spring', isFavorite: false, group: 'category-z' }
+  { id: 18, code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-z' },
+  { id: 19, code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-z' }
 ];
 
 export const mockProductGroups = [
@@ -1041,7 +1016,7 @@ export interface ProductGroupExtended {
 }
 
 export const mockProductGroupsExtended: ProductGroupExtended[] = [
-  { id: 'pelletizer', name: 'Pelletizer', totalProducts: 4, imageUrl: 'https://placehold.co/268x178/f5f5f5/666?text=Pelletizer' },
+  { id: 'pelletizer', name: 'Pelletizer', totalProducts: 4, imageUrl: '/images/product-placeholder.svg' },
   { id: 'electrical', name: 'Electrical component', totalProducts: 3 },
   { id: 'filtration', name: 'Filtration', totalProducts: 2 },
   { id: 'category-x', name: 'Category X', totalProducts: 2 },
@@ -1060,7 +1035,7 @@ export const mockWishlistItems = [
     id: 'wl-001',
     productCode: 'ZME-01171D',
     productName: 'Modul frequency converter',
-    imageUrl: 'https://placehold.co/120x120/f5f5f5/666?text=Module',
+    imageUrl: '/images/product-placeholder.svg',
     price: 549.20,
     quantity: 1,
     isFavorite: true
@@ -1069,7 +1044,7 @@ export const mockWishlistItems = [
     id: 'wl-002',
     productCode: 'ZME-01171D',
     productName: 'Modul frequency converter',
-    imageUrl: 'https://placehold.co/120x120/f5f5f5/666?text=Converter',
+    imageUrl: '/images/product-placeholder.svg',
     price: 549.20,
     quantity: 1,
     isFavorite: true
@@ -1078,7 +1053,7 @@ export const mockWishlistItems = [
     id: 'wl-003',
     productCode: 'ZME-01171D',
     productName: 'Modul frequency converter',
-    imageUrl: 'https://placehold.co/120x120/f5f5f5/666?text=Part',
+    imageUrl: '/images/product-placeholder.svg',
     price: 549.20,
     quantity: 1,
     isFavorite: true
@@ -1087,7 +1062,7 @@ export const mockWishlistItems = [
     id: 'wl-004',
     productCode: 'ZME-01171D',
     productName: 'Modul frequency converter',
-    imageUrl: 'https://placehold.co/120x120/f5f5f5/666?text=Motor',
+    imageUrl: '/images/product-placeholder.svg',
     price: 549.20,
     quantity: 1,
     isFavorite: true
@@ -1388,40 +1363,11 @@ export const mockDiscountProducts = [
 // CUSTOMER DASHBOARD MOCK DATA
 // =============================================================================
 
-export const mockCustomerQuickActions: QuickActionCardData[] = [
-  {
-    type: 'new-order',
-    title: 'New order',
-    description: 'Initiate a spare part request by completing our custom tailored ordering solutions.',
-    buttonLabel: 'Create',
-    routerLink: '/customer/shop'
-  },
-  {
-    type: 'contact-sales',
-    title: 'Contact Sales Manager',
-    description: 'Access direct communication channel for expert support and technical consultations.',
-    buttonLabel: 'Contact'
-  }
-];
-
 export const mockCustomerActiveOrders: OrderCardData[] = [
   { id: '#0001', type: 'order', internalReference: '000123-ABC', dateCreated: '14-03-2024', partsOrdered: 12, status: 'new' },
   { id: '#0002', type: 'order', internalReference: '000987-EAD', dateCreated: '14-03-2024', partsOrdered: 12, status: 'in-process' },
   { id: '#0003', type: 'order', internalReference: '004231-UGR', dateCreated: '14-03-2024', partsOrdered: 12, status: 'shipped' }
 ];
-
-export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
-export type HistoryType = 'order' | 'manual';
-
-export interface HistoryItem {
-  id: string; // Real UUID for routing
-  orderId: string; // Display order number
-  type: HistoryType;
-  dateCreated: string;
-  internalReference: string;
-  partsOrdered: number;
-  status: HistoryStatus;
-}
 
 export const mockCustomerHistoryData: HistoryItem[] = [
   { id: 'mock-0001', orderId: '0001', type: 'order', dateCreated: '14-03-2024', internalReference: '000123-ABC', partsOrdered: 12, status: 'delivered' },
@@ -1432,52 +1378,6 @@ export const mockCustomerHistoryData: HistoryItem[] = [
   { id: 'mock-0006', orderId: '0006', type: 'manual', dateCreated: '14-03-2024', internalReference: '005678-MNB', partsOrdered: 60, status: 'delivered' },
   { id: 'mock-0007', orderId: '0007', type: 'order', dateCreated: '14-03-2024', internalReference: '003234-LJK', partsOrdered: 72, status: 'delivered' }
 ];
-
-// =============================================================================
-// COMMON ICONS (SVG strings for reuse)
-// =============================================================================
-
-export const ICON_QUICK_ACTIONS = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-  <path d="M11.6667 1.66675L3.33334 11.6667H10L8.33334 18.3334L16.6667 8.33341H10L11.6667 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`;
-
-export const ICON_ACTIVE_ORDERS = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-  <path d="M10 7.50008V10.8334M10 14.1667H10.0083M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`;
-
-export const ICON_HISTORY = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-  <path d="M11.6667 1.66675V5.00008C11.6667 5.44211 11.8423 5.86603 12.1548 6.17859C12.4674 6.49115 12.8913 6.66675 13.3333 6.66675H16.6667M7.5 12.5001L9.16667 14.1667L12.5 10.8334M12.5 1.66675H5C4.55798 1.66675 4.13405 1.84234 3.82149 2.1549C3.50893 2.46746 3.33334 2.89139 3.33334 3.33341V16.6667C3.33334 17.1088 3.50893 17.5327 3.82149 17.8453C4.13405 18.1578 4.55798 18.3334 5 18.3334H15C15.442 18.3334 15.866 18.1578 16.1785 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`;
-
-// =============================================================================
-// DEVELOPMENT USER (for auth service)
-// =============================================================================
-
-export const DUMMY_USER_CREDENTIALS = {
-  email: 'recouser@starlinger.com',
-  password: 'recouser123!'
-};
-
-export const mockDevelopmentUser = {
-  id: 1,
-  email: DUMMY_USER_CREDENTIALS.email,
-  username: DUMMY_USER_CREDENTIALS.email,
-  roles: ['ROLE_USER', 'ROLE_CLIENT'] as string[],
-  firstName: 'Reco',
-  lastName: 'Developer',
-  phoneNumber: '+43 1 234 5678',
-  isActive: true,
-  client: {
-    '@id': '/api/clients/dev-001',
-    '@type': 'Client',
-    id: 1,
-    name: 'Starlinger Development',
-    code: 'STL-DEV',
-    isActive: true,
-    isArchived: false,
-    maxActiveUsers: 10
-  }
-};
 
 // =============================================================================
 // PRODUCT GENERATION HELPERS (for ProductService)

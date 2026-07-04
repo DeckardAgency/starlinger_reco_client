@@ -13,7 +13,7 @@
     "e2e:debug": "playwright test --debug",
     "e2e:codegen": "playwright codegen http://localhost:4200",
     "e2e:report": "playwright show-report",
-    "serve:ssr:starlinger_reco_client": "node dist/starlinger_reco_client/server/server.mjs"
+    "serve:ssr:starlinger_reco_client": "node dist/starlinger_inquiry_tool_client/server/server.mjs"
   },
   "private": true,
   "dependencies": {

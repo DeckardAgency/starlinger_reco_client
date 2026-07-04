@@ -101,6 +101,149 @@
   }
 }
 
+// Tracking Card
+.tracking-card {
+  margin: 0 24px 16px 24px;
+  padding: 16px 20px;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #232323;
+    margin: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+  }
+
+  &__label {
+    color: #71717a;
+  }
+
+  &__value {
+    color: #232323;
+    font-weight: 500;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px 14px;
+    background: #232323;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background: #000;
+    }
+  }
+
+  &__timeline {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e4e4e7;
+  }
+
+  &__timeline-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #232323;
+    margin: 0 0 12px 0;
+  }
+}
+
+.tracking-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__event {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f4f4f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__marker {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #232323;
+    margin-top: 7px;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  &__status {
+    font-size: 14px;
+    font-weight: 500;
+    color: #232323;
+  }
+
+  &__date {
+    font-size: 13px;
+    color: #71717a;
+  }
+
+  &__location {
+    font-size: 13px;
+    color: #52525b;
+    margin-bottom: 2px;
+  }
+
+  &__description {
+    font-size: 13px;
+    color: #71717a;
+  }
+}
+
 // Products Section
 .products-section {
   padding: 16px 16px 16px 24px;

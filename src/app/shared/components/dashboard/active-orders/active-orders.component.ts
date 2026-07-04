@@ -53,7 +53,7 @@ export class ActiveOrdersComponent implements OnInit {
         type: 'order' as const,
         internalReference: order.orderNumber || order.id.slice(0, 8),
         dateCreated: this.formatDate(order.createdAt),
-        partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
+        partsOrdered: order.totalQuantity ?? 0,
         status: this.normalizeStatus(order.status)
       }))
       .sort((a, b) => {

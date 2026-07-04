@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { WishlistItem } from '@core/models/wishlist.model';
 
 const STORAGE_KEY = 'wishlist_items';
@@ -7,6 +8,10 @@ const STORAGE_KEY = 'wishlist_items';
   providedIn: 'root'
 })
 export class WishlistService {
+  // Must be initialized before _wishlistItems: loadFromStorage() depends on it.
+  // localStorage does not exist during SSR — reads/writes are explicit no-ops there.
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   private _isWishlistOpen = signal(false);
   private _wishlistItems = signal<WishlistItem[]>(this.loadFromStorage());
 
@@ -74,12 +79,18 @@ export class WishlistService {
   }
 
   private saveToStorage(): void {
+    if (!this.isBrowser) {
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this._wishlistItems()));
     } catch { /* storage unavailable */ }
   }
 
   private loadFromStorage(): WishlistItem[] {
+    if (!this.isBrowser) {
+      return [];
+    }
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : [];

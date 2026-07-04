@@ -17,7 +17,7 @@ import { DeliveryTypeService } from '@core/services/http/delivery-type.service';
 import { AuthService } from '@core/auth/auth.service';
 import { USER_ROLES } from '@core/models/auth.model';
 import { ClientAddress } from '@core/models/client.model';
-import { ShopProduct } from '@core/mocks/mock-data';
+import { ShopProduct } from '@core/models/shop-product.model';
 
 export interface CheckoutItem {
   id: string;

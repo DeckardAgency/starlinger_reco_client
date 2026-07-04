@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -21,14 +21,18 @@ import {NotificationService, Notification } from "@services/notification.service
                 animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(10px)' }))
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotificationComponent implements OnInit, OnDestroy {
     activeNotifications: Array<{ id: number; notification: Notification }> = [];
     private subscription!: Subscription;
     private lastId = 0;
 
-    constructor(private notificationService: NotificationService) {}
+    constructor(
+        private notificationService: NotificationService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     ngOnInit(): void {
         this.subscription = this.notificationService.notifications$.subscribe(notification => {
@@ -47,6 +51,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
 
         // Add the notification to the active list
         this.activeNotifications.push({ id, notification });
+        this.cdr.markForCheck();
 
         // Remove the notification after the specified duration
         setTimeout(() => {
@@ -58,6 +63,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
         const index = this.activeNotifications.findIndex(item => item.id === id);
         if (index !== -1) {
             this.activeNotifications.splice(index, 1);
+            this.cdr.markForCheck();
         }
     }
 

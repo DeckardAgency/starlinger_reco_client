@@ -49,12 +49,12 @@
 
   <!-- Role Template -->
   <ng-template #roleTemplate let-row>
-    <ui-badge [variant]="getRoleVariant(row.role)">{{ getRoleLabel(row.role) }}</ui-badge>
+    <ui-badge [variant]="row.roleVariant">{{ row.roleLabel }}</ui-badge>
   </ng-template>
 
   <!-- Status Template -->
   <ng-template #statusTemplate let-row>
-    <ui-badge [variant]="getStatusVariant(row.status)">{{ getStatusLabel(row.status) }}</ui-badge>
+    <ui-badge [variant]="row.statusVariant">{{ row.statusLabel }}</ui-badge>
   </ng-template>
 
 <!-- Actions Template -->

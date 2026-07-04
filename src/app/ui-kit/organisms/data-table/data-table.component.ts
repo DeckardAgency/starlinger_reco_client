@@ -30,8 +30,16 @@ export class DataTableComponent {
   @Input() sortDirection: 'asc' | 'desc' | null = null;
   @Input() showHeaders: boolean = true;
   @Input() emptyMessage: string = 'No results';
+  @Input() trackByKey: string = 'id';
 
   @Output() sort = new EventEmitter<SortEvent>();
+
+  // Arrow function so it keeps `this` when passed as trackBy
+  trackByRow = (index: number, row: any): any => row?.[this.trackByKey] ?? index;
+
+  trackByColumn(index: number, column: TableColumn): string {
+    return column.key;
+  }
 
   onSort(column: TableColumn): void {
     if (!column.sortable) return;

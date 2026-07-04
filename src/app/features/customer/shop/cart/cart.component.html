@@ -52,7 +52,7 @@
     <ng-template #itemCard let-item>
       <div class="cart-item">
         <div class="cart-item__image-wrapper">
-          <img [src]="item.product.image" [alt]="item.product.name" class="cart-item__image">
+          <img [src]="item.product.image" [alt]="item.product.name" class="cart-item__image" loading="lazy" decoding="async">
           <ui-favorite-button
             class="cart-item__favorite"
             size="sm"

@@ -11,7 +11,7 @@ import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
-import { ShopProduct } from '@core/mocks/mock-data';
+import { ShopProduct } from '@core/models/shop-product.model';
 import { Product } from '@core/models';
 import { environment } from '@env/environment';
 
@@ -99,7 +99,7 @@ export class ProductDetailComponent implements OnInit {
             alt: `${productResponse.name} - ${i + 1}`
           })));
         } else {
-          const imageUrl = this.getProductImageUrl(productResponse, '400x400');
+          const imageUrl = this.getProductImageUrl(productResponse);
           this.productImages.set([{ id: 1, imageUrl, alt: productResponse.name }]);
         }
         
@@ -125,7 +125,7 @@ export class ProductDetailComponent implements OnInit {
       code: product.partNo,
       name: product.name,
       price: product.price,
-      image: this.getProductImageUrl(product, '400x400'),
+      image: this.getProductImageUrl(product),
       isFavorite: false,
       group: 'general',
       technicalDescription: product.technicalDescription,
@@ -179,12 +179,11 @@ export class ProductDetailComponent implements OnInit {
     };
   }
 
-  private getProductImageUrl(product: Product, size: string = '200x200'): string {
+  private getProductImageUrl(product: Product): string {
     if (product.featuredImage?.filePath) {
       return `${environment.apiBaseUrl}${product.featuredImage.filePath}`;
     }
-    const encodedName = encodeURIComponent(product.shortDescription || product.name);
-    return `https://placehold.co/${size}/f5f5f5/666?text=${encodedName}`;
+    return '/images/product-placeholder.svg';
   }
 
   getDocumentUrl(doc: { filePath: string }): string {
