@@ -18,18 +18,20 @@
     ></ui-list-header>
 
     <div class="table-container">
-      <ui-tabs
-        [tabs]="tabs()"
-        [activeTab]="activeTab()"
-        (tabChange)="onTabChange($event)"
-        variant="underline"
-      ></ui-tabs>
+      @if (tabs().length > 0) {
+        <ui-tabs
+          [tabs]="tabs()"
+          [activeTab]="activeTab()"
+          (tabChange)="onTabChange($event)"
+          variant="underline"
+        ></ui-tabs>
+      }
 
       <ui-data-table
         [columns]="columns"
         [data]="orders()"
-        [sortColumn]="sortColumn"
-        [sortDirection]="sortDirection"
+        [sortColumn]="sortColumn()"
+        [sortDirection]="sortDirection()"
         (sort)="onSortChange($event)"
       ></ui-data-table>
     </div>

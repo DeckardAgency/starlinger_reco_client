@@ -294,8 +294,9 @@
           <div class="product-detail__actions">
             <ui-quantity-selector
               [value]="quantity()"
-              [min]="1"
-              [max]="999"
+              [min]="selectedProduct()?.qtyStep || 1"
+              [step]="selectedProduct()?.qtyStep || 1"
+              [max]="999999"
               (quantityChange)="onQuantityChange($event)"
             ></ui-quantity-selector>
             <button class="product-detail__add-btn" type="button" (click)="addToCart()">

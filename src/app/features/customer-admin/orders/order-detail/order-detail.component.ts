@@ -97,8 +97,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   // Breadcrumb items
   breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'My orders', route: '/customer-admin/orders' },
-    { label: 'History', route: '/customer-admin/orders' }
+    { label: 'My orders', route: '/customer-admin/orders' }
   ];
 
   // Order data

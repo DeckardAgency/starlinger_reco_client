@@ -448,7 +448,8 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
 
   selectProduct(product: ShopProduct): void {
     this.selectedProduct.set(product);
-    this.quantity.set(1);
+    // Start at one order step (products with a step can't be bought in smaller amounts)
+    this.quantity.set(product.qtyStep || 1);
   }
 
   closeShopProduct(): void {

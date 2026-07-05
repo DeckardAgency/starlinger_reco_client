@@ -44,7 +44,7 @@ export class AppComponent {
   is404Page: boolean = false;
   loginModalOpen: boolean = false;
 
-  private readonly authRoutes = ['/login', '/forgot-password', '/no-client'];
+  private readonly authRoutes = ['/login', '/forgot-password', '/register', '/no-client'];
 
   /** Re-check the client's archived status at most once per TTL per session. */
   private static readonly CLIENT_STATUS_TTL_MS = 5 * 60 * 1000;
@@ -71,9 +71,13 @@ export class AppComponent {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
-      this.currentRoute = event.url;
-      this.isAuthPage = this.authRoutes.some(route => event.url.startsWith(route));
-      this.is404Page = event.url === '/404' || event.url.startsWith('/404?');
+      // urlAfterRedirects: arriving at /login via a redirect ('' -> '/login')
+      // leaves event.url at the pre-redirect value, which showed the app shell
+      // (sidebar/topbar) on the login page.
+      const url = event.urlAfterRedirects;
+      this.currentRoute = url;
+      this.isAuthPage = this.authRoutes.some(route => url.startsWith(route));
+      this.is404Page = url === '/404' || url.startsWith('/404?');
       this.cdr.markForCheck();
     });
 

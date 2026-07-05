@@ -89,7 +89,10 @@ export class ProductDetailComponent implements OnInit {
         }
         
         // Map to ProductDetail
-        this.product.set(this.mapProductToDetail(productResponse));
+        const detail = this.mapProductToDetail(productResponse);
+        this.product.set(detail);
+        // Start at one order step (products with a step can't be bought in smaller amounts)
+        this.quantity.set(detail.qtyStep || 1);
         
         // Create image slides from real gallery or fallback
         if (productResponse.imageGallery && productResponse.imageGallery.length > 0) {

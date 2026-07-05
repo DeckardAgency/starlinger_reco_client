@@ -19,6 +19,9 @@ import { TokenRefreshService } from '@services/http/token-refresh.service';
  */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+  /** Pages anonymous visitors may stay on when a 401 ends the (non-)session. */
+  private static readonly PUBLIC_ROUTES = ['/login', '/forgot-password', '/register', '/no-client'];
+
   private isRefreshing = false;
   private refreshDone: BehaviorSubject<boolean | null> = new BehaviorSubject<boolean | null>(null);
 
@@ -68,7 +71,12 @@ export class AuthInterceptor implements HttpInterceptor {
           this.isRefreshing = false;
           this.refreshDone.next(false);
           this.authService.logout();
-          this.router.navigate(['/login']);
+          // Don't yank anonymous visitors off public pages: the bootstrap
+          // /api/me probe 401s there by design (e.g. /register invitation links).
+          const url = this.router.url;
+          if (!AuthInterceptor.PUBLIC_ROUTES.some(route => url.startsWith(route))) {
+            this.router.navigate(['/login']);
+          }
           return throwError(() => err);
         }),
         finalize(() => {

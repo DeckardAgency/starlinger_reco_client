@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms/data-table/data-table.component';
 import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
-import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
+import { BadgeComponent, BadgeVariant } from '@app/ui-kit/atoms/badge/badge.component';
 import { AvatarComponent } from '@app/ui-kit/atoms/avatar/avatar.component';
 import { TabsComponent, TabItem } from '@app/ui-kit/molecules/tabs/tabs.component';
 import {
@@ -35,7 +35,7 @@ interface OrderHistoryItem {
   // Precomputed display fields (avoid per-row method calls in the template)
   typeLabel: string;
   statusLabel: string;
-  statusVariant: 'success' | 'danger' | 'warning' | 'secondary' | 'info';
+  statusVariant: BadgeVariant;
 }
 
 @Component({
@@ -77,9 +77,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   // Loading state
   isLoading = signal(true);
 
-  // Sort state
-  sortColumn: string | null = null;
-  sortDirection: 'asc' | 'desc' | null = null;
+  // Sort state (signals so the orders computed re-sorts on header clicks)
+  sortColumn = signal<string | null>(null);
+  sortDirection = signal<'asc' | 'desc' | null>(null);
 
   // Dropdown state
   openDropdownId = signal<number | null>(null);
@@ -115,9 +115,6 @@ export class OrdersComponent implements AfterViewInit, OnInit {
 
     let filtered: OrderHistoryItem[];
 
-    const doneStatuses: OrderHistoryItem['status'][] = ['delivered', 'canceled', 'reversal'];
-    const activeStatuses: OrderHistoryItem['status'][] = ['new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped'];
-
     // Route-level filtering
     if (filter === 'archive') {
       const archived = all.filter(o => o.isArchived);
@@ -131,7 +128,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     } else if (tab === 'cancelled') {
       filtered = all.filter(o => (o.status === 'canceled' || o.status === 'reversal') && !o.isArchived);
     } else if (!filter) {
-      filtered = all.filter(o => !o.isArchived && !doneStatuses.includes(o.status) && o.status !== 'draft');
+      // "Latest" shows every submitted order regardless of status — completed and
+      // cancelled tabs are just filtered views of the same list.
+      filtered = all.filter(o => !o.isArchived && o.status !== 'draft');
     } else {
       filtered = all.filter(o => !o.isArchived);
     }
@@ -147,7 +146,22 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       );
     }
 
-    return filtered;
+    // Apply sorting; default is latest first (descending id — stable even for
+    // orders created on the same day, unlike the date string).
+    const col = this.sortColumn();
+    const dir: 'asc' | 'desc' = col ? (this.sortDirection() ?? 'desc') : 'desc';
+    const sorted = [...filtered].sort((a, b) => {
+      let cmp: number;
+      if (col === 'dateCreated') {
+        cmp = this.parseDate(a.dateCreated).getTime() - this.parseDate(b.dateCreated).getTime();
+        if (cmp === 0) cmp = a.id - b.id;
+      } else {
+        cmp = a.id - b.id;
+      }
+      return dir === 'asc' ? cmp : -cmp;
+    });
+
+    return sorted;
   });
 
   // Total count
@@ -163,9 +177,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   });
 
   // Home route based on current URL context
-  homeRoute = computed(() => {
-    return this.router.url.startsWith('/customer-admin') ? '/customer-admin/orders' : '/customer/orders';
-  });
+  homeRoute = computed(() => '/customer/dashboard');
 
   ngOnInit(): void {
     const filter = this.route.snapshot.data['filter'] as string | undefined;
@@ -212,9 +224,8 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       ]);
       this.activeTab.set('all');
     } else if (filter === 'drafts') {
-      this.tabs.set([
-        { id: 'drafts', label: 'Drafts' }
-      ]);
+      // Single-view page: a lone "Drafts" tab is just noise.
+      this.tabs.set([]);
       this.activeTab.set('drafts');
     } else {
       this.tabs.set([
@@ -238,14 +249,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
 
     this.orderService.getOrders().subscribe({
       next: (response) => {
-        const orderItems = response.orders.map(order => this.mapOrderToHistoryItem(order));
-
-        // Sort by date (newest first)
-        const sorted = orderItems.sort((a, b) => {
-          return this.parseDate(b.dateCreated).getTime() - this.parseDate(a.dateCreated).getTime();
-        });
-
-        this.allOrders.set(sorted);
+        // Display order (latest first + column sorting) is applied in the
+        // `orders` computed, not here.
+        this.allOrders.set(response.orders.map(order => this.mapOrderToHistoryItem(order)));
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -312,7 +318,6 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   private initColumns(): void {
     this.columns = [
       { key: 'id', label: 'Order ID', sortable: true, width: '112px' },
-      { key: 'type', label: 'Type', sortable: false, width: '128px', template: this.typeTemplate },
       { key: 'dateCreated', label: 'Date Created', sortable: true, width: '190px' },
       { key: 'internalRef', label: 'Internal reference number', sortable: false },
       { key: 'customer', label: 'Customer', sortable: false, template: this.customerTemplate },
@@ -331,8 +336,8 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   }
 
   onSortChange(event: SortEvent): void {
-    this.sortColumn = event.column;
-    this.sortDirection = event.direction;
+    this.sortColumn.set(event.column);
+    this.sortDirection.set(event.direction);
   }
 
   onExport(): void {
@@ -350,8 +355,8 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     }
 
     this.orderService.exportOrdersToExcel(
-      this.sortColumn || undefined,
-      this.sortDirection || undefined,
+      this.sortColumn() || undefined,
+      this.sortDirection() || undefined,
       this.searchQuery() ? { query: this.searchQuery() } : {},
       filters
     ).subscribe({
@@ -486,17 +491,18 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     return labels[status] || status;
   }
 
-  getStatusVariant(status: string): 'success' | 'danger' | 'warning' | 'secondary' | 'info' {
-    const variants: Record<string, 'success' | 'danger' | 'warning' | 'secondary' | 'info'> = {
+  // Canonical status colors — keep in sync with the admin client's badge mapping.
+  getStatusVariant(status: string): BadgeVariant {
+    const variants: Record<string, BadgeVariant> = {
       'draft': 'secondary',
       'new': 'info',
       'in-process': 'warning',
-      'waiting-for-payment': 'warning',
-      'ready-for-shipment': 'info',
-      'shipped': 'info',
+      'waiting-for-payment': 'orange',
+      'ready-for-shipment': 'teal',
+      'shipped': 'blue',
       'delivered': 'success',
       'canceled': 'danger',
-      'reversal': 'danger'
+      'reversal': 'dark'
     };
     return variants[status] || 'secondary';
   }

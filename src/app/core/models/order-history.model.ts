@@ -10,5 +10,6 @@ export interface HistoryItem {
   dateCreated: string;
   internalReference: string;
   partsOrdered: number;
+  amount?: string;
   status: HistoryStatus;
 }

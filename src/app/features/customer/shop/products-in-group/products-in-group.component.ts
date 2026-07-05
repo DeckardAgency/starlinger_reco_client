@@ -376,7 +376,8 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
       ...product
     };
     this.selectedProduct.set(detail);
-    this.quantity.set(1);
+    // Start at one order step (products with a step can't be bought in smaller amounts)
+    this.quantity.set(detail.qtyStep || 1);
   }
 
   closeProductDetail(): void {

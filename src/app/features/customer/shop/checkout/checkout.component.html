@@ -208,6 +208,11 @@
         </div>
       </div>
 
+      <!-- Order error -->
+      @if (orderError()) {
+        <div class="checkout__error" role="alert">{{ orderError() }}</div>
+      }
+
       <!-- Actions -->
       <div class="checkout__actions">
         <button class="checkout__btn checkout__btn--primary" type="button" (click)="onPlaceOrder()">

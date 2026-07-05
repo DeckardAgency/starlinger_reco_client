@@ -20,7 +20,7 @@ export class BreadcrumbsComponent {
   @Input() items: BreadcrumbItem[] = [];
   @Input() separator: 'chevron' | 'slash' | 'arrow' | 'line' = 'chevron';
   @Input() showHome = true;
-  @Input() homeRoute = '/admin/dashboard';
+  @Input() homeRoute = '/customer/dashboard';
   
   /**
    * Variant determines the layout style:

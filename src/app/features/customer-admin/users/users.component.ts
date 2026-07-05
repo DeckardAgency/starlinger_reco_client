@@ -22,6 +22,7 @@ import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
 import { InputComponent } from '@app/ui-kit/atoms/input/input.component';
 import { SelectComponent } from '@app/ui-kit/atoms/select/select.component';
 import { UserService } from '@core/services/http/user.service';
+import { AlertService } from '@core/services/alert.service';
 import { AuthService } from '@core/auth/auth.service';
 import { User } from '@core/models';
 
@@ -73,6 +74,7 @@ interface CustomerAdminUser {
 export class UsersComponent implements AfterViewInit, OnInit {
   private cdr = inject(ChangeDetectorRef);
   private userService = inject(UserService);
+  private alertService = inject(AlertService);
   private authService = inject(AuthService);
 
   @ViewChild('nameTemplate') nameTemplate!: TemplateRef<any>;
@@ -390,10 +392,11 @@ export class UsersComponent implements AfterViewInit, OnInit {
     });
   }
 
-  onDelete(user: CustomerAdminUser): void {
+  async onDelete(user: CustomerAdminUser): Promise<void> {
     this.closeDropdown();
 
-    if (!confirm(`Are you sure you want to delete ${user.name}?`)) {
+    const confirmed = await this.alertService.confirm(`Are you sure you want to delete ${user.name}?`, 'Delete user');
+    if (!confirmed) {
       return;
     }
 

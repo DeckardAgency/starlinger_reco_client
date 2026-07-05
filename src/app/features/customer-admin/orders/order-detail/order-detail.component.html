@@ -4,7 +4,7 @@
     variant="page-header"
     [items]="breadcrumbItems"
     [showHome]="true"
-    homeRoute="/customer-admin/orders"
+    homeRoute="/customer/dashboard"
     separator="chevron"
   ></ui-breadcrumbs>
 
@@ -146,7 +146,7 @@
                       <th style="width: 100px;">Weight</th>
                       <th style="width: 100px;">Quantity</th>
                       <th style="width: 120px; text-align: right;">Unit price</th>
-                      <th style="width: 100px;">Discount</th>
+                      <th style="width: 100px; text-align: right;">Discount</th>
                       <th style="width: 140px; text-align: right;">Price</th>
                     </tr>
                   </thead>
@@ -157,9 +157,9 @@
                         <td>{{ product.productName }}</td>
                         <td>{{ product.weight }}</td>
                         <td>{{ product.quantity }}</td>
-                        <td class="text-right">{{ formatCurrency(product.unitPrice) }}</td>
-                        <td>{{ product.discount }}</td>
-                        <td class="text-right">{{ formatCurrency(product.price) }}</td>
+                        <td style="text-align: right;">{{ formatCurrency(product.unitPrice) }}</td>
+                        <td style="text-align: right;">{{ product.discount }}</td>
+                        <td style="text-align: right;">{{ formatCurrency(product.price) }}</td>
                       </tr>
                     }
                   </tbody>

@@ -33,7 +33,7 @@ export type QuantitySelectorSize = 'sm' | 'md' | 'lg';
 export class QuantitySelectorComponent implements ControlValueAccessor {
   @Input() size: QuantitySelectorSize = 'md';
   @Input() min = 1;
-  @Input() max = 999;
+  @Input() max = 999999;
   @Input() step = 1;
   @Input({ transform: booleanAttribute }) disabled = false;
   @Input({ transform: booleanAttribute }) readonly = false;

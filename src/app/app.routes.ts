@@ -22,6 +22,11 @@ export const routes: Routes = [
     title: 'Reco | Reset Password'
   },
   {
+    path: 'register',
+    loadComponent: () => import('@features/register/register.component').then(m => m.RegisterComponent),
+    title: 'Reco | Create Account'
+  },
+  {
     path: 'no-client',
     loadComponent: () => import('@features/no-client/no-client.component').then(m => m.NoClientComponent),
     title: 'Reco | Account Not Configured'

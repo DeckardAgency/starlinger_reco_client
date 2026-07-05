@@ -184,6 +184,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       dateCreated: this.formatDate(order.createdAt),
       internalReference: order.orderNumber || order.id.slice(0, 8),
       partsOrdered: order.totalQuantity ?? 0,
+      amount: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(order.totalAmount ?? 0),
       status: this.mapToHistoryStatus(order.status)
     })).sort((a, b) =>
       new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
@@ -214,10 +215,10 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
     // Set columns without Customer column for Customer view
     this.columns.set([
       { key: 'orderId', label: 'Order ID' },
-      { key: 'type', label: 'Type', template: this.typeCell },
       { key: 'dateCreated', label: 'Date Created', sortable: true },
       { key: 'internalReference', label: 'Internal reference number' },
       { key: 'partsOrdered', label: 'Parts ordered' },
+      { key: 'amount', label: 'Total price' },
       { key: 'status', label: 'Status', template: this.statusCell },
       { key: 'actions', label: '', template: this.actionsCell }
     ]);

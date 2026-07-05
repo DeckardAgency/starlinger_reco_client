@@ -18,10 +18,11 @@
   justify-content: center;
   gap: 64px;
   width: 100%;
-  height: 100%;
+  // Center vertically even when ancestors don't propagate height: 100%
+  // (topbar is ~100px); height: 100% alone collapsed and pinned content to the top.
+  min-height: calc(100vh - 140px);
   padding: 24px;
   box-sizing: border-box;
-  overflow: hidden;
 
   &__content {
     display: flex;

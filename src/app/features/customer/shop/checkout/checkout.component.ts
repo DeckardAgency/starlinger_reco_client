@@ -10,6 +10,7 @@ import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { OrderService } from '@core/services/http/order.service';
+import { NotificationService } from '@core/services/notification.service';
 import { AddressService } from '@core/services/http/address.service';
 import { DeliveryCostService } from '@core/services/http/delivery-cost.service';
 import { PaymentTypeService } from '@core/services/http/payment-type.service';
@@ -52,6 +53,7 @@ export class CheckoutComponent implements OnInit {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private orderService = inject(OrderService);
+  private notification = inject(NotificationService);
   private addressService = inject(AddressService);
   private deliveryCostService = inject(DeliveryCostService);
   private paymentTypeService = inject(PaymentTypeService);
@@ -345,7 +347,11 @@ export class CheckoutComponent implements OnInit {
       },
       error: (error) => {
         console.error('Failed to create order:', error);
-        this.orderError.set('Failed to place order. Please try again.');
+        // Surface the backend's reason (e.g. purchase limit exceeded) when present.
+        const detail = error?.error?.detail || error?.error?.message;
+        const message = detail || 'Failed to place order. Please try again.';
+        this.orderError.set(message);
+        this.notification.error(message);
         this.isPlacingOrder.set(false);
       }
     });
