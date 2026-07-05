@@ -217,8 +217,8 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       { key: 'orderId', label: 'Order ID' },
       { key: 'dateCreated', label: 'Date Created', sortable: true },
       { key: 'internalReference', label: 'Internal reference number' },
-      { key: 'partsOrdered', label: 'Parts ordered' },
-      { key: 'amount', label: 'Total price' },
+      { key: 'partsOrdered', label: 'Parts ordered', align: 'right' },
+      { key: 'amount', label: 'Total price', align: 'right' },
       { key: 'status', label: 'Status', template: this.statusCell },
       { key: 'actions', label: '', template: this.actionsCell }
     ]);

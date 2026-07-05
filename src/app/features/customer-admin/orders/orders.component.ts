@@ -321,7 +321,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       { key: 'dateCreated', label: 'Date Created', sortable: true, width: '190px' },
       { key: 'internalRef', label: 'Internal reference number', sortable: false },
       { key: 'customer', label: 'Customer', sortable: false, template: this.customerTemplate },
-      { key: 'partsOrdered', label: 'Parts ordered', sortable: false, width: '128px' },
+      { key: 'partsOrdered', label: 'Parts ordered', sortable: false, width: '128px', align: 'right' },
       { key: 'status', label: 'Status', sortable: false, width: '128px', template: this.statusTemplate },
       { key: 'actions', label: '', sortable: false, width: '64px', template: this.actionsTemplate }
     ];

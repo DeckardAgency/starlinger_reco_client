@@ -32,9 +32,13 @@ export class AuthGuard {
       return this.checkAccess(state);
     }
 
-    // SSR has no cookie-backed session: render /login for guarded deep links.
+    // SSR has no cookie-backed session, so it can never know who the user is.
+    // Do NOT redirect (a 302 to /login rewrites the browser URL before the app
+    // boots, losing the deep link and flashing the login page on refresh);
+    // render the shell without routed content and let the browser-side guard
+    // resolve the session on the preserved URL.
     if (!this.isBrowser) {
-      return this.router.createUrlTree(['/login']);
+      return false;
     }
 
     // Browser, auth state unknown (page refresh): WAIT for the session check
