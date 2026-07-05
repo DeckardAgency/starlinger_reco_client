@@ -2,6 +2,7 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '@core/auth/auth.service';
 import { LoginModalService } from '@services/login-modal.service';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
@@ -26,8 +27,39 @@ export class AuthGuard {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    // First check if user is already authenticated
+    // Already authenticated (cached state): run the access checks synchronously.
     if (this.authService.isAuthenticated()) {
+      return this.checkAccess(state);
+    }
+
+    // SSR has no cookie-backed session: render /login for guarded deep links.
+    if (!this.isBrowser) {
+      return this.router.createUrlTree(['/login']);
+    }
+
+    // Browser, auth state unknown (page refresh): WAIT for the session check
+    // instead of failing the navigation. This removes the login-page flash on
+    // refresh and keeps the user on the URL they refreshed (e.g. /checkout)
+    // instead of bouncing through the login-modal default return URL.
+    return this.authService.checkSession().pipe(
+      map(() => {
+        if (this.authService.isAuthenticated()) {
+          return this.checkAccess(state);
+        }
+
+        this.loginModalService.setReturnUrl(state.url);
+        setTimeout(() => {
+          if (!this.authService.isAuthenticated()) {
+            this.loginModalService.open();
+          }
+        }, 100);
+        return this.router.createUrlTree(['/login']);
+      })
+    );
+  }
+
+  /** Access checks for an authenticated user (archived client, client assignment, finance-only). */
+  private checkAccess(state: RouterStateSnapshot): boolean | UrlTree {
       // Check if user's client is archived
       if (this.authService.isClientArchived()) {
         this.logger.warn('User\'s client is archived. Logging out...');
@@ -70,30 +102,6 @@ export class AuthGuard {
       }
 
       return true;
-    }
-
-    // Store the attempted URL for redirecting after login
-    const returnUrl = state.url;
-    this.loginModalService.setReturnUrl(returnUrl);
-
-    // On the server there is no login modal to open, and the 100ms setTimeout macrotask
-    // would delay app stability (~100-200ms extra TTFB per guarded SSR request).
-    // Redirect to /login so guarded deep links SSR a real page instead of an empty shell;
-    // the browser re-runs the guard on boot and keeps its modal behavior.
-    if (!this.isBrowser) {
-      return this.router.createUrlTree(['/login']);
-    }
-
-    // Delay opening the modal slightly to avoid showing it during page refresh
-    // when authentication might still be in progress
-    setTimeout(() => {
-      if (!this.authService.isAuthenticated()) {
-        this.loginModalService.open();
-      }
-    }, 100);
-
-    // Return false to prevent navigation when not authenticated
-    return false;
   }
 
   private isFinanceOnly(): boolean {

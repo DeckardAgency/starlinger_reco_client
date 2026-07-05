@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
-import { BadgeComponent } from '@app/ui-kit/atoms/badge/badge.component';
+import { BadgeComponent, BadgeVariant } from '@app/ui-kit/atoms/badge/badge.component';
 import { ButtonComponent } from '@app/ui-kit/atoms/button/button.component';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { MobileFooterComponent } from '@app/ui-kit/molecules/mobile-footer/mobile-footer.component';
@@ -33,7 +33,7 @@ interface OrderDetailProductGroup {
 
 interface OrderDetailLogMessage {
   status: string;
-  statusVariant: 'success' | 'warning' | 'info' | 'secondary' | 'danger';
+  statusVariant: BadgeVariant;
   dateTime: string;
   user: string;
   message: string;
@@ -235,13 +235,20 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     return `${day}-${month}-${year} | ${hours}:${minutes}`;
   }
 
-  private getLogStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'danger' {
-    const lowerStatus = (status || '').toLowerCase();
-    if (lowerStatus === 'completed' || lowerStatus === 'delivered') return 'success';
-    if (lowerStatus === 'cancelled' || lowerStatus === 'rejected') return 'danger';
-    if (lowerStatus === 'in_progress' || lowerStatus === 'processing') return 'warning';
-    if (lowerStatus === 'submitted' || lowerStatus === 'pending') return 'info';
-    return 'secondary';
+  // Canonical status colors — keep in sync with the orders list badge mapping.
+  private getLogStatusVariant(status: string): BadgeVariant {
+    const variants: Record<string, BadgeVariant> = {
+      'draft': 'secondary',
+      'new': 'info',
+      'in_process': 'warning',
+      'waiting_for_payment': 'orange',
+      'ready_for_shipment': 'teal',
+      'shipped': 'blue',
+      'delivered': 'success',
+      'canceled': 'danger',
+      'reversal': 'dark'
+    };
+    return variants[(status || '').toLowerCase()] || 'secondary';
   }
 
   // Navigation
