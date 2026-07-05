@@ -19,6 +19,9 @@ import {
 import { DataTableComponent, TableColumn, SortEvent } from '@app/ui-kit/organisms';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { DashboardService, DashboardOrder } from '@core/services/http/dashboard.service';
+import { SupportTicketService } from '@core/services/http/support-ticket.service';
+import { NotificationService } from '@core/services/notification.service';
+import { SupportTicket } from '@core/models/support-ticket.model';
 import { HistoryItem, HistoryStatus, HistoryType } from '@core/models/order-history.model';
 
 // Quick action cards shown at the top of the dashboard
@@ -84,6 +87,8 @@ interface ContactFormData {
 })
 export class CustomerDashboardComponent implements AfterViewInit, OnInit {
   private dashboardService = inject(DashboardService);
+  private supportTicketService = inject(SupportTicketService);
+  private notification = inject(NotificationService);
   private router = inject(Router);
 
   @ViewChild('typeCell', { static: true }) typeCell!: TemplateRef<any>;
@@ -96,6 +101,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   // Contact Modal state
   showContactModal = signal(false);
+  isSendingContact = signal(false);
   contactFormData: ContactFormData = {
     subject: '',
     message: '',
@@ -347,9 +353,32 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
   }
 
   onSendMessage(): void {
-    console.log('Sending message:', this.contactFormData);
-    // Here you would typically send the data to an API
-    this.closeContactModal();
+    const data = this.contactFormData;
+    if (!data.subject.trim() || !data.message.trim()) {
+      this.notification.warning('Please fill in a subject and a message.');
+      return;
+    }
+
+    this.isSendingContact.set(true);
+    this.supportTicketService.createSupportTicket({
+      subject: data.subject.trim(),
+      message: data.message.trim(),
+      urgency: (data.urgency || 'medium') as SupportTicket['urgency'],
+      orderId: data.orderId?.trim() || undefined,
+      machine: data.product?.trim() || undefined,
+      status: 'open'
+    } as Partial<SupportTicket>, data.attachment).subscribe({
+      next: () => {
+        this.isSendingContact.set(false);
+        this.notification.success('Message sent — our team will get back to you shortly.');
+        this.closeContactModal();
+      },
+      error: (error) => {
+        this.isSendingContact.set(false);
+        console.error('Failed to send contact message:', error);
+        this.notification.error(error?.error?.detail || 'Failed to send your message. Please try again.');
+      }
+    });
   }
 
   private resetContactForm(): void {

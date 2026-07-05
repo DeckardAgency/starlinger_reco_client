@@ -112,8 +112,9 @@ export class SupportTicketService {
    * even when there's no file attachment. Letting the browser set the
    * Content-Type header automatically (with the boundary) is required.
    */
-  createSupportTicket(ticketData: Partial<SupportTicket>): Observable<SupportTicket> {
+  createSupportTicket(ticketData: Partial<SupportTicket>, attachment?: File | null): Observable<SupportTicket> {
     const formData = new FormData();
+    if (attachment) formData.append('attachment', attachment);
     if (ticketData.subject !== undefined) formData.append('subject', String(ticketData.subject));
     if (ticketData.message !== undefined) formData.append('message', String(ticketData.message));
     if (ticketData.urgency !== undefined) formData.append('urgency', String(ticketData.urgency));

@@ -4,6 +4,7 @@ import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@a
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from '@core/auth/auth.service';
+import { AlertService } from '@core/services/alert.service';
 import { LoginModalService } from '@services/login-modal.service';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 
@@ -18,7 +19,8 @@ export class AuthGuard {
     private authService: AuthService,
     private router: Router,
     private loginModalService: LoginModalService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private alertService: AlertService
   ) {
     this.logger = this.loggerService.createLogger('AuthGuard');
   }
@@ -95,11 +97,14 @@ export class AuthGuard {
         this.logger.warn('Finance user has no webshop access. Logging out.');
         this.authService.logout();
         this.router.navigate(['/']);
-        // Browser only: setTimeout stalls SSR stability and alert() does not exist on the server
+        // Browser only: setTimeout stalls SSR stability and there is no UI on the server
         if (this.isBrowser) {
           setTimeout(() => {
             this.loginModalService.open();
-            alert('This account is for order notifications only and does not have webshop access.');
+            this.alertService.warning(
+              'This account is for order notifications only and does not have webshop access.',
+              'No webshop access'
+            );
           }, 200);
         }
         return false;

@@ -10,6 +10,7 @@ import { SidebarService } from '@services/sidebar.service';
 import { LoginModalService } from '@services/login-modal.service';
 import { LoginModalComponent } from '@shared/components/modals/login-modal/login-modal.component';
 import { AuthService } from '@core/auth/auth.service';
+import { AlertService } from '@core/services/alert.service';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { MobileMenuComponent } from './layout/mobile-menu/mobile-menu.component';
@@ -60,6 +61,7 @@ export class AppComponent {
     private router: Router,
     public loginModalService: LoginModalService,
     private authService: AuthService,
+    private alertService: AlertService,
     public cartService: CartService,
     public wishlistService: WishlistService,
     private loggerService: LoggerService
@@ -199,7 +201,10 @@ export class AppComponent {
     // Show login modal with a slight delay
     setTimeout(() => {
       this.loginModalService.open();
-      alert('Your company account has been archived. Please contact support for assistance.');
+      this.alertService.warning(
+        'Your company account has been archived. Please contact support for assistance.',
+        'Account archived'
+      );
     }, 500);
   }
 
