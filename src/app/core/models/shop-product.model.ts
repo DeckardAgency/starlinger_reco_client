@@ -21,6 +21,8 @@ export interface ShopProduct {
   imageGallery?: ShopProductMedia[];
   documents?: ShopProductMedia[];
   qtyStep?: number | null;
+  /** Max quantity purchasable per order line (legacy "quote item limit"). */
+  quoteItemLimit?: number | null;
   discountedPrice?: number;
   discountPercent?: number;
   hasDiscount?: boolean;

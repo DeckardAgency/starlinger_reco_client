@@ -79,6 +79,7 @@
                 [value]="item.quantity"
                 [min]="item.product.qtyStep || 1"
                 [step]="item.product.qtyStep || 1"
+                [max]="item.product.quoteItemLimit || 999999"
                 [showInput]="true"
                 (quantityChange)="onQuantityChange(item, $event)"
                 (quantityAdjusted)="onQuantityAdjusted($event)"

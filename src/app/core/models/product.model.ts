@@ -31,6 +31,7 @@ export interface Product {
   documents: string[];
   qty?: number | null;
   qtyStep?: number | null;
+  quoteItemLimit?: number | null;
   productType?: string | null;
   hasDiscount?: boolean;
   campaignDiscountPercent?: number;

@@ -20,9 +20,14 @@ export interface CartItem {
 }
 
 const STORAGE_KEY = 'cart_items';
-// Hard ceiling per cart line — keeps typos (e.g. an extra digit) from producing
-// million-piece orders; matches the quantity selector's maximum.
+// Fallback ceiling per cart line — keeps typos (e.g. an extra digit) from
+// producing million-piece orders when a product defines no limit of its own.
 const MAX_LINE_QTY = 999999;
+
+/** Per-line maximum: the product's own order limit when set, else the sanity cap. */
+function lineMax(product: { quoteItemLimit?: number | null }): number {
+    return product.quoteItemLimit && product.quoteItemLimit > 0 ? product.quoteItemLimit : MAX_LINE_QTY;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -82,7 +87,11 @@ export class CartService {
     // If the product has a qtyStep, ensure quantity is at least one step
     // and is rounded up to the nearest multiple
     const step = product.qtyStep || 1;
-    const normalizedQty = Math.min(this.roundUpToStep(Math.max(quantity, step), step), MAX_LINE_QTY);
+    const maxQty = lineMax(product);
+    const normalizedQty = Math.min(this.roundUpToStep(Math.max(quantity, step), step), maxQty);
+    if (quantity > maxQty) {
+      this.notification.warning(`Maximum order quantity for ${product.code} is ${maxQty}.`);
+    }
 
     const clientId = client?.id;
     const existingItem = this._cartItems().find(
@@ -93,7 +102,7 @@ export class CartService {
       this._cartItems.update(items =>
         items.map(item =>
           item.id === existingItem.id
-            ? { ...item, quantity: Math.min(this.roundUpToStep(item.quantity + normalizedQty, step), MAX_LINE_QTY) }
+            ? { ...item, quantity: Math.min(this.roundUpToStep(item.quantity + normalizedQty, step), maxQty) }
             : item
         )
       );
@@ -130,7 +139,7 @@ export class CartService {
       items.map(item => {
         if (item.id !== itemId) return item;
         const step = item.product.qtyStep || 1;
-        const normalized = Math.min(this.roundUpToStep(Math.max(quantity, step), step), MAX_LINE_QTY);
+        const normalized = Math.min(this.roundUpToStep(Math.max(quantity, step), step), lineMax(item.product));
         return { ...item, quantity: normalized };
       })
     );
@@ -204,7 +213,7 @@ export class CartService {
       // Persisted carts may predate the quantity cap — normalize on restore.
       return items.map(item => ({
         ...item,
-        quantity: Math.min(Math.max(item.quantity, 1), MAX_LINE_QTY)
+        quantity: Math.min(Math.max(item.quantity, 1), lineMax(item.product))
       }));
     } catch {
       return [];
