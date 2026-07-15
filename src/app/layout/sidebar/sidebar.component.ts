@@ -70,7 +70,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to user changes
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(user => {
       this.currentUser = user;
       this.updateUserDisplay();
       this.cdr.markForCheck();

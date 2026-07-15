@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Order, OrdersResponse, TransformedOrdersResponse } from '@models/order.model';
 import { environment } from '@env/environment';
 import { AuthService } from '@core/auth/auth.service';
+import { LoggerService } from '@core/services/logger.service';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +21,8 @@ export class OrderService {
 
     constructor(
         private http: HttpClient,
-        private authService: AuthService
+        private authService: AuthService,
+        private logger: LoggerService
     ) {}
 
     /**
@@ -73,7 +75,7 @@ export class OrderService {
         });
 
         return this.http.get<OrdersResponse>(this.apiUrl, { params }).pipe(
-            tap(response => console.log('Raw API response:', response)),
+            tap(response => this.logger.debug('Raw API response:', response)),
             map(response => {
                 // Transform the API response format to match what the component expects
                 const ordersResponse: TransformedOrdersResponse = {
@@ -89,11 +91,11 @@ export class OrderService {
                     totalPages: this.extractTotalPages(response)
                 };
 
-                console.log('Transformed orders response:', ordersResponse);
+                this.logger.debug('Transformed orders response:', ordersResponse);
                 return ordersResponse;
             }),
             catchError(error => {
-                console.error('API error:', error);
+                this.logger.error('API error:', error);
                 // Return a valid empty response on error
                 return of({
                     orders: [],
@@ -118,9 +120,9 @@ export class OrderService {
      */
     createOrder(orderData: Record<string, unknown>): Observable<Order> {
         return this.http.post<Order>(this.apiUrl, orderData, this.httpOptions).pipe(
-            tap(response => console.log('Order created:', response)),
+            tap(response => this.logger.debug('Order created:', response)),
             catchError(error => {
-                console.error('Error creating order:', error);
+                this.logger.error('Error creating order:', error);
                 throw error;
             })
         );
@@ -143,9 +145,9 @@ export class OrderService {
             updateData,
             options
         ).pipe(
-            tap(response => console.log('Order updated:', response)),
+            tap(response => this.logger.debug('Order updated:', response)),
             catchError(error => {
-                console.error('Error updating order:', error);
+                this.logger.error('Error updating order:', error);
                 throw error;
             })
         );
@@ -209,9 +211,9 @@ export class OrderService {
                 responseType: 'blob'
             }
         ).pipe(
-            tap(() => console.log('Excel export requested')),
+            tap(() => this.logger.debug('Excel export requested')),
             catchError(error => {
-                console.error('Error exporting to Excel:', error);
+                this.logger.error('Error exporting to Excel:', error);
                 throw error;
             })
         );

@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of, catchError, map } from 'rxjs';
 import { environment } from '@env/environment';
 import { AuthService } from '@core/auth/auth.service';
+import { LoggerService } from '@core/services/logger.service';
 
 export interface DashboardOrder {
     id: string;
@@ -48,7 +49,8 @@ export class DashboardService {
 
     constructor(
         private http: HttpClient,
-        private authService: AuthService
+        private authService: AuthService,
+        private logger: LoggerService
     ) {}
 
     /**
@@ -68,7 +70,7 @@ export class DashboardService {
         return this.http.get<any>(`${this.apiUrl}/api/v1/orders`, { params }).pipe(
             map(response => response.member || []),
             catchError(error => {
-                console.error('Error fetching recent orders:', error);
+                this.logger.error('Error fetching recent orders:', error);
                 return of([]);
             })
         );
@@ -82,7 +84,7 @@ export class DashboardService {
             `${this.apiUrl}/api/v1/dashboard/order-status-distribution`
         ).pipe(
             catchError(error => {
-                console.error('Error fetching order status distribution:', error);
+                this.logger.error('Error fetching order status distribution:', error);
                 return of({
                     distribution: [],
                     total: 0

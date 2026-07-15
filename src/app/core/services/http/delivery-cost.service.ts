@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { environment } from '@env/environment';
+import { LoggerService } from '@core/services/logger.service';
 
 export interface DeliveryCostResult {
     deliveryCost: number;
@@ -14,6 +15,8 @@ export interface DeliveryCostResult {
     dhlZone?: number;
     weight?: number;
     message?: string;
+    /** True when the cost could not be calculated (network/backend failure). */
+    error?: boolean;
 }
 
 @Injectable({
@@ -22,7 +25,7 @@ export interface DeliveryCostResult {
 export class DeliveryCostService {
     private apiUrl = `${environment.apiBaseUrl}/api/v1/delivery-cost/calculate`;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private logger: LoggerService) {}
 
     /**
      * Calculate delivery cost based on country, weight, and optional delivery type
@@ -38,8 +41,8 @@ export class DeliveryCostService {
 
         return this.http.get<DeliveryCostResult>(this.apiUrl, { params }).pipe(
             catchError(error => {
-                console.error('Error calculating delivery cost:', error);
-                return of({ deliveryCost: 0, fuelSurchargeMultiplier: 1.0, fuelSurchargeCost: 0, packagingCost: 0, totalShippingCost: 0, deliveryDays: null, message: 'Could not calculate delivery cost' });
+                this.logger.error('Error calculating delivery cost:', error);
+                return of({ deliveryCost: 0, fuelSurchargeMultiplier: 1.0, fuelSurchargeCost: 0, packagingCost: 0, totalShippingCost: 0, deliveryDays: null, message: 'Could not calculate delivery cost', error: true });
             })
         );
     }

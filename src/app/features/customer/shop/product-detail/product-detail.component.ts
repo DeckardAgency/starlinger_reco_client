@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
@@ -42,6 +43,7 @@ export class ProductDetailComponent implements OnInit {
   private productService = inject(ProductService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   product = signal<ProductDetail | null>(null);
   quantity = signal(1);
@@ -64,7 +66,9 @@ export class ProductDetailComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to route params to handle navigation between products
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
       const productId = params.get('id');
       if (productId) {
         this.loadProduct(productId);

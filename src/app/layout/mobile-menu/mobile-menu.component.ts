@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
@@ -6,6 +6,7 @@ import { MobileMenuService } from '@services/mobile-menu.service';
 import { User, USER_ROLES } from '@core/models';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { signal } from '@angular/core';
 
 @Component({
@@ -59,6 +60,8 @@ export class MobileMenuComponent implements OnInit {
     userRole: string = '';
     userInitials: string = '';
 
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         public authService: AuthService,
         private router: Router,
@@ -69,7 +72,9 @@ export class MobileMenuComponent implements OnInit {
 
     ngOnInit(): void {
         // Subscribe to user changes
-        this.authService.currentUser$.subscribe(user => {
+        this.authService.currentUser$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(user => {
             this.currentUser = user;
             this.updateUserDisplay();
             this.cdr.markForCheck();
@@ -81,7 +86,7 @@ export class MobileMenuComponent implements OnInit {
 
         // Close menu on navigation and re-render so isRouteActive() bindings stay in sync (OnPush)
         this.router.events
-            .pipe(filter(event => event instanceof NavigationEnd))
+            .pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 this.mobileMenuService.close();
                 this.cdr.markForCheck();

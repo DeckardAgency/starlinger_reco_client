@@ -93,12 +93,18 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
     const numValue = parseInt(target.value, 10);
     if (isNaN(numValue)) return;
 
-    // While typing: keep the raw value (only cap at max so users can't enter > max).
+    // While typing: keep the raw value for display (only cap at max so users can't enter > max).
     // Min and step rounding are deferred to onBlur so users can freely type intermediate digits.
     const capped = Math.min(numValue, this.max);
     this._value.set(capped);
-    this.onChange(capped);
-    this.quantityChange.emit(capped);
+
+    // Never propagate a non-positive value mid-edit. A transient 0 or negative
+    // (e.g. while the field is cleared to retype) would otherwise be treated as
+    // a line removal downstream. These are clamped up to the minimum on blur.
+    if (capped > 0) {
+      this.onChange(capped);
+      this.quantityChange.emit(capped);
+    }
   }
 
   onBlur(): void {
@@ -110,9 +116,10 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
     const stepped = this.roundUpToStep(clamped);
 
     if (stepped !== current) {
-      if (this.step > 1 && stepped !== current) {
-        this.quantityAdjusted.emit({ original: current, adjusted: stepped, step: this.step });
-      }
+      // Notify the host whenever we had to correct the typed value — both when
+      // rounding up to a step and when clamping a below-minimum (or 0) entry back
+      // up to the minimum. The host surfaces this via its toast/notification.
+      this.quantityAdjusted.emit({ original: current, adjusted: stepped, step: this.step });
       this.updateValue(stepped);
     }
   }

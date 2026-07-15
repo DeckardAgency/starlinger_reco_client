@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { ClientAddress, ClientAddressesResponse } from '@models/client.model';
 import { environment } from '@env/environment';
+import { LoggerService } from '@core/services/logger.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AddressService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private logger: LoggerService) {}
 
     /**
      * Get all addresses for a specific client
@@ -18,7 +19,7 @@ export class AddressService {
         return this.http.get<ClientAddressesResponse>(url).pipe(
             map(response => response.member || []),
             catchError(error => {
-                console.error('Error loading addresses:', error);
+                this.logger.error('Error loading addresses:', error);
                 return of([]);
             })
         );

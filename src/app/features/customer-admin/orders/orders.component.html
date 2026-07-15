@@ -66,6 +66,10 @@
   <ui-badge [variant]="row.statusVariant">{{ row.statusLabel }}</ui-badge>
 </ng-template>
 
+<ng-template #totalTemplate let-row>
+  {{ row.total | currency:'EUR':'symbol':'1.2-2' }}
+</ng-template>
+
 <!-- Actions Template -->
 <ng-template #actionsTemplate let-row>
   <ui-table-actions-dropdown

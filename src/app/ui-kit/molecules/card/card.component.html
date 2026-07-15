@@ -6,7 +6,7 @@
 >
   <!-- Card Image -->
   <div *ngIf="imageUrl" class="ui-card__image" [style.height]="imageHeight">
-    <img [src]="imageUrl" [alt]="imageAlt" />
+    <img [src]="imageUrl" [alt]="imageAlt" loading="lazy" />
   </div>
 
   <!-- Card Header -->

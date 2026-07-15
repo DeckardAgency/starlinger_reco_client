@@ -120,6 +120,24 @@ export class CheckoutComponent implements OnInit {
   internalReference = signal('#0001');
   shippingCost = signal(0);
   isLoadingShipping = signal(true);
+  // True when the delivery cost could not be calculated. We must NOT show €0 (it
+  // understates the total) and must block order placement until it's resolved.
+  deliveryCostError = signal(false);
+
+  /**
+   * All required selections are present. Mirrors the fields sent by onPlaceOrder
+   * (shipping address, payment type, delivery type) plus a non-empty cart and a
+   * successfully calculated shipping cost.
+   */
+  isCheckoutValid = computed(() =>
+    this.cartItems().length > 0 &&
+    this.selectedShippingAddressId() != null &&
+    this.shippingAddress().trim().length > 0 &&
+    this.selectedPaymentTypeId() != null &&
+    this.selectedDeliveryTypeId() != null &&
+    !this.deliveryCostError() &&
+    !this.isLoadingShipping()
+  );
 
   itemCount = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
 
@@ -236,21 +254,29 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    this.addressService.getAddressesByClient(clientId).subscribe(addresses => {
-      const billing = addresses.find(a => a.isBilling && a.isActive);
-      if (billing) {
-        this.billingAddress.set(this.addressService.formatAddress(billing));
-      }
+    this.addressService.getAddressesByClient(clientId).subscribe({
+      next: (addresses) => {
+        const billing = addresses.find(a => a.isBilling && a.isActive);
+        if (billing) {
+          this.billingAddress.set(this.addressService.formatAddress(billing));
+        }
 
-      // Multiple delivery addresses are now allowed; user picks one at checkout.
-      const deliveryAddresses = addresses.filter(a => a.isDelivery && a.isActive);
-      this.availableShippingAddresses.set(deliveryAddresses);
+        // Multiple delivery addresses are now allowed; user picks one at checkout.
+        const deliveryAddresses = addresses.filter(a => a.isDelivery && a.isActive);
+        this.availableShippingAddresses.set(deliveryAddresses);
 
-      if (deliveryAddresses.length > 0) {
-        // Default to the first one
-        this.applyShippingAddress(deliveryAddresses[0]);
-      } else {
+        if (deliveryAddresses.length > 0) {
+          // Default to the first one
+          this.applyShippingAddress(deliveryAddresses[0]);
+        } else {
+          this.isLoadingShipping.set(false);
+        }
+      },
+      error: (err) => {
+        // Without this the spinner ("...") would stick forever on failure.
+        console.error('Failed to load shipping addresses:', err);
         this.isLoadingShipping.set(false);
+        this.notification.error('Could not load your addresses. Please try again.');
       }
     });
   }
@@ -307,9 +333,25 @@ export class CheckoutComponent implements OnInit {
 
   private calculateDeliveryCost(countryId: number): void {
     const weight = this.totalWeight();
-    this.deliveryCostService.calculateDeliveryCost(countryId, weight).subscribe(result => {
-      this.shippingCost.set(result.totalShippingCost);
-      this.isLoadingShipping.set(false);
+    this.isLoadingShipping.set(true);
+    this.deliveryCostService.calculateDeliveryCost(countryId, weight).subscribe({
+      next: (result) => {
+        if (result.error) {
+          // Do not display the fallback €0 — flag the failure so the summary
+          // shows "unavailable" and order placement is blocked.
+          this.deliveryCostError.set(true);
+          this.shippingCost.set(0);
+        } else {
+          this.deliveryCostError.set(false);
+          this.shippingCost.set(result.totalShippingCost);
+        }
+        this.isLoadingShipping.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to calculate delivery cost:', err);
+        this.deliveryCostError.set(true);
+        this.isLoadingShipping.set(false);
+      }
     });
   }
 
@@ -319,6 +361,17 @@ export class CheckoutComponent implements OnInit {
 
   onPlaceOrder(): void {
     if (this.isPlacingOrder() || this.cartItems().length === 0) {
+      return;
+    }
+
+    // Guard against placing an order with missing required selections or an
+    // uncalculated shipping cost, even if the button somehow gets triggered.
+    if (!this.isCheckoutValid()) {
+      const message = this.deliveryCostError()
+        ? 'Shipping cost could not be calculated. Please review your delivery address before placing the order.'
+        : 'Please select a shipping address, payment type and delivery type before placing the order.';
+      this.notification.error(message);
+      this.orderError.set(message);
       return;
     }
 

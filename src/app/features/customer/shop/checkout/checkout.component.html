@@ -190,8 +190,17 @@
             <ui-icon name="truck" size="md"></ui-icon>
             <span>Shipping & handling</span>
           </div>
-          <span class="checkout__summary-value">{{ isLoadingShipping() ? '...' : formatPrice(itemCount() > 0 ? shippingCost() : 0) }}</span>
+          @if (deliveryCostError()) {
+            <span class="checkout__summary-value checkout__summary-value--error">Shipping unavailable</span>
+          } @else {
+            <span class="checkout__summary-value">{{ isLoadingShipping() ? '...' : formatPrice(itemCount() > 0 ? shippingCost() : 0) }}</span>
+          }
         </div>
+        @if (deliveryCostError()) {
+          <div class="checkout__summary-row">
+            <span class="checkout__error" role="alert">Shipping cost could not be calculated. Please check your delivery address or try again.</span>
+          </div>
+        }
         @if (estimatedTax() > 0) {
           <div class="checkout__summary-row">
             <div class="checkout__summary-label">
@@ -217,7 +226,7 @@
 
       <!-- Actions -->
       <div class="checkout__actions">
-        <button class="checkout__btn checkout__btn--primary" type="button" (click)="onPlaceOrder()">
+        <button class="checkout__btn checkout__btn--primary" type="button" [disabled]="isPlacingOrder() || !isCheckoutValid()" (click)="onPlaceOrder()">
           <span>Place order</span>
           <ui-icon name="chevron-right" size="sm"></ui-icon>
         </button>

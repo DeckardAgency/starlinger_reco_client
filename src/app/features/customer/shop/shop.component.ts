@@ -2,8 +2,8 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, O
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { forkJoin, Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, map, catchError, tap } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -19,7 +19,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { USER_ROLES } from '@core/models/auth.model';
 import { AgentClientSelectComponent } from './agent-client-select/agent-client-select.component';
 import { ShopProduct } from '@core/models/shop-product.model';
-import { Product, ProductGroup } from '@core/models';
+import { Product, ProductGroup, ProductsCollection } from '@core/models';
 import { environment } from '@env/environment';
 
 // Filter group interface for UI
@@ -66,6 +66,11 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   // Search and filter
   searchQuery = signal('');
   private searchSubject = new Subject<string>();
+  // Single funnel for both search-reloads (page 1, replace) and infinite-scroll
+  // load-more (append). switchMap cancels any in-flight request when a new one
+  // arrives, so a fresh search can never be overwritten by a late page-N response
+  // from a previous query.
+  private productRequest = new Subject<{ page: number; append: boolean }>();
   selectedGroups = signal<string[]>([]);
   isFilterOpen = signal(false);
 
@@ -156,6 +161,37 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
       this.searchQuery.set(query);
       this.reloadProducts();
     });
+
+    // Product requests (search reloads + load-more) share one switchMap'd stream.
+    this.productRequest.pipe(
+      tap(req => req.append ? this.isLoadingMore.set(true) : this.isLoading.set(true)),
+      switchMap(req => {
+        const query = this.searchQuery() || undefined;
+        return this.productService.getProducts(req.page, this.itemsPerPage, query).pipe(
+          map(products => ({ req, products } as { req: { page: number; append: boolean }; products: ProductsCollection | null })),
+          catchError(error => {
+            console.error('Failed to load products:', error);
+            return of({ req, products: null } as { req: { page: number; append: boolean }; products: ProductsCollection | null });
+          })
+        );
+      })
+    ).subscribe(({ req, products }) => {
+      if (products) {
+        const shopProducts = products.member.map(product => this.mapProductToShopProduct(product));
+        if (req.append) {
+          this.products.update(current => [...current, ...shopProducts]);
+        } else {
+          this.products.set(shopProducts);
+        }
+        this.totalItems.set(products.totalItems);
+        this.currentPage.set(req.page);
+      }
+      if (req.append) {
+        this.isLoadingMore.set(false);
+      } else {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -165,6 +201,7 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.observer?.disconnect();
     this.searchSubject.complete();
+    this.productRequest.complete();
   }
 
   private setupIntersectionObserver(): void {
@@ -214,42 +251,15 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private reloadProducts(): void {
-    this.isLoading.set(true);
-    const query = this.searchQuery() || undefined;
-
-    this.productService.getProducts(1, this.itemsPerPage, query).subscribe({
-      next: (products) => {
-        const shopProducts = products.member.map(product => this.mapProductToShopProduct(product));
-        this.products.set(shopProducts);
-        this.totalItems.set(products.totalItems);
-        this.currentPage.set(1);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load products:', error);
-        this.isLoading.set(false);
-      }
-    });
+    // Page 1, replace the list. Routed through the switchMap'd stream so it
+    // cancels any in-flight load-more from the previous query.
+    this.productRequest.next({ page: 1, append: false });
   }
 
   private loadMore(): void {
-    const nextPage = this.currentPage() + 1;
-    this.isLoadingMore.set(true);
-    const query = this.searchQuery() || undefined;
-
-    this.productService.getProducts(nextPage, this.itemsPerPage, query).subscribe({
-      next: (products) => {
-        const newProducts = products.member.map(product => this.mapProductToShopProduct(product));
-        this.products.update(current => [...current, ...newProducts]);
-        this.totalItems.set(products.totalItems);
-        this.currentPage.set(nextPage);
-        this.isLoadingMore.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load more products:', error);
-        this.isLoadingMore.set(false);
-      }
-    });
+    // Next page, append. A subsequent search will cancel this if it's still in
+    // flight, preventing stale results from being appended to the new list.
+    this.productRequest.next({ page: this.currentPage() + 1, append: true });
   }
 
   private mapProductToShopProduct(product: Product): ShopProduct {
@@ -448,9 +458,23 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectProduct(product: ShopProduct): void {
+    // Open immediately with the list data (name, price, featured image).
     this.selectedProduct.set(product);
     // Start at one order step (products with a step can't be bought in smaller amounts)
     this.quantity.set(product.qtyStep || 1);
+
+    // imageGallery/documents are no longer part of the list payload (kept out so the shop
+    // grid stays light). Fetch the full product on demand and enrich the open panel; the
+    // carousel/documents render once it arrives.
+    this.productService.getProductById(String(product.id)).subscribe({
+      next: (full) => {
+        // Only apply if this product is still the selected one (guards fast re-selects).
+        if (this.selectedProduct()?.id === product.id) {
+          this.selectedProduct.set(this.mapProductToShopProduct(full));
+        }
+      },
+      error: () => { /* keep list data; detail media just won't show */ }
+    });
   }
 
   closeShopProduct(): void {

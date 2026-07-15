@@ -2,11 +2,16 @@
  * Development user credentials + profile (used by AuthService as a dev fallback).
  * Kept in a tiny standalone file so importing it does NOT pull the mock data set
  * into the production bundle.
+ *
+ * These are local-only: dummyLogin() compares against them in-memory and never
+ * calls the backend, and useDummyAuth is false in every committed environment.
+ * The values use an obviously-fake domain on purpose so they can never match a
+ * real backend account.
  */
 
 export const DUMMY_USER_CREDENTIALS = {
-  email: 'recouser@starlinger.com',
-  password: 'recouser123!'
+  email: 'dev-user@example.test',
+  password: 'local-dev-only'
 };
 
 export const mockDevelopmentUser = {

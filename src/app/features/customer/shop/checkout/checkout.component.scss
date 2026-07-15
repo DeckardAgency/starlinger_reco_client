@@ -282,6 +282,11 @@
 
   &__summary-value {
     @include customer.summary-value;
+
+    &--error {
+      color: #b91c1c;
+      font-weight: 600;
+    }
   }
 
   // Actions
@@ -294,6 +299,11 @@
   &__btn {
     @include admin.btn-base;
     justify-content: space-between;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     &--primary {
       @include admin.btn-primary;

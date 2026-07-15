@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection, Provider } from '@angular/core';
-import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { provideRouter, withPreloading, NoPreloading } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { routes } from './app.routes';
@@ -35,7 +35,7 @@ function getHttpInterceptorProviders(): Provider[] {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(routes, withPreloading(NoPreloading)),
     // Hydration WITHOUT withEventReplay(): the CSP in server.ts is a strict
     // `script-src 'self'` with no nonce mechanism, and event replay injects an inline
     // event-recording script that would be blocked. The hydration state itself is a

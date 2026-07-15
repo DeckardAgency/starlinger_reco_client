@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
@@ -58,6 +59,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   private wishlistService = inject(WishlistService);
   private productService = inject(ProductService);
   private productGroupService = inject(ProductGroupService);
+  private destroyRef = inject(DestroyRef);
 
   // Group info
   groupId = signal<string>('');
@@ -116,7 +118,9 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnInit(): void {
     // Get group ID from route params
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
       const id = params.get('groupId');
       if (id) {
         this.groupId.set(id);
@@ -373,12 +377,25 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   selectProduct(product: ShopProduct): void {
+    // Open immediately with the list data (name, price, featured image).
     const detail: ProductDetail = {
       ...product
     };
     this.selectedProduct.set(detail);
     // Start at one order step (products with a step can't be bought in smaller amounts)
     this.quantity.set(detail.qtyStep || 1);
+
+    // imageGallery/documents are no longer part of the list payload (kept out so the grid
+    // stays light). Fetch the full product on demand and enrich the open panel.
+    this.productService.getProductById(String(product.id)).subscribe({
+      next: (full) => {
+        // Only apply if this product is still the selected one (guards fast re-selects).
+        if (this.selectedProduct()?.id === product.id) {
+          this.selectedProduct.set({ ...this.mapProductToShopProduct(full) });
+        }
+      },
+      error: () => { /* keep list data; detail media just won't show */ }
+    });
   }
 
   closeProductDetail(): void {

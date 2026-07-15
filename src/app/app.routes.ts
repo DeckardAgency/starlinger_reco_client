@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@core/auth/auth.guard';
 import { RoleGuard } from '@core/auth/role.guard';
+import { USER_ROLES } from '@core/models/auth.model';
 
 export const routes: Routes = [
   // ============================================================================
@@ -46,7 +47,8 @@ export const routes: Routes = [
   // ============================================================================
   {
     path: 'customer-admin',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: [USER_ROLES.CLIENT_ADMIN, USER_ROLES.ADMIN] },
     children: [
       {
         path: '',

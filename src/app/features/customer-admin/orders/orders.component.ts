@@ -30,6 +30,7 @@ interface OrderHistoryItem {
     avatar?: string;
   };
   partsOrdered: number;
+  total: number;
   status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
   isArchived: boolean;
   // Precomputed display fields (avoid per-row method calls in the template)
@@ -69,6 +70,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   @ViewChild('typeTemplate') typeTemplate!: TemplateRef<any>;
   @ViewChild('customerTemplate') customerTemplate!: TemplateRef<any>;
   @ViewChild('statusTemplate') statusTemplate!: TemplateRef<any>;
+  @ViewChild('totalTemplate') totalTemplate!: TemplateRef<any>;
   @ViewChild('actionsTemplate') actionsTemplate!: TemplateRef<any>;
 
   // Search state
@@ -155,6 +157,9 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       if (col === 'dateCreated') {
         cmp = this.parseDate(a.dateCreated).getTime() - this.parseDate(b.dateCreated).getTime();
         if (cmp === 0) cmp = a.id - b.id;
+      } else if (col === 'total') {
+        cmp = a.total - b.total;
+        if (cmp === 0) cmp = a.id - b.id;
       } else {
         cmp = a.id - b.id;
       }
@@ -195,17 +200,20 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         { id: 'add-to-cart', label: 'Add to Cart', icon: 'cart' },
         { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
       ];
+    } else if (filter === 'archive') {
+      // On the archive page the orders are already archived, so the action is
+      // Unarchive (not Archive). Checked before isCustomerView so plain customers
+      // get Unarchive too. Delete is admin-only.
+      this.tableActions = [
+        { id: 'view', label: 'View', icon: 'eye' },
+        { id: 'unarchive', label: 'Unarchive', icon: 'archive' },
+        ...(isCustomerView ? [] : [{ id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' as const }])
+      ];
     } else if (isCustomerView) {
       // Plain customer: View + Archive (Archive is global; affects company admin's view too).
       this.tableActions = [
         { id: 'view', label: 'View', icon: 'eye' },
         { id: 'archive', label: 'Archive', icon: 'archive' }
-      ];
-    } else if (filter === 'archive') {
-      this.tableActions = [
-        { id: 'view', label: 'View', icon: 'eye' },
-        { id: 'unarchive', label: 'Unarchive', icon: 'archive' },
-        { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
       ];
     } else {
       this.tableActions = [
@@ -278,6 +286,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         initials
       },
       partsOrdered: order.totalQuantity ?? 0,
+      total: order.totalAmount ?? 0,
       status,
       isArchived: order.isArchived === true,
       typeLabel: this.getTypeLabel('order'),
@@ -322,6 +331,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       { key: 'internalRef', label: 'Internal reference number', sortable: false },
       { key: 'customer', label: 'Customer', sortable: false, template: this.customerTemplate },
       { key: 'partsOrdered', label: 'Parts ordered', sortable: false, width: '128px', align: 'right' },
+      { key: 'total', label: 'Total', sortable: true, width: '128px', align: 'right', template: this.totalTemplate },
       { key: 'status', label: 'Status', sortable: false, width: '128px', template: this.statusTemplate },
       { key: 'actions', label: '', sortable: false, width: '64px', template: this.actionsTemplate }
     ];

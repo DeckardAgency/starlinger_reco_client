@@ -63,22 +63,32 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.addressService.getAddressesByClient(clientId).subscribe(addresses => {
-      const billing = addresses.find(a => a.isBilling && a.isActive);
-      if (billing) {
-        this.billingAddress.set(this.addressService.formatAddress(billing));
-      }
-      const shipping = addresses.find(a => a.isDelivery && a.isActive);
-      if (shipping) {
-        this.shippingAddress.set(this.addressService.formatAddress(shipping));
-        if (shipping.country?.id) {
-          this.shippingCountryId.set(shipping.country.id);
-          this.calculateDeliveryCost(shipping.country.id);
+    this.addressService.getAddressesByClient(clientId).subscribe({
+      next: (addresses) => {
+        const billing = addresses.find(a => a.isBilling && a.isActive);
+        if (billing) {
+          this.billingAddress.set(this.addressService.formatAddress(billing));
+        }
+        const shipping = addresses.find(a => a.isDelivery && a.isActive);
+        if (shipping) {
+          this.shippingAddress.set(this.addressService.formatAddress(shipping));
+          if (shipping.country?.id) {
+            this.shippingCountryId.set(shipping.country.id);
+            this.calculateDeliveryCost(shipping.country.id);
+          } else {
+            this.isLoadingShipping.set(false);
+          }
         } else {
           this.isLoadingShipping.set(false);
         }
-      } else {
+      },
+      error: (err) => {
+        // Without this the shipping spinner would stick forever on failure.
+        console.error('Failed to load addresses:', err);
         this.isLoadingShipping.set(false);
+        this.toastType.set('error');
+        this.toastMessage.set('Could not load your addresses. Please try again.');
+        this.showToast.set(true);
       }
     });
   }
