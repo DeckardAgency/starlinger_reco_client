@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
@@ -96,6 +96,13 @@ export class SupportComponent implements OnInit {
 
   onViewTicket(ticket: SupportTicketRow): void {
     this.selectedTicket.set(ticket);
+  }
+
+  // Re-sync the list when returning to the tab, so status changes made elsewhere
+  // show up without a manual full-page refresh.
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadTickets();
   }
 
   onCloseDetail(): void {

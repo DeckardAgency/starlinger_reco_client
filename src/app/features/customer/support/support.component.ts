@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbsComponent } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
@@ -86,7 +86,24 @@ export class SupportComponent implements OnInit {
   }
 
   onViewTicket(ticket: SupportTicket): void {
+    // Show immediately with the list data, then refresh from the server so a
+    // status change made elsewhere (e.g. by an admin) is reflected.
     this.selectedTicket.set(ticket);
+    this.supportTicketService.getSupportTicketById(String(ticket.id)).subscribe({
+      next: (fresh) => {
+        this.selectedTicket.set(fresh);
+        this.tickets.update(list => list.map(t => t.id === fresh.id ? fresh : t));
+        this.cdr.markForCheck();
+      },
+      error: () => { /* keep the list version if the refresh fails */ }
+    });
+  }
+
+  // Re-sync the list when the customer returns to the tab, so status changes
+  // made in the admin app show up without a manual full-page refresh.
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.loadTickets();
   }
 
   onCloseDetail(): void {
