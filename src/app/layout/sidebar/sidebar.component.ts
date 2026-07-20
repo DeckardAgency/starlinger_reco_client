@@ -141,7 +141,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       } else if (this.currentUser.firstName) {
         this.userFullName = this.currentUser.firstName;
         this.userInitials = this.currentUser.firstName[0].toUpperCase();
-      } else {
+      } else if (this.currentUser.email) {
         this.userFullName = this.currentUser.email;
         this.userInitials = this.currentUser.email[0].toUpperCase();
       }
