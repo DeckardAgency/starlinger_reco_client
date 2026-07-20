@@ -2,8 +2,10 @@ import {
   Component,
   ChangeDetectionStrategy,
   Input,
+  OnChanges,
   Output,
   EventEmitter,
+  SimpleChanges,
   forwardRef,
   booleanAttribute,
   signal,
@@ -30,7 +32,7 @@ export type QuantitySelectorSize = 'sm' | 'md' | 'lg';
     }
   ]
 })
-export class QuantitySelectorComponent implements ControlValueAccessor {
+export class QuantitySelectorComponent implements ControlValueAccessor, OnChanges {
   @Input() size: QuantitySelectorSize = 'md';
   @Input() min = 1;
   @Input() max = 999999;
@@ -41,11 +43,15 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
 
   @Input()
   set value(val: number) {
-    this._value.set(this.clampValue(val ?? this.min));
+    this.incomingValue = val ?? this.min;
+    this._value.set(this.clampValue(this.incomingValue));
   }
   get value(): number {
     return this._value();
   }
+
+  /** Last value pushed in by the host, before clamping (see ngOnChanges). */
+  private incomingValue: number | null = null;
 
   @Output() quantityChange = new EventEmitter<number>();
   @Output() quantityAdjusted = new EventEmitter<{ original: number; adjusted: number; step: number }>();
@@ -57,6 +63,26 @@ export class QuantitySelectorComponent implements ControlValueAccessor {
 
   private onChange: (value: number) => void = () => {};
   private onTouched: () => void = () => {};
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Input setters run in template-declaration order, so when [value] changes in
+    // the same cycle as [min]/[max]/[step] (e.g. the host switches to another
+    // product), the value setter clamps against the PREVIOUS limits — a reset to 1
+    // gets snapped back up to the old product's min. Once all inputs of the cycle
+    // are assigned, re-apply the host's intended value against the fresh limits,
+    // and tell the host if the displayed value had to move (so host state and the
+    // visible counter can never disagree on what "Add to Cart" will do).
+    if (changes['min'] || changes['max'] || changes['step']) {
+      if (this.incomingValue !== null) {
+        const corrected = this.clampValue(this.incomingValue);
+        this._value.set(corrected);
+        if (corrected !== this.incomingValue) {
+          this.onChange(corrected);
+          this.quantityChange.emit(corrected);
+        }
+      }
+    }
+  }
 
   writeValue(value: number): void {
     this._value.set(this.clampValue(value ?? this.min));
