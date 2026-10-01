@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ButtonComponent, BadgeComponent, SpinnerComponent, IconComponent } from '@app/ui-kit/atoms';
 import { SectionHeaderComponent, EmptyStateComponent } from '@app/ui-kit/molecules';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { AgentService, ManagedClientResponse } from '@core/services/http/agent.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 
@@ -21,13 +22,18 @@ import { AgentClientSelectionService } from '@core/services/agent-client-selecti
     SpinnerComponent,
     IconComponent,
     SectionHeaderComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    BreadcrumbsComponent
   ],
   templateUrl: './my-clients.component.html',
   styleUrls: ['./my-clients.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyClientsComponent implements OnInit {
+  breadcrumbItems: BreadcrumbItem[] = [{ label: 'My Clients' }];
+
+  // Inline SVG (ui-section-header renders raw SVG markup, not icon names)
+  readonly usersIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.333 14v-1.333A2.667 2.667 0 0 0 8.667 10H3.333a2.667 2.667 0 0 0-2.666 2.667V14M6 7.333A2.667 2.667 0 1 0 6 2a2.667 2.667 0 0 0 0 5.333ZM15.333 14v-1.333a2.667 2.667 0 0 0-2-2.58M10.667 2.087a2.667 2.667 0 0 1 0 5.166" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   private agentService = inject(AgentService);
   private selection = inject(AgentClientSelectionService);
   private router = inject(Router);

@@ -1,5 +1,9 @@
 <div class="client-detail">
-  <ui-section-header title="Client details" icon="user"></ui-section-header>
+  <div class="client-detail__breadcrumb">
+    <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
+  </div>
+
+  <ui-section-header title="Client details" [icon]="userIcon"></ui-section-header>
 
   @if (isLoading()) {
     <div class="client-detail__loading">

@@ -20,6 +20,27 @@
     </div>
 
     <div class="top-bar__actions">
+      <!-- Agent: who the agent is currently ordering on behalf of -->
+      <a
+        *ngIf="agentClient() as ac"
+        routerLink="/customer/my-clients"
+        class="top-bar__agent-chip"
+        [title]="'Ordering on behalf of ' + ac.name + ' — click to change'"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.333 14v-1.333A2.667 2.667 0 0 0 10.667 10H5.333a2.667 2.667 0 0 0-2.666 2.667V14M8 7.333A2.667 2.667 0 1 0 8 2a2.667 2.667 0 0 0 0 5.333Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="top-bar__agent-chip-label">On behalf of:</span>
+        <span class="top-bar__agent-chip-name">{{ ac.name }}</span>
+        <button
+          type="button"
+          class="top-bar__agent-chip-clear"
+          (click)="clearAgentClient($event)"
+          aria-label="Clear selected client"
+          title="Clear selected client"
+        >&#215;</button>
+      </a>
+
       <!-- Wishlist Button (Customer only) -->
       <button class="top-bar__action-btn" *ngIf="isCustomer" (click)="openWishlist()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

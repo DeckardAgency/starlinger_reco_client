@@ -21,6 +21,11 @@ export class SectionHeaderComponent {
   constructor(private sanitizer: DomSanitizer) {}
 
   get sanitizedIcon(): SafeHtml | null {
-    return this.icon ? this.sanitizer.bypassSecurityTrustHtml(this.icon) : null;
+    // Only inline SVG markup is accepted. Anything else (e.g. an icon NAME
+    // passed by mistake) would be injected as literal text next to the title.
+    const icon = this.icon?.trim();
+    return icon && icon.startsWith('<svg')
+      ? this.sanitizer.bypassSecurityTrustHtml(icon)
+      : null;
   }
 }

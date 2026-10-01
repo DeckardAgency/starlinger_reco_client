@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonComponent, BadgeComponent, SpinnerComponent } from '@app/ui-kit/atoms';
 import { SectionHeaderComponent, EmptyStateComponent } from '@app/ui-kit/molecules';
+import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { AgentService, ManagedClientResponse } from '@core/services/http/agent.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 
@@ -20,13 +21,22 @@ import { AgentClientSelectionService } from '@core/services/agent-client-selecti
     BadgeComponent,
     SpinnerComponent,
     SectionHeaderComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    BreadcrumbsComponent
   ],
   templateUrl: './client-detail.component.html',
   styleUrls: ['./client-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClientDetailComponent implements OnInit {
+  breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'My Clients', route: '/customer/my-clients' },
+    { label: 'Client details' }
+  ];
+
+  // Inline SVG (ui-section-header renders raw SVG markup, not icon names)
+  readonly userIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.333 14v-1.333A2.667 2.667 0 0 0 10.667 10H5.333a2.667 2.667 0 0 0-2.666 2.667V14M8 7.333A2.667 2.667 0 1 0 8 2a2.667 2.667 0 0 0 0 5.333Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
   private agentService = inject(AgentService);
   private selection = inject(AgentClientSelectionService);
   private route = inject(ActivatedRoute);

@@ -1,5 +1,9 @@
 <div class="my-clients">
-  <ui-section-header title="My Clients" icon="users"></ui-section-header>
+  <div class="my-clients__breadcrumb">
+    <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
+  </div>
+
+  <ui-section-header title="My Clients" [icon]="usersIcon"></ui-section-header>
 
   <!-- Active selection banner -->
   @if (selectedClientId() !== null) {

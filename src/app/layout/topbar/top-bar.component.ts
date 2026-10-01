@@ -1,16 +1,19 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SearchComponent, SearchSuggestion } from '@app/ui-kit/molecules/search/search.component';
 import { MobileMenuService } from '@services/mobile-menu.service';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { AuthService } from '@core/auth/auth.service';
+import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-top-bar',
     standalone: true,
-    imports: [CommonModule, NgOptimizedImage, SearchComponent],
+    imports: [CommonModule, NgOptimizedImage, RouterModule, SearchComponent],
     templateUrl: './top-bar.component.html',
     styleUrls: ['./top-bar.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -23,6 +26,17 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
+    // inject() (not constructor DI): these are used by field initializers below,
+    // which run before constructor parameters are assigned.
+    private agentSelection = inject(AgentClientSelectionService);
+
+    /**
+     * Agent context: the managed client currently being ordered for. Shown as
+     * a persistent chip so the agent always sees who they act on behalf of
+     * (the service clears it automatically for non-agent users).
+     */
+    readonly agentClient = toSignal(this.agentSelection.selectedClient$, { initialValue: null });
+
     constructor(
         private mobileMenuService: MobileMenuService,
         public cartService: CartService,
@@ -30,6 +44,13 @@ export class TopBarComponent implements OnInit, OnDestroy {
         public authService: AuthService,
         private cdr: ChangeDetectorRef
     ) {}
+
+    clearAgentClient(event: Event): void {
+        // The chip itself is a link to /customer/my-clients
+        event.preventDefault();
+        event.stopPropagation();
+        this.agentSelection.clearSelection();
+    }
 
     ngOnInit(): void {}
 

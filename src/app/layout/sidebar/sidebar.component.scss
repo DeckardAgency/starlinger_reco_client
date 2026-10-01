@@ -248,6 +248,17 @@
     padding: 4px 8px;
   }
 
+  // Standalone top-level items (e.g. the agent's "My Clients" link): same
+  // horizontal inset and row height as the Dashboard row and the sections,
+  // so icons and labels align down the sidebar.
+  &__item--inset {
+    padding: 4px 8px;
+
+    .sidebar__link {
+      height: 32px;
+    }
+  }
+
   &__section-header {
     display: flex;
     align-items: center;
