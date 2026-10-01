@@ -31,6 +31,8 @@ interface OrderHistoryItem {
   };
   partsOrdered: number;
   total: number;
+  /** Agent orders: comma-joined managed-client names; '—' for ordinary orders */
+  onBehalfOf: string;
   status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
   isArchived: boolean;
   // Precomputed display fields (avoid per-row method calls in the template)
@@ -143,6 +145,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         String(o.id).toLowerCase().includes(query) ||
         o.internalRef.toLowerCase().includes(query) ||
         o.customer.name.toLowerCase().includes(query) ||
+        o.onBehalfOf.toLowerCase().includes(query) ||
         o.dateCreated.includes(query) ||
         o.status.includes(query)
       );
@@ -259,7 +262,16 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       next: (response) => {
         // Display order (latest first + column sorting) is applied in the
         // `orders` computed, not here.
-        this.allOrders.set(response.orders.map(order => this.mapOrderToHistoryItem(order)));
+        const rows = response.orders.map(order => this.mapOrderToHistoryItem(order));
+        this.allOrders.set(rows);
+        // Agent/agency view: only show the on-behalf column when it carries data
+        const showOnBehalf = rows.some(r => r.onBehalfOf !== '—');
+        if (showOnBehalf !== this.showOnBehalfColumn) {
+          this.showOnBehalfColumn = showOnBehalf;
+          if (this.customerTemplate) {
+            this.initColumns();
+          }
+        }
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -287,6 +299,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       },
       partsOrdered: order.totalQuantity ?? 0,
       total: order.totalAmount ?? 0,
+      onBehalfOf: (order.onBehalfOfClientNames ?? []).join(', ') || '—',
       status,
       isArchived: order.isArchived === true,
       typeLabel: this.getTypeLabel('order'),
@@ -324,12 +337,18 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     return 'new';
   }
 
+  /** Set when any loaded order carries on-behalf clients (agent/agency view) */
+  private showOnBehalfColumn = false;
+
   private initColumns(): void {
     this.columns = [
       { key: 'id', label: 'Order ID', sortable: true, width: '112px' },
       { key: 'dateCreated', label: 'Date Created', sortable: true, width: '190px' },
       { key: 'internalRef', label: 'Internal reference number', sortable: false },
       { key: 'customer', label: 'Customer', sortable: false, template: this.customerTemplate },
+      ...(this.showOnBehalfColumn
+        ? [{ key: 'onBehalfOf', label: 'On behalf of', sortable: false }]
+        : []),
       { key: 'partsOrdered', label: 'Parts ordered', sortable: false, width: '128px', align: 'right' },
       { key: 'total', label: 'Total', sortable: true, width: '128px', align: 'right', template: this.totalTemplate },
       { key: 'status', label: 'Status', sortable: false, width: '128px', template: this.statusTemplate },

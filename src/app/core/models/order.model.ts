@@ -60,6 +60,8 @@ export interface Order {
     itemsCount?: number;
     /** Sum of item quantities — present on LIST responses. */
     totalQuantity?: number;
+    /** Agent orders: distinct names of the managed clients the order was placed for. */
+    onBehalfOfClientNames?: string[];
     user: User;
     logs?: OrderLog[];
     // Tracking fields (for dispatched status)
