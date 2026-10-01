@@ -2,9 +2,29 @@
 
 .client-detail {
   @include customer.page-container;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+
+  &__header {
+    @include customer.page-header;
+  }
+
+  &__breadcrumb {
+    @include customer.breadcrumb-container;
+  }
+
+  &__list-header {
+    @include customer.list-header;
+  }
+
+  &__title {
+    @include customer.list-header-title;
+  }
+
+  &__content {
+    @include customer.content-padding;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
   &__loading {
     display: flex;

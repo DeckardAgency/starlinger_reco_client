@@ -1,10 +1,15 @@
 <div class="client-detail">
-  <div class="client-detail__breadcrumb">
-    <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
+  <header class="client-detail__header">
+    <div class="client-detail__breadcrumb">
+      <ui-breadcrumbs [items]="breadcrumbItems" [showHome]="true" homeRoute="/customer/dashboard" separator="chevron"></ui-breadcrumbs>
+    </div>
+  </header>
+
+  <div class="client-detail__list-header">
+    <h1 class="client-detail__title">Client details</h1>
   </div>
 
-  <ui-section-header title="Client details" [icon]="userIcon"></ui-section-header>
-
+  <div class="client-detail__content">
   @if (isLoading()) {
     <div class="client-detail__loading">
       <ui-spinner size="lg"></ui-spinner>
@@ -56,4 +61,5 @@
       </footer>
     </div>
   }
+  </div>
 </div>
