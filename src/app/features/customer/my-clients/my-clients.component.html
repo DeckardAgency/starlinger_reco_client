@@ -74,15 +74,14 @@
           </dl>
 
           <div class="client-card__status">
+            <!-- Active is the normal state and needs no bubble; only flag exceptions -->
             @if (client.isArchived) {
               <ui-badge variant="warning" size="sm">Archived</ui-badge>
-            } @else if (client.isActive) {
-              <ui-badge variant="success" size="sm">Active</ui-badge>
-            } @else {
+            } @else if (!client.isActive) {
               <ui-badge variant="default" size="sm">Inactive</ui-badge>
             }
             @if (isSelected(client)) {
-              <ui-badge variant="primary" size="sm" [rounded]="true">Selected</ui-badge>
+              <ui-badge variant="success" size="sm" [rounded]="true">Selected</ui-badge>
             }
           </div>
 
@@ -96,7 +95,7 @@
                 View
               </ui-button>
             } @else {
-              <ui-button variant="primary" size="sm" (clicked)="selectAndShop(client)">
+              <ui-button variant="success" size="sm" (clicked)="selectAndShop(client)">
                 Select &amp; shop
               </ui-button>
               <ui-button variant="secondary" size="sm" (clicked)="viewClient(client)">

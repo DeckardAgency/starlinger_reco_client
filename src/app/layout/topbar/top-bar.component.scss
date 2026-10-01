@@ -117,6 +117,17 @@
     @media (max-width: 640px) {
       display: none;
     }
+
+    // No client selected yet: dashed prompt instead of the filled chip
+    &--empty {
+      border-style: dashed;
+      background: transparent;
+
+      .top-bar__agent-chip-name {
+        font-weight: 500;
+        color: rgba(250, 250, 250, 0.85);
+      }
+    }
   }
 
   &__action-btn {

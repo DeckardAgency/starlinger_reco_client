@@ -68,6 +68,21 @@
     }
   }
 
+  // Positive/affirmative action (e.g. selecting the client to act for);
+  // green matches the ui-badge success color family.
+  &--success {
+    background-color: #16A34A;
+    color: #FFFFFF;
+
+    &:hover:not(:disabled) {
+      background-color: #15803D;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #166534;
+    }
+  }
+
   &--ghost {
     background-color: transparent;
     color: #18181B;

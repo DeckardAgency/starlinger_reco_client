@@ -52,6 +52,11 @@ export class TopBarComponent implements OnInit, OnDestroy {
         this.agentSelection.clearSelection();
     }
 
+    /** Agents see a "Select client" prompt in the top bar when nothing is selected. */
+    get isAgentUser(): boolean {
+        return this.authService.hasRole('ROLE_USER_CLIENT_AGENT');
+    }
+
     ngOnInit(): void {}
 
     /**
