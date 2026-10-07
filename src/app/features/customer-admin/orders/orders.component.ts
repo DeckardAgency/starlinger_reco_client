@@ -191,6 +191,13 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     const filter = this.route.snapshot.data['filter'] as string | undefined;
     this.routeFilter.set(filter || null);
 
+    // Deep-linkable search (e.g. the agent's client page links here with
+    // ?search=<client name>, which matches the "On behalf of" column).
+    const initialSearch = this.route.snapshot.queryParamMap.get('search');
+    if (initialSearch) {
+      this.searchQuery.set(initialSearch);
+    }
+
     // Plain customers (non-admin) should NOT be able to cancel/archive their own orders.
     // The shared component is also used at /customer-admin/orders for company admins.
     const isCustomerView = !this.router.url.startsWith('/customer-admin');

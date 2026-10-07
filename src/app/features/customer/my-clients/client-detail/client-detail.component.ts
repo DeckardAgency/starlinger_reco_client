@@ -90,4 +90,11 @@ export class ClientDetailComponent implements OnInit {
   back(): void {
     this.router.navigate(['/customer/my-clients']);
   }
+
+  /** Orders list, pre-filtered to this client (matches the "On behalf of" column) */
+  viewOrders(): void {
+    const c = this.client();
+    if (!c) return;
+    this.router.navigate(['/customer/orders'], { queryParams: { search: c.name } });
+  }
 }

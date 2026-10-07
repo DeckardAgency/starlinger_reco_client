@@ -33,13 +33,14 @@
       <header class="client-detail__head">
         <h2 class="client-detail__name">{{ c.name }}</h2>
         <ui-badge variant="default" size="md">{{ c.code }}</ui-badge>
+        <!-- Active is the normal state; only flag exceptions (same as My Clients) -->
         @if (c.isArchived) {
           <ui-badge variant="warning" size="md">Archived</ui-badge>
-        } @else if (c.isActive) {
-          <ui-badge variant="success" size="md">Active</ui-badge>
+        } @else if (!c.isActive) {
+          <ui-badge variant="default" size="md">Inactive</ui-badge>
         }
         @if (isSelected()) {
-          <ui-badge variant="primary" size="md" [rounded]="true">Selected</ui-badge>
+          <ui-badge variant="success" size="md" [rounded]="true">Selected</ui-badge>
         }
       </header>
 
@@ -52,10 +53,19 @@
       </dl>
 
       <footer class="client-detail__actions">
-        <ui-button variant="primary" size="md" iconLeft="cart" (clicked)="selectAndShop()">
-          Select &amp; shop
+        @if (isSelected()) {
+          <ui-button variant="secondary" size="md" iconLeft="cart" (clicked)="selectAndShop()">
+            Continue to shop
+          </ui-button>
+        } @else {
+          <ui-button variant="success" size="md" (clicked)="selectAndShop()">
+            Select &amp; shop
+          </ui-button>
+        }
+        <ui-button variant="outline" size="md" (clicked)="viewOrders()">
+          View orders
         </ui-button>
-        <ui-button variant="secondary" size="md" iconLeft="arrow-left" (clicked)="back()">
+        <ui-button variant="outline" size="md" iconLeft="arrow-left" (clicked)="back()">
           Back
         </ui-button>
       </footer>
