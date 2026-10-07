@@ -80,11 +80,17 @@ export class ResetPasswordComponent implements OnInit {
   onSubmit(): void {
     if (this.isLoading()) return;
 
-    if (!this.password || this.password.length < 8) {
+    // Mirror the server's password rules so failures are explained before submit
+    const pw = this.password;
+    if (!pw || pw.length < 8) {
       this.errorMessage.set('The password must be at least 8 characters long.');
       return;
     }
-    if (this.password !== this.repeatPassword) {
+    if (!/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw)) {
+      this.errorMessage.set('The password must contain an uppercase letter, a lowercase letter and a number.');
+      return;
+    }
+    if (pw !== this.repeatPassword) {
       this.errorMessage.set('The passwords do not match.');
       return;
     }
