@@ -41,6 +41,8 @@ export class AppComponent {
   title = 'starlinger_reco_client';
   currentRoute: string = '';
   isAuthenticated: boolean = false;
+  /** True once the first session check (or an explicit login/logout) finished */
+  sessionResolved!: () => boolean;
   isAuthPage: boolean = false;
   is404Page: boolean = false;
   loginModalOpen: boolean = false;
@@ -67,6 +69,7 @@ export class AppComponent {
     private loggerService: LoggerService
   ) {
     this.logger = this.loggerService.createLogger('AppComponent');
+    this.sessionResolved = this.authService.sessionResolved;
 
     // Subscribe to router events to keep track of current route
     this.router.events.pipe(

@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
@@ -51,6 +51,14 @@ export class AuthService {
 
   /** In-flight /api/me session check, shared so concurrent callers reuse one request. */
   private sessionCheck$: Observable<User | null> | null = null;
+
+  /**
+   * True once the auth state is KNOWN in this browser session (first /api/me
+   * round-trip finished, or an explicit login/logout happened). Until then the
+   * app shell must not guess — rendering the chrome for a user who turns out
+   * to be logged out flashes the dashboard frame before the login redirect.
+   */
+  readonly sessionResolved = signal(false);
 
   constructor(
     private http: HttpClient,
@@ -284,6 +292,7 @@ export class AuthService {
         }),
         finalize(() => {
           this.sessionCheck$ = null;
+          this.sessionResolved.set(true);
         }),
         shareReplay(1)
       );
@@ -295,12 +304,14 @@ export class AuthService {
     this.cacheUser(user);
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
+    this.sessionResolved.set(true);
   }
 
   private clearUser(): void {
     this.removeCachedUser();
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+    this.sessionResolved.set(true);
   }
 
   // ---- Non-sensitive profile cache (localStorage) -------------------------------------

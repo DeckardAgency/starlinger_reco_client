@@ -1,14 +1,22 @@
 <div class="app" [class.app--auth-page]="isAuthPage" [class.app--404-page]="is404Page">
-  <ng-container *ngIf="!isAuthPage">
+  <!-- Chrome only when we KNOW the user is signed in: rendering it while the
+       session check is still in flight flashes the dashboard frame before a
+       logged-out visitor is redirected to /login. -->
+  <ng-container *ngIf="!isAuthPage && isAuthenticated">
     <app-top-bar></app-top-bar>
     <app-sidebar></app-sidebar>
     <app-mobile-menu></app-mobile-menu>
   </ng-container>
 
+  <!-- Neutral splash while the auth state is still unknown on a protected URL -->
+  <div class="app__splash" *ngIf="!isAuthPage && !isAuthenticated && !sessionResolved()">
+    <div class="app__splash-spinner"></div>
+  </div>
+
   <main
     class="app__main"
     [class.app__main--collapsed]="sidebarService.isCollapsed()"
-    [class.app__main--full]="isAuthPage">
+    [class.app__main--full]="isAuthPage || !isAuthenticated">
     <router-outlet></router-outlet>
   </main>
 
