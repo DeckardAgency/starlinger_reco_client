@@ -112,7 +112,7 @@
         @if (isAgent) {
           <div class="shop__agent-bar">
             <div class="shop__agent-select">
-              <span class="shop__agent-label">Choose client(s):</span>
+              <span class="shop__agent-label">Ordering for:</span>
               <app-agent-client-select></app-agent-client-select>
             </div>
           </div>
@@ -248,7 +248,9 @@
 
             <h2 class="product-detail__name">{{ selectedProduct()!.name }}</h2>
             @if (selectedProduct()!.shortDescription) {
-              <p class="product-detail__short-desc">{{ selectedProduct()!.shortDescription }}</p>
+              <!-- innerHTML: descriptions come from the admin rich-text editor as HTML
+                   (Angular sanitizes the binding; plain text renders unchanged) -->
+              <p class="product-detail__short-desc" [innerHTML]="selectedProduct()!.shortDescription"></p>
             }
 
             <div class="product-detail__description">

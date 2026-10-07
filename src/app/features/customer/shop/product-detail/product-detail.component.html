@@ -59,7 +59,8 @@
             <!-- Product Name -->
             <h2 class="product-card__name">{{ product()?.name }}</h2>
             @if (product()?.shortDescription) {
-              <p class="product-card__short-desc">{{ product()?.shortDescription }}</p>
+              <!-- innerHTML: descriptions come from the admin rich-text editor as HTML -->
+              <p class="product-card__short-desc" [innerHTML]="product()?.shortDescription"></p>
             }
 
             <!-- Technical Description -->
