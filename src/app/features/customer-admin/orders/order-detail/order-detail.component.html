@@ -42,6 +42,10 @@
       <div class="order-info-row__left">
         <span class="order-info-row__label">Internal reference number: </span>
         <span class="order-info-row__value">{{ order()?.internalRef }}</span>
+        @if (order()?.onBehalfOf) {
+          <span class="order-info-row__label" style="margin-left: 16px;">On behalf of: </span>
+          <span class="order-info-row__value">{{ order()?.onBehalfOf }}</span>
+        }
       </div>
       <div class="order-info-row__right">
         <div class="order-info-row__item">
@@ -151,7 +155,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (product of group.products; track product.partNo) {
+                    @for (product of group.products; track $index) {
                       <tr>
                         <td>{{ product.partNo }}</td>
                         <td>{{ product.productName }}</td>

@@ -65,6 +65,8 @@ interface OrderDetail {
   trackingUrl?: string | null;
   dispatchedAt?: string | null;
   trackingEvents?: OrderDetailTrackingEvent[];
+  /** Agent orders: comma-joined managed-client names, null otherwise */
+  onBehalfOf?: string | null;
 }
 
 @Component({
@@ -155,25 +157,44 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   private mapOrderToDetail(order: Order): OrderDetail {
-    // Group items into product groups
+    // Group items into product groups. Agent orders: one group per managed
+    // client (like the admin's order view); ordinary orders: a single group.
     const productGroups: OrderDetailProductGroup[] = [];
-    
+
     if (order.items && order.items.length > 0) {
-      const defaultGroup: OrderDetailProductGroup = {
-        id: 'default',
-        name: 'Order Items',
-        isExpanded: true,
-        products: order.items.map(item => ({
-          partNo: item.product?.partNo || '',
-          productName: item.product?.name || '',
-          weight: item.product?.weight || '-',
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          discount: '-',
-          price: item.subtotal
-        }))
-      };
-      productGroups.push(defaultGroup);
+      const toProduct = (item: NonNullable<Order['items']>[number]): OrderDetailProduct => ({
+        partNo: item.product?.partNo || '',
+        productName: item.product?.name || '',
+        weight: item.product?.weight || '-',
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        discount: '-',
+        price: item.subtotal
+      });
+
+      const hasOnBehalf = order.items.some(i => i.onBehalfOfClient);
+      if (hasOnBehalf) {
+        const byClient = new Map<string, { name: string; items: OrderDetailProduct[] }>();
+        for (const item of order.items) {
+          const c = item.onBehalfOfClient;
+          const key = c ? `client-${c.id}` : 'own';
+          const name = c ? `Client: ${c.name}${c.code ? ` (${c.code})` : ''}` : 'My company';
+          if (!byClient.has(key)) {
+            byClient.set(key, { name, items: [] });
+          }
+          byClient.get(key)!.items.push(toProduct(item));
+        }
+        for (const [id, group] of byClient) {
+          productGroups.push({ id, name: group.name, isExpanded: true, products: group.items });
+        }
+      } else {
+        productGroups.push({
+          id: 'default',
+          name: 'Order Items',
+          isExpanded: true,
+          products: order.items.map(toProduct)
+        });
+      }
     }
 
     // Map logs
@@ -193,6 +214,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       dateCreated: this.formatDate(order.createdAt),
       partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
       status: order.status,
+      onBehalfOf: (order.onBehalfOfClientNames ?? []).join(', ') || null,
       productGroups,
       totalPrice: order.totalAmount,
       logMessages,

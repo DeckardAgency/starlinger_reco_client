@@ -20,6 +20,8 @@ export interface OrderItem {
     id: number;
     orderRef?: string;
     product: OrderProduct;
+    /** Agent orders: the managed client this line was placed for */
+    onBehalfOfClient?: { id: number; name: string; code?: string } | null;
     quantity: number;
     unitPrice: number;
     subtotal: number;
