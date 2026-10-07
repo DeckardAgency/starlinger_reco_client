@@ -45,7 +45,7 @@ export class AppComponent {
   is404Page: boolean = false;
   loginModalOpen: boolean = false;
 
-  private readonly authRoutes = ['/login', '/forgot-password', '/register', '/no-client'];
+  private readonly authRoutes = ['/login', '/forgot-password', '/reset-password', '/register', '/no-client'];
 
   /** Re-check the client's archived status at most once per TTL per session. */
   private static readonly CLIENT_STATUS_TTL_MS = 5 * 60 * 1000;

@@ -23,6 +23,12 @@ export const routes: Routes = [
     title: 'Reco | Reset Password'
   },
   {
+    // Landing page of the reset link sent by e-mail (?token=...)
+    path: 'reset-password',
+    loadComponent: () => import('@features/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+    title: 'Reco | New Password'
+  },
+  {
     path: 'register',
     loadComponent: () => import('@features/register/register.component').then(m => m.RegisterComponent),
     title: 'Reco | Create Account'

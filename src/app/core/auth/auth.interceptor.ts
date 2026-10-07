@@ -20,7 +20,7 @@ import { TokenRefreshService } from '@services/http/token-refresh.service';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   /** Pages anonymous visitors may stay on when a 401 ends the (non-)session. */
-  private static readonly PUBLIC_ROUTES = ['/login', '/forgot-password', '/register', '/no-client'];
+  private static readonly PUBLIC_ROUTES = ['/login', '/forgot-password', '/reset-password', '/register', '/no-client'];
 
   private isRefreshing = false;
   private refreshDone: BehaviorSubject<boolean | null> = new BehaviorSubject<boolean | null>(null);
