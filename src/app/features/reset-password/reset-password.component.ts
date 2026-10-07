@@ -100,11 +100,18 @@ export class ResetPasswordComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        const message: string = err?.error?.error || '';
+        // The token died between page load and submit (expired, or superseded
+        // by a newer reset request): don't leave the user on a dead form.
+        if (/invalid or expired/i.test(message)) {
+          this.state.set('invalid');
+          return;
+        }
         const details = err?.error?.details;
         this.errorMessage.set(
           Array.isArray(details) && details.length
             ? details.join(' ')
-            : (err?.error?.error || 'Could not change the password. The link may have expired - request a new one.')
+            : (message || 'Could not change the password. The link may have expired - request a new one.')
         );
         this.logger.error('Password reset failed', err);
       }
