@@ -149,6 +149,8 @@
           type="text" 
           class="checkout__reference-input" 
           [value]="internalReference()"
+          maxlength="100"
+          placeholder="e.g. your PO number (optional)"
           (input)="onReferenceChange($any($event.target).value)"
           placeholder="#0001"
         >

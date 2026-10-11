@@ -117,7 +117,7 @@ export class CheckoutComponent implements OnInit {
     return Array.from(groups.values());
   });
 
-  internalReference = signal('#0001');
+  internalReference = signal('');
   shippingCost = signal(0);
   isLoadingShipping = signal(true);
   // True when the delivery cost could not be calculated. We must NOT show €0 (it
@@ -379,7 +379,7 @@ export class CheckoutComponent implements OnInit {
     this.orderError.set(null);
 
     const orderData: Record<string, unknown> = {
-      notes: this.internalReference(),
+      customerReference: this.internalReference().trim() || null,
       items: this.cartItems().map(item => this.toOrderItem(item)),
       isDraft: false,
       billingAddress: this.billingAddress(),
@@ -440,7 +440,7 @@ export class CheckoutComponent implements OnInit {
     this.orderError.set(null);
 
     const orderData: Record<string, unknown> = {
-      notes: this.internalReference(),
+      customerReference: this.internalReference().trim() || null,
       items: this.cartItems().map(item => this.toOrderItem(item)),
       isDraft: true,
       billingAddress: this.billingAddress(),

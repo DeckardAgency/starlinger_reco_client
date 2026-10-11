@@ -50,6 +50,13 @@ export interface Order {
     status: string;
     totalAmount: number;
     notes?: string;
+    /** Customer's own reference (PO number etc.), entered at checkout. */
+    customerReference?: string | null;
+    /** Reference of the order in Starlinger's ERP (read-only). */
+    erpReference?: string | null;
+    erpSentAt?: string | null;
+    currency?: string;
+    currencyRate?: number;
     shippingAddress: string;
     billingAddress: string;
     createdAt: string;
