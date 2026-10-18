@@ -458,8 +458,9 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  /** Discount badge text; only meaningful for a reduction (callers hide it otherwise). */
   formatDiscount(discount: number): string {
-    return `-${discount}%`;
+    return `-${Math.abs(discount)}%`;
   }
 
   onPlaceOrder(): void {

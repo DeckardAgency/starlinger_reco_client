@@ -137,8 +137,10 @@
                     </button>
                   </div>
                   <div class="checkout__product-price">
-                    <span class="checkout__old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
-                    <span class="checkout__discount-badge">-{{ item.discount }}%</span>
+                    @if (item.discount > 0) {
+                      <span class="checkout__old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
+                      <span class="checkout__discount-badge">-{{ item.discount }}%</span>
+                    }
                     <span class="checkout__final-price">{{ formatPrice(getDiscountedPrice(item)) }}</span>
                   </div>
                 </div>
@@ -152,7 +154,7 @@
 
             <!-- Discount Cell -->
             <div class="checkout__cell checkout__cell--discount">
-              {{ formatDiscount(item.discount) }}
+              {{ item.discount > 0 ? formatDiscount(item.discount) : '–' }}
             </div>
 
             <!-- Quantity Cell -->
