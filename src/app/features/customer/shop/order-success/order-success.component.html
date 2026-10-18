@@ -6,11 +6,18 @@
     </div>
 
     <!-- Thank You Message -->
-    <h1 class="order-success__title">Thanks for placing your Order.</h1>
+    <h1 class="order-success__title">Thanks for placing your {{ isMultiOrder() ? 'Orders' : 'Order' }}.</h1>
 
     <!-- Order Details -->
     <div class="order-success__details">
-      <p class="order-success__detail">Order number: {{ orderNumber() }}</p>
+      @if (isMultiOrder()) {
+        <p class="order-success__detail">Your orders: {{ orderNumbers().join(', ') }}</p>
+      } @else {
+        <p class="order-success__detail">Order number: {{ orderNumber() }}</p>
+      }
+      @if (checkoutReference()) {
+        <p class="order-success__detail order-success__detail--muted">Checkout reference: {{ checkoutReference() }}</p>
+      }
     </div>
 
     <!-- Contact Buttons -->

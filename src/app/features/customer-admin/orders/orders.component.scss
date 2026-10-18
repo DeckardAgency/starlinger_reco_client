@@ -30,3 +30,11 @@ ui-tabs {
     @include admin.customer-name;
   }
 }
+
+// Internal reference cell: order number + checkout-reference badge (agent batches)
+.internal-ref-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, catchError, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Order, OrdersResponse, TransformedOrdersResponse } from '@models/order.model';
+import { CheckoutPayload, CheckoutResponse, Order, OrdersResponse, TransformedOrdersResponse } from '@models/order.model';
 import { environment } from '@env/environment';
 import { AuthService } from '@core/auth/auth.service';
 import { LoggerService } from '@core/services/logger.service';
@@ -123,6 +123,20 @@ export class OrderService {
             tap(response => this.logger.debug('Order created:', response)),
             catchError(error => {
                 this.logger.error('Error creating order:', error);
+                throw error;
+            })
+        );
+    }
+
+    /**
+     * Agent batch checkout: creates one order per client group in a single,
+     * atomic request (the whole batch is rejected if any group fails).
+     */
+    checkout(payload: CheckoutPayload): Observable<CheckoutResponse> {
+        return this.http.post<CheckoutResponse>(`${this.apiUrl}/checkout`, payload, this.httpOptions).pipe(
+            tap(response => this.logger.debug('Checkout created:', response)),
+            catchError(error => {
+                this.logger.error('Error during checkout:', error);
                 throw error;
             })
         );

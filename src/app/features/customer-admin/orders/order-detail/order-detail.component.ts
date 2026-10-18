@@ -67,6 +67,8 @@ interface OrderDetail {
   trackingEvents?: OrderDetailTrackingEvent[];
   /** Agent orders: comma-joined managed-client names, null otherwise */
   onBehalfOf?: string | null;
+  /** Agent batch checkout: reference shared by the orders placed together */
+  checkoutReference?: string | null;
 }
 
 @Component({
@@ -215,6 +217,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       partsOrdered: (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
       status: order.status,
       onBehalfOf: (order.onBehalfOfClientNames ?? []).join(', ') || null,
+      checkoutReference: order.checkoutReference ?? null,
       productGroups,
       totalPrice: order.totalAmount,
       logMessages,

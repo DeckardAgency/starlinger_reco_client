@@ -49,6 +49,16 @@
   <ui-badge variant="dark">{{ row.typeLabel }}</ui-badge>
 </ng-template>
 
+<!-- Internal reference Template: order number + the agent checkout reference, when part of a batch -->
+<ng-template #internalRefTemplate let-row>
+  <div class="internal-ref-cell">
+    <span>{{ row.internalRef }}</span>
+    @if (row.checkoutReference) {
+      <ui-badge variant="secondary" size="sm" [title]="'Checkout reference'">{{ row.checkoutReference }}</ui-badge>
+    }
+  </div>
+</ng-template>
+
 <!-- Customer Template -->
 <ng-template #customerTemplate let-row>
   <div class="customer-cell">

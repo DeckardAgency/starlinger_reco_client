@@ -103,6 +103,52 @@
     font-weight: 600;
   }
 
+  // Per-group delivery block (agent checkout): billing | shipping select | cost
+  &__group-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 16px 16px;
+    background: #fafafa;
+    border-bottom: 1px solid #e4e4e7;
+    position: sticky;
+    left: 0;
+  }
+
+  &__group-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 260px;
+    min-width: 0;
+
+    &--cost {
+      flex: 0 1 180px;
+    }
+  }
+
+  &__group-cost {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+  }
+
+  &__group-weight {
+    font-size: 12px;
+    color: #71717a;
+  }
+
+  &__group-warning {
+    padding: 8px 12px;
+    background-color: #fffbeb;
+    border-left: 3px solid #d97706;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.4;
+    border-radius: 4px;
+  }
+
   &__cell {
     padding: 16px;
     display: flex;
@@ -266,6 +312,11 @@
     border: 1px solid #e4e4e7;
     border-radius: 6px;
     background: #fafafa;
+
+    &--empty {
+      color: #71717a;
+      font-style: italic;
+    }
   }
 
   &__summary {
@@ -274,6 +325,18 @@
 
   &__summary-row {
     @include customer.summary-row;
+
+    // Per-client shipping breakdown lines under "Shipping & handling"
+    &--sub {
+      margin-top: -8px;
+      padding-left: 28px;
+    }
+  }
+
+  &__summary-sublabel,
+  &__summary-subvalue {
+    font-size: 13px;
+    color: #71717a;
   }
 
   &__summary-label {
@@ -352,6 +415,12 @@
       flex-direction: column;
       gap: 12px;
       min-width: 0;
+    }
+
+    &__group-footer {
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      position: static;
     }
 
     // Transform each row into a card

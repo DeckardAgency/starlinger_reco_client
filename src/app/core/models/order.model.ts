@@ -55,6 +55,8 @@ export interface Order {
     /** Reference of the order in Starlinger's ERP (read-only). */
     erpReference?: string | null;
     erpSentAt?: string | null;
+    /** Agent batch checkout: shared reference of all orders placed in one checkout (CHK-...). */
+    checkoutReference?: string | null;
     currency?: string;
     currencyRate?: number;
     shippingAddress: string;
@@ -87,6 +89,30 @@ export interface Order {
     totalTax?: number;
     // Archive flag
     isArchived?: boolean;
+}
+
+/** One client group of an agent checkout (POST /api/v1/orders/checkout). */
+export interface CheckoutGroupPayload {
+    /** Managed client IRI, or null for the agent's own company. */
+    onBehalfOfClient: string | null;
+    shippingAddressId: number | null;
+    billingAddressId: number | null;
+    items: { product: string; quantity: number }[];
+}
+
+/** Agent batch checkout request: one order is created per group, atomically. */
+export interface CheckoutPayload {
+    isDraft: boolean;
+    customerReference: string | null;
+    notes: string | null;
+    paymentType: string | null;
+    deliveryType: string | null;
+    groups: CheckoutGroupPayload[];
+}
+
+export interface CheckoutResponse {
+    checkoutReference: string;
+    orders: Order[];
 }
 
 // Tracking carrier options

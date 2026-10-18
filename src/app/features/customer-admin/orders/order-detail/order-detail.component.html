@@ -46,6 +46,10 @@
           <span class="order-info-row__label" style="margin-left: 16px;">On behalf of: </span>
           <span class="order-info-row__value">{{ order()?.onBehalfOf }}</span>
         }
+        @if (order()?.checkoutReference) {
+          <span class="order-info-row__label" style="margin-left: 16px;">Checkout ref: </span>
+          <span class="order-info-row__value">{{ order()?.checkoutReference }}</span>
+        }
       </div>
       <div class="order-info-row__right">
         <div class="order-info-row__item">

@@ -30,18 +30,61 @@
 
         <!-- Data Rows -->
         @if (isAgent) {
-          <!-- Agent checkout: grouped by managed client -->
-          @for (group of groupedByClient(); track group.clientId) {
+          <!-- Agent checkout: one order per managed client, each shipped to its own address -->
+          @for (view of groupViews(); track view.group.clientId) {
             <div class="checkout__group-header">
-              <span class="checkout__group-title">Client: {{ group.clientName }}</span>
-              @if (group.clientCode) {
-                <span class="checkout__group-code">({{ group.clientCode }})</span>
+              <span class="checkout__group-title">Client: {{ view.group.clientName }}</span>
+              @if (view.group.clientCode) {
+                <span class="checkout__group-code">({{ view.group.clientCode }})</span>
               }
-              <span class="checkout__group-count">{{ group.items.length }}</span>
+              <span class="checkout__group-count">{{ view.group.items.length }}</span>
             </div>
-            @for (item of group.items; track item.id) {
+            @for (item of view.group.items; track item.id) {
               <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: item }"></ng-container>
             }
+            <!-- Group delivery: billing (read-only), shipping address choice, delivery cost -->
+            <div class="checkout__group-footer">
+              <div class="checkout__group-field">
+                <span class="checkout__field-label">Billing address</span>
+                <div class="checkout__shipping-address-static" [class.checkout__shipping-address-static--empty]="!view.state.billingAddressText">
+                  {{ view.state.billingAddressText || 'No billing address on file' }}
+                </div>
+              </div>
+              <div class="checkout__group-field">
+                <label class="checkout__field-label" [for]="'shipping-address-' + view.group.clientId">Shipping address</label>
+                @if (view.state.addresses.length > 1) {
+                  <select
+                    class="checkout__reference-input"
+                    [id]="'shipping-address-' + view.group.clientId"
+                    [ngModel]="view.state.selectedShippingAddressId"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="onShippingAddressChange($event, view.group.clientId)">
+                    @for (addr of view.state.addresses; track addr.id) {
+                      <option [ngValue]="addr.id">{{ formatAddressOption(addr) }}</option>
+                    }
+                  </select>
+                } @else if (view.state.addresses.length === 1) {
+                  <div class="checkout__shipping-address-static">{{ view.state.shippingAddressText }}</div>
+                } @else if (view.state.loading) {
+                  <div class="checkout__shipping-address-static checkout__shipping-address-static--empty">Loading addresses...</div>
+                } @else {
+                  <div class="checkout__group-warning" role="alert">
+                    No delivery address on file for this client — the order cannot be placed until one is added.
+                  </div>
+                }
+              </div>
+              <div class="checkout__group-field checkout__group-field--cost">
+                <span class="checkout__field-label">Shipping & handling</span>
+                <div class="checkout__group-cost">
+                  @if (view.state.error) {
+                    <span class="checkout__summary-value checkout__summary-value--error">Shipping unavailable</span>
+                  } @else {
+                    <span class="checkout__summary-value">{{ view.state.loading ? '...' : formatPrice(view.state.shippingCost) }}</span>
+                  }
+                  <span class="checkout__group-weight">{{ weightOf(view.group.items) | number:'1.2-2' }} kg</span>
+                </div>
+              </div>
+            </div>
           }
         } @else {
           <!-- Regular checkout: flat list -->
@@ -156,8 +199,8 @@
         >
       </div>
 
-      <!-- Shipping address selector -->
-      @if (availableShippingAddresses().length > 0) {
+      <!-- Shipping address selector (agents pick one per client group above) -->
+      @if (!isAgent && availableShippingAddresses().length > 0) {
         <div class="checkout__shipping-address">
           <label class="checkout__field-label">Shipping address</label>
           @if (availableShippingAddresses().length > 1) {
@@ -198,6 +241,19 @@
             <span class="checkout__summary-value">{{ isLoadingShipping() ? '...' : formatPrice(itemCount() > 0 ? shippingCost() : 0) }}</span>
           }
         </div>
+        @if (isAgent && groupViews().length > 1) {
+          <!-- Per-client shipping breakdown — the row above is their sum -->
+          @for (view of groupViews(); track view.group.clientId) {
+            <div class="checkout__summary-row checkout__summary-row--sub">
+              <span class="checkout__summary-sublabel">Shipping – {{ view.group.clientName }}</span>
+              @if (view.state.error) {
+                <span class="checkout__summary-subvalue checkout__summary-value--error">unavailable</span>
+              } @else {
+                <span class="checkout__summary-subvalue">{{ view.state.loading ? '...' : formatPrice(view.state.shippingCost) }}</span>
+              }
+            </div>
+          }
+        }
         @if (deliveryCostError()) {
           <div class="checkout__summary-row">
             <span class="checkout__error" role="alert">Shipping cost could not be calculated. Please check your delivery address or try again.</span>

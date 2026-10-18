@@ -33,6 +33,8 @@ interface OrderHistoryItem {
   total: number;
   /** Agent orders: comma-joined managed-client names; '—' for ordinary orders */
   onBehalfOf: string;
+  /** Agent batch checkout: reference shared by the orders placed together */
+  checkoutReference: string | null;
   status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
   isArchived: boolean;
   // Precomputed display fields (avoid per-row method calls in the template)
@@ -70,6 +72,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
   private alertService = inject(AlertService);
 
   @ViewChild('typeTemplate') typeTemplate!: TemplateRef<any>;
+  @ViewChild('internalRefTemplate') internalRefTemplate!: TemplateRef<any>;
   @ViewChild('customerTemplate') customerTemplate!: TemplateRef<any>;
   @ViewChild('statusTemplate') statusTemplate!: TemplateRef<any>;
   @ViewChild('totalTemplate') totalTemplate!: TemplateRef<any>;
@@ -146,6 +149,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
         o.internalRef.toLowerCase().includes(query) ||
         o.customer.name.toLowerCase().includes(query) ||
         o.onBehalfOf.toLowerCase().includes(query) ||
+        (o.checkoutReference ?? '').toLowerCase().includes(query) ||
         o.dateCreated.includes(query) ||
         o.status.includes(query)
       );
@@ -307,6 +311,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       partsOrdered: order.totalQuantity ?? 0,
       total: order.totalAmount ?? 0,
       onBehalfOf: (order.onBehalfOfClientNames ?? []).join(', ') || '—',
+      checkoutReference: order.checkoutReference ?? null,
       status,
       isArchived: order.isArchived === true,
       typeLabel: this.getTypeLabel('order'),
@@ -351,7 +356,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     this.columns = [
       { key: 'id', label: 'Order ID', sortable: true, width: '112px' },
       { key: 'dateCreated', label: 'Date Created', sortable: true, width: '190px' },
-      { key: 'internalRef', label: 'Internal reference number', sortable: false },
+      { key: 'internalRef', label: 'Internal reference number', sortable: false, template: this.internalRefTemplate },
       { key: 'customer', label: 'Customer', sortable: false, template: this.customerTemplate },
       ...(this.showOnBehalfColumn
         ? [{ key: 'onBehalfOf', label: 'On behalf of', sortable: false }]

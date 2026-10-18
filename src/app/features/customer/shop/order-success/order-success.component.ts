@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
@@ -15,14 +15,25 @@ export class OrderSuccessComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  orderNumber = signal('STRL-0012XBA');
+  /** One number for a regular order; several when an agent checkout created one order per client. */
+  orderNumbers = signal<string[]>(['STRL-0012XBA']);
+  /** Shared reference of a multi-order (agent) checkout, when present. */
+  checkoutReference = signal<string | null>(null);
+  isMultiOrder = computed(() => this.orderNumbers().length > 1);
+  orderNumber = computed(() => this.orderNumbers()[0] ?? '');
 
   ngOnInit(): void {
-    // Get order number from query params if available
-    const orderNum = this.route.snapshot.queryParamMap.get('orderNumber');
-    if (orderNum) {
-      this.orderNumber.set(orderNum);
+    // Agent checkout passes ?orderNumbers=STRL-1,STRL-2&checkoutReference=CHK-...;
+    // the regular flow keeps passing ?orderNumber=...
+    const params = this.route.snapshot.queryParamMap;
+    const numbers = (params.get('orderNumbers') ?? params.get('orderNumber') ?? '')
+      .split(',')
+      .map(n => n.trim())
+      .filter(n => n.length > 0);
+    if (numbers.length > 0) {
+      this.orderNumbers.set(numbers);
     }
+    this.checkoutReference.set(params.get('checkoutReference'));
   }
 
   goToDashboard(): void {
