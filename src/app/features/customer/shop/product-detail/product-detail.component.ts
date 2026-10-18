@@ -2,7 +2,8 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, D
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -12,13 +13,22 @@ import { IconComponent } from '@app/ui-kit/atoms/icon/icon.component';
 import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
+import { ProductLinkService } from '@core/services/http/product-link.service';
 import { ShopProduct } from '@core/models/shop-product.model';
-import { Product } from '@core/models';
+import { Product, ProductLinkRelationType } from '@core/models';
 import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
   technicalDescription?: string;
 }
+
+/** One "Alternative parts" / "Replacement parts" block on the page. */
+interface LinkedSection {
+  title: string;
+  products: ShopProduct[];
+}
+
+type LinkedProducts = Record<ProductLinkRelationType, ShopProduct[]>;
 
 @Component({
   selector: 'app-product-detail',
@@ -41,6 +51,7 @@ export class ProductDetailComponent implements OnInit {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private productService = inject(ProductService);
+  private productLinkService = inject(ProductLinkService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -53,8 +64,15 @@ export class ProductDetailComponent implements OnInit {
   // Image carousel slides
   productImages = signal<CarouselSlide[]>([]);
   
-  // Related products
-  relatedProducts = signal<ShopProduct[]>([]);
+  // Linked parts (product_product_links where this product is the parent), in link `ord` order
+  alternativeProducts = signal<ShopProduct[]>([]);
+  replacementProducts = signal<ShopProduct[]>([]);
+
+  /** Only non-empty sections render, so nothing shows when a product has no links. */
+  linkedSections = computed<LinkedSection[]>(() => [
+    { title: 'Alternative parts', products: this.alternativeProducts() },
+    { title: 'Replacement parts', products: this.replacementProducts() }
+  ].filter(section => section.products.length > 0));
 
   breadcrumbItems = computed<BreadcrumbItem[]>(() => {
     const prod = this.product();
@@ -79,12 +97,12 @@ export class ProductDetailComponent implements OnInit {
   private loadProduct(productId: string): void {
     this.isLoading.set(true);
 
-    // Load the product and related products
+    // Load the product and its linked alternative/replacement parts
     forkJoin({
       productResponse: this.productService.getProductById(productId),
-      allProducts: this.productService.getProducts()
+      linked: this.loadLinkedProducts(Number(productId))
     }).subscribe({
-      next: ({ productResponse, allProducts }) => {
+      next: ({ productResponse, linked }) => {
         // Check if product was found
         if (!productResponse) {
           console.error('Product not found:', productId);
@@ -110,13 +128,9 @@ export class ProductDetailComponent implements OnInit {
           this.productImages.set([{ id: 1, imageUrl, alt: productResponse.name }]);
         }
         
-        // Get related products (excluding current)
-        const related = allProducts.member
-          .filter(p => p.id !== Number(productId))
-          .slice(0, 4)
-          .map(p => this.mapProductToShopProduct(p));
-        this.relatedProducts.set(related);
-        
+        this.alternativeProducts.set(linked.alternative);
+        this.replacementProducts.set(linked.replacement);
+
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -124,6 +138,39 @@ export class ProductDetailComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  /**
+   * Alternative/replacement parts come from `product_product_links`: load the links
+   * where this product is the parent, batch-fetch the child products and split them
+   * by relation type, keeping the links' `ord` order. A failure degrades to empty
+   * lists so the product itself still renders.
+   */
+  private loadLinkedProducts(productId: number): Observable<LinkedProducts> {
+    const empty: LinkedProducts = { alternative: [], replacement: [] };
+
+    return this.productLinkService.getLinksForParent(productId).pipe(
+      switchMap(links => {
+        if (links.length === 0) {
+          return of(empty);
+        }
+        const childIds = [...new Set(links.map(link => link.childProductId))];
+        return this.productService.getProductsByIds(childIds).pipe(
+          map(({ member }) => {
+            const byId = new Map<number, ShopProduct>(member.map(p => [p.id, this.mapProductToShopProduct(p)]));
+            const pick = (type: ProductLinkRelationType): ShopProduct[] => links
+              .filter(link => link.relationType === type)
+              .map(link => byId.get(link.childProductId))
+              .filter((p): p is ShopProduct => p !== undefined);
+            return { alternative: pick('alternative'), replacement: pick('replacement') };
+          })
+        );
+      }),
+      catchError(error => {
+        console.error('Failed to load linked products:', error);
+        return of(empty);
+      })
+    );
   }
 
   private mapProductToDetail(product: Product): ProductDetail {
@@ -252,10 +299,12 @@ export class ProductDetailComponent implements OnInit {
 
   onFavoriteToggle(product: ShopProduct): void {
     const wasInWishlist = product.isFavorite;
-    const updated = this.relatedProducts().map(p =>
+    // A part may be linked as both alternative and replacement: keep both cards in sync
+    const toggle = (list: ShopProduct[]) => list.map(p =>
       p.id === product.id ? { ...p, isFavorite: !p.isFavorite } : p
     );
-    this.relatedProducts.set(updated);
+    this.alternativeProducts.update(toggle);
+    this.replacementProducts.update(toggle);
 
     if (!wasInWishlist) {
       this.wishlistService.addItem({

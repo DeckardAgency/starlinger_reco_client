@@ -30,6 +30,14 @@ export class ProductService extends BaseHttpService {
   }
 
   /**
+   * Batch-fetch products by exact id (`id[]=1&id[]=2`). One page: 100 is the API maximum.
+   */
+  getProductsByIds(ids: number[]): Observable<ProductsCollection> {
+    const params = this.buildArrayParams({ id: ids.map(String), itemsPerPage: 100 });
+    return this.getWithJsonLd<ProductsCollection>(this.endpoint, params);
+  }
+
+  /**
    * Get product by slug
    */
   getProductBySlug(slug: string): Observable<ProductsCollection> {

@@ -3,6 +3,7 @@ export * from './ui.model';
 export * from './auth.model';
 export * from './pagination.model';
 export * from './product.model';
+export * from './product-product-link.model';
 export * from './shop-product.model';
 export * from './order-history.model';
 export * from './product-group.model';
