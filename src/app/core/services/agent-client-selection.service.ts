@@ -1,7 +1,8 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
+import { distinctUntilChanged, skip } from 'rxjs/operators';
 import { ManagedClientResponse } from './http/agent.service';
 import { AuthService } from '@core/auth/auth.service';
 import { USER_ROLES } from '@core/models/auth.model';
@@ -11,13 +12,24 @@ const STORAGE_KEY = 'agentSelectedClient';
 
 /**
  * Holds the "currently selected" managed client for a client agent. The
- * selection drives on-behalf-of ordering across the shop/checkout flow and is
- * persisted in localStorage so it survives reloads.
+ * selection drives on-behalf-of ordering across the shop/checkout flow, decides
+ * which client the shop's prices are shown for (see ForClientInterceptor), and
+ * is persisted in localStorage so it survives reloads.
  */
 @Injectable({ providedIn: 'root' })
 export class AgentClientSelectionService {
   private selectedClientSubject = new BehaviorSubject<ManagedClientResponse | null>(null);
   public selectedClient$ = this.selectedClientSubject.asObservable();
+
+  /**
+   * Fires when the agent switches to a *different* client — or back to their own
+   * company (null) — and never with the current selection on subscribe. Product
+   * views subscribe to this to re-price what they show.
+   */
+  public selectedClientChanges$: Observable<ManagedClientResponse | null> = this.selectedClient$.pipe(
+    distinctUntilChanged((a, b) => a?.id === b?.id),
+    skip(1)
+  );
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,

@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin, Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map, catchError, tap } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
@@ -16,6 +17,7 @@ import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
 import { AuthService } from '@core/auth/auth.service';
+import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { USER_ROLES } from '@core/models/auth.model';
 import { AgentClientSelectComponent } from './agent-client-select/agent-client-select.component';
 import { ShopProduct } from '@core/models/shop-product.model';
@@ -113,11 +115,16 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private authService = inject(AuthService);
+  private agentSelection = inject(AgentClientSelectionService);
+  private destroyRef = inject(DestroyRef);
 
   /** Client agents see the "ordering for" bar + per-client cart badges. */
   get isAgent(): boolean {
     return this.authService.hasRole(USER_ROLES.CLIENT_AGENT);
   }
+
+  /** Agent flow: the managed client the shown prices belong to (null = the agent's own company). */
+  pricedForClient = toSignal(this.agentSelection.selectedClient$, { requireSync: true });
 
   /** Per-client summary of what's currently in the cart (agent flow). */
   cartClientBadges = computed(() => {
@@ -162,9 +169,26 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
       this.reloadProducts();
     });
 
+    // Client agents: a different "ordering for" client means different prices. Re-fetch
+    // the list (and the open detail panel) — the ForClientInterceptor tags the requests.
+    this.agentSelection.selectedClientChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.reloadProducts();
+        const open = this.selectedProduct();
+        if (open) {
+          this.loadSelectedProductDetail(open.id);
+        }
+      });
+
     // Product requests (search reloads + load-more) share one switchMap'd stream.
     this.productRequest.pipe(
-      tap(req => req.append ? this.isLoadingMore.set(true) : this.isLoading.set(true)),
+      // A reload cancels any in-flight load-more, so its flag is reset here as well —
+      // otherwise a stuck isLoadingMore would block infinite scroll for good.
+      tap(req => {
+        this.isLoading.set(!req.append);
+        this.isLoadingMore.set(req.append);
+      }),
       switchMap(req => {
         const query = this.searchQuery() || undefined;
         return this.productService.getProducts(req.page, this.itemsPerPage, query).pipe(
@@ -462,14 +486,20 @@ export class ShopComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedProduct.set(product);
     // Start at one order step (products with a step can't be bought in smaller amounts)
     this.quantity.set(product.qtyStep || 1);
+    this.loadSelectedProductDetail(product.id);
+  }
 
-    // imageGallery/documents are no longer part of the list payload (kept out so the shop
-    // grid stays light). Fetch the full product on demand and enrich the open panel; the
-    // carousel/documents render once it arrives.
-    this.productService.getProductById(String(product.id)).subscribe({
+  /**
+   * imageGallery/documents are no longer part of the list payload (kept out so the shop
+   * grid stays light). Fetch the full product on demand and enrich the open panel; the
+   * carousel/documents render once it arrives. Also re-prices the panel when an agent
+   * switches client.
+   */
+  private loadSelectedProductDetail(productId: number): void {
+    this.productService.getProductById(String(productId)).subscribe({
       next: (full) => {
         // Only apply if this product is still the selected one (guards fast re-selects).
-        if (this.selectedProduct()?.id === product.id) {
+        if (this.selectedProduct()?.id === productId) {
           this.selectedProduct.set(this.mapProductToShopProduct(full));
         }
       },

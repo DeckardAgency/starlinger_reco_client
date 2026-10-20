@@ -3,7 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -14,8 +15,9 @@ import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
+import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { ShopProduct } from '@core/models/shop-product.model';
-import { Product, ProductGroup } from '@core/models';
+import { Product, ProductGroup, ProductsCollection } from '@core/models';
 import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
@@ -59,6 +61,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   private wishlistService = inject(WishlistService);
   private productService = inject(ProductService);
   private productGroupService = inject(ProductGroupService);
+  private agentSelection = inject(AgentClientSelectionService);
   private destroyRef = inject(DestroyRef);
 
   // Group info
@@ -79,6 +82,10 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   readonly itemsPerPage = 30;
   isLoadingMore = signal(false);
   hasMore = computed(() => this.products().length < this.totalItems());
+  // Single funnel for reloads (page 1, replace) and infinite-scroll load-more (append).
+  // switchMap cancels any in-flight request when a new one arrives, so a client switch
+  // can never be followed by a late, differently-priced page-N append.
+  private productRequest = new Subject<{ page: number; append: boolean }>();
 
   // Loading state
   isLoading = signal(true);
@@ -127,6 +134,48 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
         this.loadData(id);
       }
     });
+
+    // Product requests (reloads + load-more) share one switchMap'd stream.
+    this.productRequest.pipe(
+      // A reload cancels any in-flight load-more, so its flag is reset here as well —
+      // otherwise a stuck isLoadingMore would block infinite scroll for good.
+      tap(req => {
+        this.isLoading.set(!req.append);
+        this.isLoadingMore.set(req.append);
+      }),
+      switchMap(req => this.productService.getProducts(req.page, this.itemsPerPage).pipe(
+        catchError(error => {
+          console.error('Failed to load products:', error);
+          return of<ProductsCollection | null>(null);
+        }),
+        map(products => ({ req, products }))
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ req, products }) => {
+      if (products) {
+        const shopProducts = products.member.map(product => this.mapProductToShopProduct(product));
+        if (req.append) {
+          this.products.update(current => [...current, ...shopProducts]);
+        } else {
+          this.products.set(shopProducts);
+        }
+        this.totalItems.set(products.totalItems);
+        this.currentPage.set(req.page);
+      }
+      (req.append ? this.isLoadingMore : this.isLoading).set(false);
+    });
+
+    // Client agents: a different "ordering for" client means different prices. Re-fetch
+    // page 1 (and the open detail panel) — the ForClientInterceptor tags the requests.
+    this.agentSelection.selectedClientChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.productRequest.next({ page: 1, append: false });
+        const open = this.selectedProduct();
+        if (open) {
+          this.loadSelectedProductDetail(open.id);
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -187,22 +236,8 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private loadMore(): void {
-    const nextPage = this.currentPage() + 1;
-    this.isLoadingMore.set(true);
-
-    this.productService.getProducts(nextPage, this.itemsPerPage).subscribe({
-      next: (products) => {
-        const newProducts = products.member.map(product => this.mapProductToShopProduct(product));
-        this.products.update(current => [...current, ...newProducts]);
-        this.totalItems.set(products.totalItems);
-        this.currentPage.set(nextPage);
-        this.isLoadingMore.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load more products:', error);
-        this.isLoadingMore.set(false);
-      }
-    });
+    // Next page, append. A reload (client switch) cancels this if it's still in flight.
+    this.productRequest.next({ page: this.currentPage() + 1, append: true });
   }
 
   private mapProductToShopProduct(product: Product): ShopProduct {
@@ -385,12 +420,19 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
     // Start at one order step (products with a step can't be bought in smaller amounts)
     this.quantity.set(detail.qtyStep || 1);
 
-    // imageGallery/documents are no longer part of the list payload (kept out so the grid
-    // stays light). Fetch the full product on demand and enrich the open panel.
-    this.productService.getProductById(String(product.id)).subscribe({
+    this.loadSelectedProductDetail(product.id);
+  }
+
+  /**
+   * imageGallery/documents are no longer part of the list payload (kept out so the grid
+   * stays light). Fetch the full product on demand and enrich the open panel. Also
+   * re-prices the panel when an agent switches client.
+   */
+  private loadSelectedProductDetail(productId: number): void {
+    this.productService.getProductById(String(productId)).subscribe({
       next: (full) => {
         // Only apply if this product is still the selected one (guards fast re-selects).
-        if (this.selectedProduct()?.id === product.id) {
+        if (this.selectedProduct()?.id === productId) {
           this.selectedProduct.set({ ...this.mapProductToShopProduct(full) });
         }
       },

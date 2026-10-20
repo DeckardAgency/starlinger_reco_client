@@ -14,6 +14,7 @@ import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductLinkService } from '@core/services/http/product-link.service';
+import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { ShopProduct } from '@core/models/shop-product.model';
 import { Product, ProductLinkRelationType } from '@core/models';
 import { environment } from '@env/environment';
@@ -55,6 +56,7 @@ export class ProductDetailComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private agentSelection = inject(AgentClientSelectionService);
 
   product = signal<ProductDetail | null>(null);
   quantity = signal(1);
@@ -92,6 +94,17 @@ export class ProductDetailComponent implements OnInit {
         this.loadProduct(productId);
       }
     });
+
+    // Client agents: a different "ordering for" client means different prices. Reload the
+    // product and its linked parts — the ForClientInterceptor tags the requests.
+    this.agentSelection.selectedClientChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const productId = this.route.snapshot.paramMap.get('id');
+        if (productId) {
+          this.loadProduct(productId);
+        }
+      });
   }
 
   private loadProduct(productId: string): void {
@@ -112,9 +125,12 @@ export class ProductDetailComponent implements OnInit {
         
         // Map to ProductDetail
         const detail = this.mapProductToDetail(productResponse);
-        this.product.set(detail);
         // Start at one order step (products with a step can't be bought in smaller amounts)
-        this.quantity.set(detail.qtyStep || 1);
+        // when a new product opens; a re-price reload of the same product keeps the quantity.
+        if (this.product()?.id !== detail.id) {
+          this.quantity.set(detail.qtyStep || 1);
+        }
+        this.product.set(detail);
         
         // Create image slides from real gallery or fallback
         if (productResponse.imageGallery && productResponse.imageGallery.length > 0) {

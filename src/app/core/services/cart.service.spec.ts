@@ -5,7 +5,7 @@ import { AgentClientSelectionService } from '@core/services/agent-client-selecti
 import { NotificationService } from '@core/services/notification.service';
 import { USER_ROLES } from '@core/models/auth.model';
 import { ManagedClientResponse } from '@core/services/http/agent.service';
-import { ShopProduct } from '@core/mocks/mock-data';
+import { ShopProduct } from '@core/models/shop-product.model';
 
 function product(id: number, qtyStep: number | null = 1): ShopProduct {
   return {
