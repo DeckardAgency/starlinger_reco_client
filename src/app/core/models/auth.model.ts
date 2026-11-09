@@ -154,6 +154,22 @@ export function isCustomer(user: User | null): boolean {
 }
 
 /**
+ * Roles that may place orders. ROLE_USER alone only means "authenticated" and
+ * ROLE_FINANCE is notification-only, so neither gets the cart/wishlist/checkout UI.
+ */
+export const SHOP_ROLES: readonly UserRole[] = [
+  USER_ROLES.CLIENT,
+  USER_ROLES.CLIENT_ADMIN,
+  USER_ROLES.ADMIN,
+  USER_ROLES.CLIENT_AGENT,
+];
+
+/** Single source for every "show the cart?" decision (top bar, cart/wishlist popups). */
+export function canShop(user: User | null): boolean {
+  return SHOP_ROLES.some(role => hasRole(user, role));
+}
+
+/**
  * Check if user is a Customer Admin (ROLE_CLIENT_ADMIN)
  */
 export function isCustomerAdmin(user: User | null): boolean {

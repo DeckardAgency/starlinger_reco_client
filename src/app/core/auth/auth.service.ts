@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, map, switchMap, delay, tap, finalize, shareReplay } from 'rxjs/operators';
-import { User } from '@core/models';
+import { User, canShop } from '@core/models';
 import { environment } from '@env/environment';
 import { AuthResponse } from '@models/api/auth-api.model';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
@@ -200,6 +200,11 @@ export class AuthService {
   hasRole(role: string): boolean {
     const user = this.getCurrentUser();
     return !!user?.roles && user.roles.includes(role);
+  }
+
+  /** Whether the current user may place orders — see SHOP_ROLES in auth.model.ts. */
+  canShop(): boolean {
+    return canShop(this.getCurrentUser());
   }
 
   /**

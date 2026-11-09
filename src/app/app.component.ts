@@ -149,9 +149,9 @@ export class AppComponent {
   }
 
   get isCustomer(): boolean {
-    // Client agents shop on behalf of managed clients, so they get the cart UI too.
-    return this.authService.hasRole('ROLE_CLIENT')
-      || this.authService.hasRole('ROLE_USER_CLIENT_AGENT');
+    // Same gate as the top bar's cart button — a role that can see the button must be
+    // able to open the cart (client admins used to see it with a popup that never rendered).
+    return this.authService.canShop();
   }
 
   /**

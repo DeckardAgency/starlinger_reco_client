@@ -140,6 +140,18 @@ describe('AuthService (cookie auth)', () => {
     expect(service.isClientArchived()).toBeFalse();
   }));
 
+  it('canShop: ROLE_USER alone cannot shop, every ordering role can', fakeAsync(() => {
+    // ROLE_USER is just "authenticated" — such a user used to see no cart and no error
+    boot(200, { ...meUser, roles: ['ROLE_USER'] });
+    expect(service.canShop()).toBeFalse();
+
+    for (const role of ['ROLE_CLIENT', 'ROLE_CLIENT_ADMIN', 'ROLE_ADMIN', 'ROLE_USER_CLIENT_AGENT']) {
+      localStorage.clear();
+      boot(200, { ...meUser, roles: [role, 'ROLE_USER'] });
+      expect(service.canShop()).withContext(role).toBeTrue();
+    }
+  }));
+
   it('getUserFullName falls back to email when names are empty', fakeAsync(() => {
     boot(200, { ...meUser, firstName: '', lastName: '' });
     expect(service.getUserFullName()).toBe('test@test.com');
