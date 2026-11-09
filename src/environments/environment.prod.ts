@@ -1,12 +1,12 @@
 export const environment = {
   production: true,
-  // Direct cross-site API calls (no Vercel /api proxy — its datacenter egress IPs
-  // tripped Imunify360 bot-protection on the host). Auth relies on the backend
-  // issuing SameSite=None; Partitioned (CHIPS) cookies, which survive third-party
-  // cookie blocking in Safari/Chrome-incognito.
-  apiBaseUrl: 'https://phpstack-675879-6201972.cloudwaysapps.com', // API + asset URLs
+  // Live host is grafit.net (same values as environment.staging.ts, which the
+  // grafit deploy scripts build with). The former Vercel + Cloudways hosting was
+  // retired in Nov 2026 — its API host no longer resolves — and is not referenced
+  // anywhere anymore.
+  apiBaseUrl: 'https://api-webshop.grafit.net', // API + asset URLs
   apiPath: '/api/v1', // for API endpoints
-  serverUrl: 'https://starlinger-reco-client.vercel.app', // for server-side rendering
+  serverUrl: 'https://webshop.grafit.net', // for server-side rendering
   useDummyAuth: false,
   useMocks: false
 };
