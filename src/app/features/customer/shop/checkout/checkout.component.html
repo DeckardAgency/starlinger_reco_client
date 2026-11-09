@@ -284,6 +284,11 @@
         <div class="checkout__error" role="alert">{{ orderError() }}</div>
       }
 
+      <!-- Why the order cannot be placed yet (e.g. no delivery address on file) -->
+      @if (checkoutBlockedReason(); as reason) {
+        <div class="checkout__notice" role="status">{{ reason }}</div>
+      }
+
       <!-- Actions -->
       <div class="checkout__actions">
         <button class="checkout__btn checkout__btn--primary" type="button" [disabled]="isPlacingOrder() || !isCheckoutValid()" (click)="onPlaceOrder()">

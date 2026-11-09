@@ -214,6 +214,32 @@ export class CheckoutComponent implements OnInit {
     )
   );
 
+  /**
+   * Why "Place order" is disabled, or null when the order can be placed. Shown under
+   * the button: a bare disabled button told users nothing when their company had no
+   * delivery address on file (the most common cause).
+   */
+  checkoutBlockedReason = computed<string | null>(() => {
+    if (this.isCheckoutValid() || this.isLoadingShipping() || this.cartItems().length === 0) {
+      return null;
+    }
+    if (this.deliveryCostError()) {
+      return 'Shipping cost could not be calculated. Please review your delivery address before placing the order.';
+    }
+    const missingAddress = this.groupViews().some(({ state }) =>
+      state.selectedShippingAddressId == null || state.shippingAddressText.trim().length === 0
+    );
+    if (missingAddress) {
+      return this.isAgent
+        ? 'A client in your cart has no active delivery address. Please add one to that client before placing the order.'
+        : 'Your company has no active delivery address yet. Please ask your administrator to add one before placing an order.';
+    }
+    if (this.selectedPaymentTypeId() == null || this.selectedDeliveryTypeId() == null) {
+      return 'No payment or delivery method is available right now. Please try again later or contact support.';
+    }
+    return null;
+  });
+
   itemCount = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
 
   totalWeight = computed(() => this.weightOf(this.cartItems()));
@@ -471,11 +497,8 @@ export class CheckoutComponent implements OnInit {
     // Guard against placing an order with missing required selections or an
     // uncalculated shipping cost, even if the button somehow gets triggered.
     if (!this.isCheckoutValid()) {
-      const message = this.deliveryCostError()
-        ? 'Shipping cost could not be calculated. Please review your delivery address before placing the order.'
-        : this.isAgent
-          ? 'Please select a shipping address for every client, a payment type and a delivery type before placing the order.'
-          : 'Please select a shipping address, payment type and delivery type before placing the order.';
+      const message = this.checkoutBlockedReason()
+        ?? 'Please select a shipping address, payment type and delivery type before placing the order.';
       this.notification.error(message);
       this.orderError.set(message);
       return;
