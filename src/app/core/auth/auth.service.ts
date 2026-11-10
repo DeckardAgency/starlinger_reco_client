@@ -232,7 +232,8 @@ export class AuthService {
             name: res.client.name,
             code: res.client.code,
             isActive: res.client.isActive,
-            isArchived: res.client.isArchived
+            isArchived: res.client.isArchived,
+            hasActiveDeliveryAddress: res.client.hasActiveDeliveryAddress
           }
         : undefined
     } as User;

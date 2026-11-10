@@ -140,6 +140,14 @@ describe('AuthService (cookie auth)', () => {
     expect(service.isClientArchived()).toBeFalse();
   }));
 
+  it('keeps the client\'s hasActiveDeliveryAddress flag from /me (drives the missing-address banner)', fakeAsync(() => {
+    boot(200, {
+      ...meUser, roles: ['ROLE_CLIENT', 'ROLE_USER'],
+      client: { id: 3, name: 'Acme', code: 'AC', isActive: true, isArchived: false, hasActiveDeliveryAddress: false }
+    });
+    expect(service.getCurrentUser()?.client?.hasActiveDeliveryAddress).toBeFalse();
+  }));
+
   it('canShop: ROLE_USER alone cannot shop, every ordering role can', fakeAsync(() => {
     // ROLE_USER is just "authenticated" — such a user used to see no cart and no error
     boot(200, { ...meUser, roles: ['ROLE_USER'] });

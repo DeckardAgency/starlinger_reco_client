@@ -43,6 +43,8 @@ export interface User {
     isActive: boolean;
     isArchived: boolean;
     maxActiveUsers?: number;
+    /** Server-computed: false means no active delivery address → orders cannot be placed. */
+    hasActiveDeliveryAddress?: boolean;
   };
 }
 
