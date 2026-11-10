@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { SidebarService } from '@services/sidebar.service';
 import { AuthService } from '@core/auth/auth.service';
-import { User, USER_ROLES } from '@core/models';
+import { User, USER_ROLES, getPrimaryRoleLabel } from '@core/models';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -146,15 +146,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.userInitials = this.currentUser.email[0].toUpperCase();
       }
 
-      // Set user role (assuming roles is an array of strings)
-      if (this.currentUser.roles && this.currentUser.roles.length > 0) {
-        const role = this.currentUser.roles[1] || this.currentUser.roles[0];
-        // Convert ROLE_USER to User, ROLE_ADMIN to Administrator, etc.
-        this.userRole = role.replace('ROLE_', '').charAt(0).toUpperCase() +
-          role.replace('ROLE_', '').slice(1).toLowerCase();
-      } else {
-        this.userRole = 'User';
-      }
+      // Most specific functional role; roles[1] used to pick ROLE_USER for a customer
+      // (["ROLE_CLIENT", "ROLE_USER"]) and label them "User".
+      this.userRole = getPrimaryRoleLabel(this.currentUser);
     }
   }
 

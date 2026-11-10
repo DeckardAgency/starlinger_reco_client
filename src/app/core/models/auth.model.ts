@@ -113,6 +113,7 @@ export const USER_ROLES = {
   CLIENT: 'ROLE_CLIENT',
   CLIENT_ADMIN: 'ROLE_CLIENT_ADMIN',
   CLIENT_AGENT: 'ROLE_USER_CLIENT_AGENT',
+  FINANCE: 'ROLE_FINANCE',
   ADMIN: 'ROLE_ADMIN'
 } as const;
 
@@ -135,6 +136,8 @@ export function getRoleDisplayName(role: string): string {
     'ROLE_USER': 'User',
     'ROLE_CLIENT': 'Customer',
     'ROLE_CLIENT_ADMIN': 'Customer Admin',
+    'ROLE_USER_CLIENT_AGENT': 'Client Agent',
+    'ROLE_FINANCE': 'Finance',
     'ROLE_ADMIN': 'Admin'
   };
   return roleMap[role] || role;
@@ -169,6 +172,29 @@ export const SHOP_ROLES: readonly UserRole[] = [
 /** Single source for every "show the cart?" decision (top bar, cart/wishlist popups). */
 export function canShop(user: User | null): boolean {
   return SHOP_ROLES.some(role => hasRole(user, role));
+}
+
+/**
+ * Roles that grant any capability at all, most specific first. ROLE_USER alone means
+ * "authenticated" — such an account can log in but do nothing (mirrors the backend's
+ * Roles::FUNCTIONAL, which now rejects creating one).
+ */
+export const FUNCTIONAL_ROLES: readonly UserRole[] = [
+  USER_ROLES.ADMIN,
+  USER_ROLES.CLIENT_ADMIN,
+  USER_ROLES.CLIENT_AGENT,
+  USER_ROLES.CLIENT,
+  USER_ROLES.FINANCE,
+];
+
+export function hasFunctionalRole(user: User | null): boolean {
+  return FUNCTIONAL_ROLES.some(role => hasRole(user, role));
+}
+
+/** Label of the user's most specific functional role ("User" when there is none). */
+export function getPrimaryRoleLabel(user: User | null): string {
+  const role = FUNCTIONAL_ROLES.find(r => hasRole(user, r));
+  return getRoleDisplayName(role ?? USER_ROLES.USER);
 }
 
 /**

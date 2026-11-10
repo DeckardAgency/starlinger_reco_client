@@ -1,0 +1,12 @@
+@if (notice(); as n) {
+  <div class="account-notice" role="status">
+    <ui-icon name="warning" size="md" class="account-notice__icon"></ui-icon>
+    <p class="account-notice__text">
+      <strong>{{ n.title }}</strong>
+      {{ n.text }}
+    </p>
+    <button type="button" class="account-notice__close" aria-label="Dismiss" (click)="dismiss()">
+      <ui-icon name="x" size="sm"></ui-icon>
+    </button>
+  </div>
+}

@@ -17,7 +17,7 @@ import { MobileMenuComponent } from './layout/mobile-menu/mobile-menu.component'
 import { CartComponent } from '@features/customer/shop/cart/cart.component';
 import { WishlistComponent } from '@features/customer/shop/wishlist/wishlist.component';
 import { AlertComponent } from '@shared/components/alert/alert.component';
-import { MissingAddressBannerComponent } from '@shared/components/missing-address-banner/missing-address-banner.component';
+import { AccountNoticeBannerComponent } from '@shared/components/account-notice-banner/account-notice-banner.component';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { environment } from '@env/environment';
 
@@ -33,7 +33,7 @@ import { environment } from '@env/environment';
       CartComponent,
       WishlistComponent,
       AlertComponent,
-      MissingAddressBannerComponent
+      AccountNoticeBannerComponent
     ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],

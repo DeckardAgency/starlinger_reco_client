@@ -17,8 +17,8 @@
     class="app__main"
     [class.app__main--collapsed]="sidebarService.isCollapsed()"
     [class.app__main--full]="isAuthPage || !isAuthenticated">
-    <!-- Company has no delivery address → orders impossible; say so on every page, not just at checkout -->
-    <app-missing-address-banner *ngIf="!isAuthPage && isAuthenticated"></app-missing-address-banner>
+    <!-- Account cannot order (no role / company without delivery address): say so on every page -->
+    <app-account-notice-banner *ngIf="!isAuthPage && isAuthenticated"></app-account-notice-banner>
     <router-outlet></router-outlet>
   </main>
 
