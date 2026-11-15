@@ -29,7 +29,7 @@ import { AgentClientSelectionService } from '@core/services/agent-client-selecti
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyClientsComponent implements OnInit {
-  breadcrumbItems: BreadcrumbItem[] = [{ label: 'My Clients' }];
+  breadcrumbItems: BreadcrumbItem[] = [{ label: 'My Customers' }];
   private agentService = inject(AgentService);
   private selection = inject(AgentClientSelectionService);
   private router = inject(Router);
@@ -58,7 +58,7 @@ export class MyClientsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load managed clients:', err);
-        this.error.set('Failed to load your clients. Please try again.');
+        this.error.set('Failed to load your customers. Please try again.');
         this.isLoading.set(false);
       }
     });

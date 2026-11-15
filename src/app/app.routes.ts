@@ -148,14 +148,14 @@ export const routes: Routes = [
         loadComponent: () => import('@features/customer/my-clients/my-clients.component').then(m => m.MyClientsComponent),
         canActivate: [RoleGuard],
         data: { roles: ['ROLE_USER_CLIENT_AGENT'] },
-        title: 'Reco | My Clients'
+        title: 'Reco | My Customers'
       },
       {
         path: 'my-clients/:id/view',
         loadComponent: () => import('@features/customer/my-clients/client-detail/client-detail.component').then(m => m.ClientDetailComponent),
         canActivate: [RoleGuard],
         data: { roles: ['ROLE_USER_CLIENT_AGENT'] },
-        title: 'Reco | Client Details'
+        title: 'Reco | Customer Details'
       },
       // Shop
       {

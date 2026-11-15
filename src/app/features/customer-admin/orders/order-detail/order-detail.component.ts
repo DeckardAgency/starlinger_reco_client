@@ -180,7 +180,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         for (const item of order.items) {
           const c = item.onBehalfOfClient;
           const key = c ? `client-${c.id}` : 'own';
-          const name = c ? `Client: ${c.name}${c.code ? ` (${c.code})` : ''}` : 'My company';
+          const name = c ? `Customer: ${c.name}${c.code ? ` (${c.code})` : ''}` : 'My company';
           if (!byClient.has(key)) {
             byClient.set(key, { name, items: [] });
           }

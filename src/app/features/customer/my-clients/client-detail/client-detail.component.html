@@ -6,7 +6,7 @@
   </header>
 
   <div class="client-detail__list-header">
-    <h1 class="client-detail__title">Client details</h1>
+    <h1 class="client-detail__title">Customer details</h1>
   </div>
 
   <div class="client-detail__content">
@@ -17,23 +17,23 @@
   } @else if (error()) {
     <ui-empty-state
       icon="error"
-      title="Couldn't load this client"
+      title="Couldn't load this customer"
       [description]="error()!"
     ></ui-empty-state>
-    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my clients</ui-button>
+    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my customers</ui-button>
   } @else if (notFound()) {
     <ui-empty-state
       icon="user"
-      title="Client not found"
-      description="This client isn't managed by your company (any more)."
+      title="Customer not found"
+      description="This customer isn't managed by your company (any more)."
     ></ui-empty-state>
-    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my clients</ui-button>
+    <ui-button variant="secondary" size="sm" iconLeft="arrow-left" (clicked)="back()">Back to my customers</ui-button>
   } @else if (client(); as c) {
     <div class="client-detail__card">
       <header class="client-detail__head">
         <h2 class="client-detail__name">{{ c.name }}</h2>
         <ui-badge variant="default" size="md">{{ c.code }}</ui-badge>
-        <!-- Active is the normal state; only flag exceptions (same as My Clients) -->
+        <!-- Active is the normal state; only flag exceptions (same as My Customers) -->
         @if (c.isArchived) {
           <ui-badge variant="warning" size="md">Archived</ui-badge>
         } @else if (!c.isActive) {

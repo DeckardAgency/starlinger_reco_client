@@ -29,8 +29,8 @@ import { AgentClientSelectionService } from '@core/services/agent-client-selecti
 })
 export class ClientDetailComponent implements OnInit {
   breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'My Clients', route: '/customer/my-clients' },
-    { label: 'Client details' }
+    { label: 'My Customers', route: '/customer/my-clients' },
+    { label: 'Customer details' }
   ];
 
   private agentService = inject(AgentService);

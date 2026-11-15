@@ -231,7 +231,7 @@ export class CheckoutComponent implements OnInit {
     );
     if (missingAddress) {
       return this.isAgent
-        ? 'A client in your cart has no active delivery address. Please add one to that client before placing the order.'
+        ? 'A customer in your cart has no active delivery address. Please ask your Starlinger contact to add one before placing the order.'
         : 'Your company has no active delivery address yet. Please ask your administrator to add one before placing an order.';
     }
     if (this.selectedPaymentTypeId() == null || this.selectedDeliveryTypeId() == null) {

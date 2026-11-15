@@ -33,7 +33,7 @@
           <!-- Agent checkout: one order per managed client, each shipped to its own address -->
           @for (view of groupViews(); track view.group.clientId) {
             <div class="checkout__group-header">
-              <span class="checkout__group-title">Client: {{ view.group.clientName }}</span>
+              <span class="checkout__group-title">Customer: {{ view.group.clientName }}</span>
               @if (view.group.clientCode) {
                 <span class="checkout__group-code">({{ view.group.clientCode }})</span>
               }
@@ -69,7 +69,7 @@
                   <div class="checkout__shipping-address-static checkout__shipping-address-static--empty">Loading addresses...</div>
                 } @else {
                   <div class="checkout__group-warning" role="alert">
-                    No delivery address on file for this client — the order cannot be placed until one is added.
+                    No delivery address on file for this customer — the order cannot be placed until one is added.
                   </div>
                 }
               </div>

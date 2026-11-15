@@ -80,7 +80,7 @@ export class CartService {
 
     // Agents must pick a client before adding anything to the cart.
     if (this.isAgentUser() && !client) {
-      this.notification.warning('Please select a client before adding products to cart.');
+      this.notification.warning('Please select a customer before adding products to cart.');
       return false;
     }
 

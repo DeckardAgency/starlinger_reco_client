@@ -136,7 +136,7 @@ export function getRoleDisplayName(role: string): string {
     'ROLE_USER': 'User',
     'ROLE_CLIENT': 'Customer',
     'ROLE_CLIENT_ADMIN': 'Customer Admin',
-    'ROLE_USER_CLIENT_AGENT': 'Client Agent',
+    'ROLE_USER_CLIENT_AGENT': 'Agent',
     'ROLE_FINANCE': 'Finance',
     'ROLE_ADMIN': 'Admin'
   };

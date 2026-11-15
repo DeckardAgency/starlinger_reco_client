@@ -8,7 +8,7 @@
 
   <div class="my-clients__list-header">
     <div class="my-clients__list-header-left">
-      <h1 class="my-clients__title">My Clients</h1>
+      <h1 class="my-clients__title">My Customers</h1>
       @if (!isLoading() && !error()) {
         <span class="my-clients__count">{{ clients().length }}</span>
       }
@@ -36,7 +36,7 @@
     <!-- Error -->
     <ui-empty-state
       icon="error"
-      title="Couldn't load your clients"
+      title="Couldn't load your customers"
       [description]="error()!"
       actionLabel="Retry"
       (actionClick)="retry()"
@@ -45,8 +45,8 @@
     <!-- Empty -->
     <ui-empty-state
       icon="user"
-      title="No managed clients"
-      description="Your company doesn't manage any clients yet."
+      title="No customers yet"
+      description="Your company doesn't manage any customers yet."
     ></ui-empty-state>
   } @else {
     <!-- Client grid -->
