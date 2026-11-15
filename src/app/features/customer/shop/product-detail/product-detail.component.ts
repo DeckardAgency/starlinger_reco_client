@@ -2,8 +2,8 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, D
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BreadcrumbsComponent, BreadcrumbItem } from '@app/ui-kit/molecules/breadcrumbs/breadcrumbs.component';
 import { ToastComponent } from '@app/ui-kit/molecules/toast/toast.component';
 import { QuantitySelectorComponent } from '@app/ui-kit/molecules/quantity-selector/quantity-selector.component';
@@ -16,7 +16,7 @@ import { ProductService } from '@core/services/http/product.service';
 import { ProductLinkService } from '@core/services/http/product-link.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { ShopProduct } from '@core/models/shop-product.model';
-import { Product, ProductLinkRelationType } from '@core/models';
+import { LinkedProducts, Product } from '@core/models';
 import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
@@ -28,8 +28,6 @@ interface LinkedSection {
   title: string;
   products: ShopProduct[];
 }
-
-type LinkedProducts = Record<ProductLinkRelationType, ShopProduct[]>;
 
 @Component({
   selector: 'app-product-detail',
@@ -157,35 +155,15 @@ export class ProductDetailComponent implements OnInit {
   }
 
   /**
-   * Alternative/replacement parts come from `product_product_links`: load the links
-   * where this product is the parent, batch-fetch the child products and split them
-   * by relation type, keeping the links' `ord` order. A failure degrades to empty
-   * lists so the product itself still renders.
+   * Alternative/replacement parts (`product_product_links`, loaded by ProductLinkService in
+   * link `ord` order; a failure degrades to empty lists there) mapped to shop products.
    */
-  private loadLinkedProducts(productId: number): Observable<LinkedProducts> {
-    const empty: LinkedProducts = { alternative: [], replacement: [] };
-
-    return this.productLinkService.getLinksForParent(productId).pipe(
-      switchMap(links => {
-        if (links.length === 0) {
-          return of(empty);
-        }
-        const childIds = [...new Set(links.map(link => link.childProductId))];
-        return this.productService.getProductsByIds(childIds).pipe(
-          map(({ member }) => {
-            const byId = new Map<number, ShopProduct>(member.map(p => [p.id, this.mapProductToShopProduct(p)]));
-            const pick = (type: ProductLinkRelationType): ShopProduct[] => links
-              .filter(link => link.relationType === type)
-              .map(link => byId.get(link.childProductId))
-              .filter((p): p is ShopProduct => p !== undefined);
-            return { alternative: pick('alternative'), replacement: pick('replacement') };
-          })
-        );
-      }),
-      catchError(error => {
-        console.error('Failed to load linked products:', error);
-        return of(empty);
-      })
+  private loadLinkedProducts(productId: number): Observable<LinkedProducts<ShopProduct>> {
+    return this.productLinkService.getLinkedProducts(productId).pipe(
+      map(linked => ({
+        alternative: linked.alternative.map(product => this.mapProductToShopProduct(product)),
+        replacement: linked.replacement.map(product => this.mapProductToShopProduct(product))
+      }))
     );
   }
 

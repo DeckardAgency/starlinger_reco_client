@@ -15,9 +15,10 @@ import { CartService } from '@core/services/cart.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductService } from '@core/services/http/product.service';
 import { ProductGroupService } from '@core/services/http/product-group.service';
+import { ProductLinkService } from '@core/services/http/product-link.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { ShopProduct } from '@core/models/shop-product.model';
-import { Product, ProductGroup, ProductsCollection } from '@core/models';
+import { LinkedProducts, Product, ProductGroup, ProductsCollection } from '@core/models';
 import { environment } from '@env/environment';
 
 interface ProductDetail extends ShopProduct {
@@ -30,6 +31,14 @@ interface FilterGroup {
   label: string;
   code: string;
 }
+
+/** One "Alternative parts" / "Replacement parts" sublist of the panel's connected parts. */
+interface LinkedSection {
+  title: string;
+  products: ShopProduct[];
+}
+
+const NO_LINKED_PRODUCTS: LinkedProducts<ShopProduct> = { alternative: [], replacement: [] };
 
 @Component({
   selector: 'app-products-in-group',
@@ -117,6 +126,20 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
   products = signal<ShopProduct[]>([]);
   productGroups = signal<FilterGroup[]>([]);
 
+  /**
+   * Connected parts of the open panel (`product_product_links`), mapped to shop products.
+   * Re-fetched whenever the selection changes or an agent switches customer (prices).
+   */
+  private productLinkService = inject(ProductLinkService);
+  private linkedRequest = new Subject<number>();
+  linkedProducts = signal<LinkedProducts<ShopProduct>>(NO_LINKED_PRODUCTS);
+
+  /** Only non-empty sections render, so the whole block hides when a product has no links. */
+  linkedSections = computed<LinkedSection[]>(() => [
+    { title: 'Alternative parts', products: this.linkedProducts().alternative },
+    { title: 'Replacement parts', products: this.linkedProducts().replacement }
+  ].filter(section => section.products.length > 0));
+
   // Breadcrumb (computed based on group)
   breadcrumbItems = computed<BreadcrumbItem[]>(() => [
     { label: 'Shop', route: '/customer/shop/groups' },
@@ -165,6 +188,17 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
       (req.append ? this.isLoadingMore : this.isLoading).set(false);
     });
 
+    // Connected parts of the open panel: one switchMap'd stream, so a fast re-select (or a
+    // customer switch) cancels the previous request; cleared up front so stale rows never show.
+    this.linkedRequest.pipe(
+      tap(() => this.linkedProducts.set(NO_LINKED_PRODUCTS)),
+      switchMap(productId => this.productLinkService.getLinkedProducts(productId)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(linked => this.linkedProducts.set({
+      alternative: linked.alternative.map(product => this.mapProductToShopProduct(product)),
+      replacement: linked.replacement.map(product => this.mapProductToShopProduct(product))
+    }));
+
     // Client agents: a different "ordering for" client means different prices. Re-fetch
     // page 1 (and the open detail panel) — the ForClientInterceptor tags the requests.
     this.agentSelection.selectedClientChanges$
@@ -184,6 +218,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+    this.linkedRequest.complete();
   }
 
   private setupIntersectionObserver(): void {
@@ -430,6 +465,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
    * re-prices the panel when an agent switches client.
    */
   private loadSelectedProductDetail(productId: number): void {
+    this.linkedRequest.next(productId);
     this.productService.getProductById(String(productId)).subscribe({
       next: (full) => {
         // Only apply if this product is still the selected one (guards fast re-selects).
@@ -466,6 +502,15 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
     // addItem returns false when an agent hasn't selected a client (shows its
     // own notification); only show the success toast when actually added.
     if (product && this.cartService.addItem(product, this.quantity())) {
+      this.showToast.set(true);
+    }
+  }
+
+
+  /** "Add" on a connected-parts row: one order step of that part, same toast as the main button. */
+  addLinkedToCart(part: ShopProduct, event: Event): void {
+    event.stopPropagation();
+    if (this.cartService.addItem(part, part.qtyStep || 1)) {
       this.showToast.set(true);
     }
   }

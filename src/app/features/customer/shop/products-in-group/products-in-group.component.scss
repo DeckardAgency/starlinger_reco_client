@@ -654,6 +654,112 @@
     }
   }
 
+  // Connected parts (alternative / replacement) — compact rows under the documents
+  &__linked {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__linked-title {
+    @include customer.product-label;
+    margin-top: 8px;
+  }
+
+  &__linked-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__linked-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #18181b;
+  }
+
+  &__linked-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__linked-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  &__linked-thumb {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f4f4f5;
+  }
+
+  &__linked-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__linked-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #18181b;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__linked-code {
+    font-size: 12px;
+    color: #71717a;
+  }
+
+  &__linked-price {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #18181b;
+    white-space: nowrap;
+  }
+
+  &__linked-add {
+    @include admin.btn-base;
+    @include admin.btn-primary;
+    flex-shrink: 0;
+    height: 32px;
+    padding: 4px 12px;
+    font-size: 13px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__stock-badge--sm {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
   &__actions {
     display: flex;
     align-items: center;

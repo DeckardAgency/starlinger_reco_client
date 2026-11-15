@@ -235,6 +235,40 @@
                 }
               </div>
             }
+
+            <!-- Connected parts (product_product_links); hidden when the product has none -->
+            @if (linkedSections().length > 0) {
+              <div class="product-detail__linked">
+                <span class="product-detail__linked-title">Connected parts</span>
+                @for (section of linkedSections(); track section.title) {
+                  <div class="product-detail__linked-section">
+                    <span class="product-detail__linked-label">{{ section.title }}</span>
+                    <ul class="product-detail__linked-list">
+                      @for (part of section.products; track part.id) {
+                        <li class="product-detail__linked-row">
+                          <img class="product-detail__linked-thumb" [src]="part.image" [alt]="part.name" width="40" height="40" loading="lazy" decoding="async" />
+                          <div class="product-detail__linked-info">
+                            <a class="product-detail__linked-name" [routerLink]="['/customer/shop/products', part.id]" [title]="part.name">{{ part.name }}</a>
+                            <span class="product-detail__linked-code">{{ part.code }}</span>
+                            @if (part.inStock === false) {
+                              <span class="product-detail__stock-badge product-detail__stock-badge--sm">Currently not available</span>
+                            }
+                          </div>
+                          <span class="product-detail__linked-price">{{ formatPrice(part.discountedPrice ?? part.price) }}</span>
+                          <button
+                            class="product-detail__linked-add"
+                            type="button"
+                            [disabled]="part.inStock === false"
+                            [attr.title]="part.inStock === false ? 'Currently not available' : 'Add to cart'"
+                            (click)="addLinkedToCart(part, $event)"
+                          >Add</button>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
           </div>
 
           <!-- Price -->

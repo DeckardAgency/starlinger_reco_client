@@ -14,6 +14,9 @@ export interface ProductProductLink {
   ord: number | null;
 }
 
+/** A parent's linked parts split by relation type, each list in link `ord` order. */
+export type LinkedProducts<T> = Record<ProductLinkRelationType, T[]>;
+
 export interface ProductProductLinksCollection {
   totalItems: number;
   member: ProductProductLink[];
