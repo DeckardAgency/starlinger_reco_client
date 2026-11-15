@@ -82,7 +82,10 @@ export class AgentClientSelectionService {
   /**
    * Reconcile the cached selection against a freshly-fetched list of managed
    * clients. If the cached client is no longer in the list (e.g. it was
-   * deleted in the backend), clear the selection.
+   * deleted in the backend), clear the selection; otherwise replace the cached
+   * copy with the fresh one so server-computed fields (delivery address flag,
+   * purchase limit, open payments) stay current. Same id → no re-pricing
+   * (selectedClientChanges$ dedups by id).
    *
    * Returns true if the cached selection is still valid (or there was no
    * selection to begin with), false if it had to be cleared.
@@ -92,11 +95,12 @@ export class AgentClientSelectionService {
     if (!current) {
       return true;
     }
-    const stillExists = clients.some(c => c.id === current.id);
-    if (!stillExists) {
+    const fresh = clients.find(c => c.id === current.id);
+    if (!fresh) {
       this.clearSelection();
       return false;
     }
+    this.selectClient(fresh);
     return true;
   }
 }

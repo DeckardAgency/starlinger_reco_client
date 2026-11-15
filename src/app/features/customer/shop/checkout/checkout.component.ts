@@ -16,6 +16,7 @@ import { DeliveryCostService } from '@core/services/http/delivery-cost.service';
 import { PaymentTypeService } from '@core/services/http/payment-type.service';
 import { DeliveryTypeService } from '@core/services/http/delivery-type.service';
 import { AuthService } from '@core/auth/auth.service';
+import { BudgetService } from '@core/services/budget.service';
 import { USER_ROLES } from '@core/models/auth.model';
 import { ClientAddress } from '@core/models/client.model';
 import { CheckoutPayload } from '@core/models/order.model';
@@ -103,6 +104,7 @@ export class CheckoutComponent implements OnInit {
   private paymentTypeService = inject(PaymentTypeService);
   private deliveryTypeService = inject(DeliveryTypeService);
   private authService = inject(AuthService);
+  private budgetService = inject(BudgetService);
 
   isPlacingOrder = signal(false);
   orderError = signal<string | null>(null);
@@ -519,6 +521,8 @@ export class CheckoutComponent implements OnInit {
     const onSuccess = (queryParams: Params) => {
       this.cartService.clearCart();
       this.isPlacingOrder.set(false);
+      // The new order is an open payment now — update the budget strip.
+      this.budgetService.refresh();
       this.router.navigate(['/customer/shop/order-success'], { queryParams });
     };
     const onError = (error: unknown) => this.handleOrderError(error, 'Failed to place order. Please try again.');

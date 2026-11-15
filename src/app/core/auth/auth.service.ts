@@ -233,7 +233,10 @@ export class AuthService {
             code: res.client.code,
             isActive: res.client.isActive,
             isArchived: res.client.isArchived,
-            hasActiveDeliveryAddress: res.client.hasActiveDeliveryAddress
+            hasActiveDeliveryAddress: res.client.hasActiveDeliveryAddress,
+            purchaseLimit: res.client.purchaseLimit ?? null,
+            amountSpent: res.client.amountSpent ?? null,
+            isClientAgent: res.client.isClientAgent
           }
         : undefined
     } as User;

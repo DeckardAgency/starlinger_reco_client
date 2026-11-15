@@ -1,0 +1,38 @@
+@if (budget(); as b) {
+  <div class="budget-bar" [class.budget-bar--exceeded]="b.open >= b.limit" role="status">
+    <div class="budget-bar__stat budget-bar__stat--limit">
+      @if (b.customerName) {
+        <span class="budget-bar__customer">Budget of {{ b.customerName }}</span>
+      }
+      <span class="budget-bar__label">Your purchase limit</span>
+      <span class="budget-bar__value">{{ format(b.limit) }}</span>
+    </div>
+
+    <div
+      class="budget-bar__progress"
+      role="progressbar"
+      aria-label="Open payments against purchase limit"
+      [attr.aria-valuenow]="percent(b)"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div class="budget-bar__fill" [style.width.%]="percent(b)"></div>
+    </div>
+
+    <div class="budget-bar__stats">
+      <div class="budget-bar__stat">
+        <span class="budget-bar__label">Open payments</span>
+        <span class="budget-bar__value">{{ format(b.open) }}</span>
+      </div>
+      <div class="budget-bar__stat">
+        @if (b.open > b.limit) {
+          <span class="budget-bar__label">Exceeded by</span>
+          <span class="budget-bar__value budget-bar__value--over">{{ format(b.open - b.limit) }}</span>
+        } @else {
+          <span class="budget-bar__label">Remaining purchase limit</span>
+          <span class="budget-bar__value">{{ format(b.remaining) }}</span>
+        }
+      </div>
+    </div>
+  </div>
+}

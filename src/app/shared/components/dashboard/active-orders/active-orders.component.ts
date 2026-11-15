@@ -74,7 +74,7 @@ export class ActiveOrdersComponent implements OnInit {
 
   private normalizeStatus(status: string): OrderCardStatus {
     const s = (status || '').toLowerCase().replace(/_/g, '-') as OrderCardStatus;
-    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'paid', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
     if (valid.includes(s)) return s;
     return 'new';
   }

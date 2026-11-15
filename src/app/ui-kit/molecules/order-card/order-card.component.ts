@@ -10,6 +10,7 @@ export type OrderCardStatus =
   | 'new'
   | 'in-process'
   | 'waiting-for-payment'
+  | 'paid'
   | 'ready-for-shipment'
   | 'shipped'
   | 'delivered'
@@ -44,6 +45,7 @@ export class OrderCardComponent {
       'new': 'New',
       'in-process': 'In Process',
       'waiting-for-payment': 'Waiting for Payment',
+      'paid': 'Paid',
       'ready-for-shipment': 'Ready for Shipment',
       'shipped': 'Shipped',
       'delivered': 'Delivered',
@@ -59,6 +61,7 @@ export class OrderCardComponent {
       'new': 'info',
       'in-process': 'warning',
       'waiting-for-payment': 'warning',
+      'paid': 'success',
       'ready-for-shipment': 'info',
       'shipped': 'info',
       'delivered': 'success',

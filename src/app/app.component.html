@@ -19,6 +19,8 @@
     [class.app__main--full]="isAuthPage || !isAuthenticated">
     <!-- Account cannot order (no role / company without delivery address): say so on every page -->
     <app-account-notice-banner *ngIf="!isAuthPage && isAuthenticated"></app-account-notice-banner>
+    <!-- Purchase limit / open payments strip (ordering roles only; hidden when there is no limit) -->
+    <app-budget-bar *ngIf="!isAuthPage && isAuthenticated && isCustomer"></app-budget-bar>
     <router-outlet></router-outlet>
   </main>
 

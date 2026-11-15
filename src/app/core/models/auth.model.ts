@@ -45,6 +45,12 @@ export interface User {
     maxActiveUsers?: number;
     /** Server-computed: false means no active delivery address → orders cannot be placed. */
     hasActiveDeliveryAddress?: boolean;
+    /** Purchase limit in EUR; null/0 = no limit. */
+    purchaseLimit?: number | null;
+    /** Open payments: sum of the client's unpaid, non-cancelled orders (EUR). */
+    amountSpent?: number | null;
+    /** The company is an agent company (orders on behalf of the clients it manages). */
+    isClientAgent?: boolean;
   };
 }
 

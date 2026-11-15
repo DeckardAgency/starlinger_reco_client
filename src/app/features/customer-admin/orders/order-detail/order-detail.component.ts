@@ -64,6 +64,8 @@ interface OrderDetail {
   trackingCarrier?: string | null;
   trackingUrl?: string | null;
   dispatchedAt?: string | null;
+  /** ISO date the order was marked paid (status `paid`), rendered with the date pipe. */
+  paidAt?: string | null;
   trackingEvents?: OrderDetailTrackingEvent[];
   /** Agent orders: comma-joined managed-client names, null otherwise */
   onBehalfOf?: string | null;
@@ -225,6 +227,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       trackingCarrier: order.trackingCarrier || null,
       trackingUrl: order.trackingUrl || null,
       dispatchedAt: (order as any).dispatchedAt ? this.formatDate((order as any).dispatchedAt) : null,
+      paidAt: order.paidAt ?? null,
       trackingEvents: (((order as any).trackingEvents || []) as Array<any>).map(e => ({
         id: e.id,
         status: e.status,
@@ -267,6 +270,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       'new': 'info',
       'in_process': 'warning',
       'waiting_for_payment': 'orange',
+      'paid': 'success',
       'ready_for_shipment': 'teal',
       'shipped': 'blue',
       'delivered': 'success',
@@ -329,6 +333,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       'new': 'info',
       'in_process': 'warning',
       'waiting_for_payment': 'warning',
+      'paid': 'success',
       'ready_for_shipment': 'info',
       'shipped': 'info',
       'delivered': 'success',
@@ -344,6 +349,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       'new': 'New',
       'in_process': 'In Process',
       'waiting_for_payment': 'Waiting for Payment',
+      'paid': 'Paid',
       'ready_for_shipment': 'Ready for Shipment',
       'shipped': 'Shipped',
       'delivered': 'Delivered',

@@ -1,6 +1,6 @@
 // src/app/core/models/order-history.model.ts
 
-export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
+export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'paid' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
 export type HistoryType = 'order' | 'manual';
 
 export interface HistoryItem {

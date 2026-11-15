@@ -35,7 +35,7 @@ interface OrderHistoryItem {
   onBehalfOf: string;
   /** Agent batch checkout: reference shared by the orders placed together */
   checkoutReference: string | null;
-  status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
+  status: 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'paid' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
   isArchived: boolean;
   // Precomputed display fields (avoid per-row method calls in the template)
   typeLabel: string;
@@ -344,7 +344,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     if (isDraft || (status || '').toLowerCase() === 'draft') return 'draft';
     const raw = (status || '').toLowerCase().replace(/_/g, '-');
     if (raw === 'cancelled') return 'canceled';
-    const valid: OrderHistoryItem['status'][] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    const valid: OrderHistoryItem['status'][] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'paid', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
     if (valid.includes(raw as OrderHistoryItem['status'])) return raw as OrderHistoryItem['status'];
     return 'new';
   }
@@ -392,7 +392,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     } else {
       // Active orders
       filters.isDraft = false;
-      filters.status = ['new', 'in_process', 'waiting_for_payment', 'ready_for_shipment', 'shipped'];
+      filters.status = ['new', 'in_process', 'waiting_for_payment', 'paid', 'ready_for_shipment', 'shipped'];
     }
 
     this.orderService.exportOrdersToExcel(
@@ -523,6 +523,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       'new': 'New',
       'in-process': 'In Process',
       'waiting-for-payment': 'Waiting for Payment',
+      'paid': 'Paid',
       'ready-for-shipment': 'Ready for Shipment',
       'shipped': 'Shipped',
       'delivered': 'Delivered',
@@ -539,6 +540,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
       'new': 'info',
       'in-process': 'warning',
       'waiting-for-payment': 'orange',
+      'paid': 'success',
       'ready-for-shipment': 'teal',
       'shipped': 'blue',
       'delivered': 'success',

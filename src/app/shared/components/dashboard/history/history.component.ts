@@ -8,7 +8,7 @@ import { DashboardService, DashboardOrder } from '@core/services/http/dashboard.
 import { OrderService } from '@core/services/http/order.service';
 import { Order } from '@core/models/order.model';
 
-export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
+export type HistoryStatus = 'draft' | 'new' | 'in-process' | 'waiting-for-payment' | 'paid' | 'ready-for-shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
 export type HistoryType = 'order' | 'manual';
 
 export interface HistoryItem {
@@ -133,7 +133,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
 
   private mapStatus(status: string): HistoryStatus {
     const s = (status || '').toLowerCase().replace(/_/g, '-') as HistoryStatus;
-    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'paid', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
     if (valid.includes(s)) return s;
     if (s === 'cancelled') return 'canceled';
     return 'new';
@@ -186,6 +186,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       'new': 'info',
       'in-process': 'warning',
       'waiting-for-payment': 'warning',
+      'paid': 'success',
       'ready-for-shipment': 'info',
       'shipped': 'info',
       'delivered': 'success',
@@ -201,6 +202,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       'new': 'New',
       'in-process': 'In Process',
       'waiting-for-payment': 'Waiting for Payment',
+      'paid': 'Paid',
       'ready-for-shipment': 'Ready for Shipment',
       'shipped': 'Shipped',
       'delivered': 'Delivered',

@@ -148,6 +148,26 @@ describe('AuthService (cookie auth)', () => {
     expect(service.getCurrentUser()?.client?.hasActiveDeliveryAddress).toBeFalse();
   }));
 
+  it('keeps the client\'s purchase limit and open payments from /me (drives the budget strip)', fakeAsync(() => {
+    boot(200, {
+      ...meUser, roles: ['ROLE_CLIENT', 'ROLE_USER'],
+      client: { id: 3, name: 'Acme', code: 'AC', isActive: true, isArchived: false, purchaseLimit: 1000, amountSpent: 250.5, isClientAgent: false }
+    });
+    const client = service.getCurrentUser()?.client;
+    expect(client?.purchaseLimit).toBe(1000);
+    expect(client?.amountSpent).toBe(250.5);
+    expect(client?.isClientAgent).toBeFalse();
+  }));
+
+  it('maps a missing purchase limit / open payments to null', fakeAsync(() => {
+    boot(200, {
+      ...meUser, roles: ['ROLE_CLIENT', 'ROLE_USER'],
+      client: { id: 3, name: 'Acme', code: 'AC', isActive: true, isArchived: false }
+    });
+    expect(service.getCurrentUser()?.client?.purchaseLimit).toBeNull();
+    expect(service.getCurrentUser()?.client?.amountSpent).toBeNull();
+  }));
+
   it('canShop: ROLE_USER alone cannot shop, every ordering role can', fakeAsync(() => {
     // ROLE_USER is just "authenticated" — such a user used to see no cart and no error
     boot(200, { ...meUser, roles: ['ROLE_USER'] });

@@ -41,13 +41,21 @@ export interface OrderLog {
     createdAt: string;
 }
 
+/** API order statuses (snake_case as served). `paid` = payment received, no longer an open payment. */
+export type OrderStatus =
+    | 'draft' | 'new' | 'in_process' | 'waiting_for_payment' | 'paid'
+    | 'ready_for_shipment' | 'shipped' | 'delivered' | 'canceled' | 'reversal';
+
 export interface Order {
     '@context'?: string;
     '@id': string;
     '@type': string;
     id: number;
     orderNumber: string;
+    /** One of OrderStatus (kept as string: the API may add statuses before the client does). */
     status: string;
+    /** Read-only: when the order was marked paid (status `paid`). */
+    paidAt?: string | null;
     totalAmount: number;
     notes?: string;
     /** Customer's own reference (PO number etc.), entered at checkout. */

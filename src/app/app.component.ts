@@ -18,6 +18,7 @@ import { CartComponent } from '@features/customer/shop/cart/cart.component';
 import { WishlistComponent } from '@features/customer/shop/wishlist/wishlist.component';
 import { AlertComponent } from '@shared/components/alert/alert.component';
 import { AccountNoticeBannerComponent } from '@shared/components/account-notice-banner/account-notice-banner.component';
+import { BudgetBarComponent } from './layout/budget-bar/budget-bar.component';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { environment } from '@env/environment';
 
@@ -33,7 +34,8 @@ import { environment } from '@env/environment';
       CartComponent,
       WishlistComponent,
       AlertComponent,
-      AccountNoticeBannerComponent
+      AccountNoticeBannerComponent,
+      BudgetBarComponent
     ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],

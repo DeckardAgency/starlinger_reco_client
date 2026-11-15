@@ -204,7 +204,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
 
   private normalizeStatus(status: string): OrderCardStatus {
     const s = (status || '').toLowerCase().replace(/_/g, '-') as OrderCardStatus;
-    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    const valid: OrderCardStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'paid', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
     if (valid.includes(s)) return s;
     return 'new';
   }
@@ -212,7 +212,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
   private mapToHistoryStatus(status: string): HistoryStatus {
     const raw = (status || '').toLowerCase().replace(/_/g, '-');
     if (raw === 'cancelled') return 'canceled';
-    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
+    const valid: HistoryStatus[] = ['draft', 'new', 'in-process', 'waiting-for-payment', 'paid', 'ready-for-shipment', 'shipped', 'delivered', 'canceled', 'reversal'];
     if (valid.includes(raw as HistoryStatus)) return raw as HistoryStatus;
     return 'new';
   }
@@ -264,6 +264,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       'new': 'info',
       'in-process': 'warning',
       'waiting-for-payment': 'warning',
+      'paid': 'success',
       'ready-for-shipment': 'info',
       'shipped': 'info',
       'delivered': 'success',
@@ -279,6 +280,7 @@ export class CustomerDashboardComponent implements AfterViewInit, OnInit {
       'new': 'New',
       'in-process': 'In Process',
       'waiting-for-payment': 'Waiting for Payment',
+      'paid': 'Paid',
       'ready-for-shipment': 'Ready for Shipment',
       'shipped': 'Shipped',
       'delivered': 'Delivered',

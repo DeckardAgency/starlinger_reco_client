@@ -62,6 +62,12 @@
             <span class="order-info-row__value">{{ order()?.partsOrdered }}</span>
           </div>
         }
+        @if (order()?.paidAt; as paidAt) {
+          <div class="order-info-row__item">
+            <span class="order-info-row__label">Paid on </span>
+            <span class="order-info-row__value">{{ paidAt | date:'mediumDate' }}</span>
+          </div>
+        }
       </div>
     </div>
 
