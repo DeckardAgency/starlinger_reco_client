@@ -58,6 +58,9 @@
 
             <!-- Product Name -->
             <h2 class="product-card__name">{{ product()?.name }}</h2>
+            @if (product()?.inStock === false) {
+              <span class="product-card__stock-badge">Currently not available</span>
+            }
             @if (product()?.shortDescription) {
               <!-- innerHTML: descriptions come from the admin rich-text editor as HTML -->
               <p class="product-card__short-desc" [innerHTML]="product()?.shortDescription"></p>
@@ -111,7 +114,13 @@
                 [max]="product()?.quoteItemLimit || 999999"
                 (quantityChange)="onQuantityChange($event)"
               ></ui-quantity-selector>
-              <button class="product-card__add-btn" type="button" (click)="addToCart()">
+              <button
+                class="product-card__add-btn"
+                type="button"
+                [disabled]="product()?.inStock === false"
+                [attr.title]="product()?.inStock === false ? 'Currently not available' : null"
+                (click)="addToCart()"
+              >
                 <span>Add to Cart</span>
                 <ui-icon name="chevron-right" size="sm"></ui-icon>
               </button>
@@ -149,6 +158,9 @@
                     <span class="related-card__name">{{ relatedProduct.name }}</span>
                   </div>
                   <div class="related-card__divider"></div>
+                  @if (relatedProduct.inStock === false) {
+                    <span class="related-card__stock-badge">Currently not available</span>
+                  }
                   @if (relatedProduct.discountPercent! > 0) {
                     <div class="related-card__price-row">
                       <span class="related-card__price related-card__price--original">{{ formatPrice(relatedProduct.price) }}</span>

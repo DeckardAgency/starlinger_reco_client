@@ -193,6 +193,10 @@
     @include customer.product-name;
   }
 
+  &__stock-badge {
+    @include customer.stock-badge;
+  }
+
   &__controls {
     @include customer.item-controls;
   }

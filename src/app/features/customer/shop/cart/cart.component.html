@@ -70,6 +70,9 @@
               <span class="cart-item__label">Product name</span>
               <span class="cart-item__name">{{ item.product.name }}</span>
             </div>
+            @if (item.product.inStock === false) {
+              <span class="cart-item__stock-badge">Currently not available</span>
+            }
           </div>
           <div class="cart-item__controls">
             <div class="cart-item__divider"></div>

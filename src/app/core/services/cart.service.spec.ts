@@ -7,7 +7,7 @@ import { USER_ROLES } from '@core/models/auth.model';
 import { ManagedClientResponse } from '@core/services/http/agent.service';
 import { ShopProduct } from '@core/models/shop-product.model';
 
-function product(id: number, qtyStep: number | null = 1): ShopProduct {
+function product(id: number, qtyStep: number | null = 1, inStock = true): ShopProduct {
   return {
     id,
     code: `P${id}`,
@@ -16,6 +16,7 @@ function product(id: number, qtyStep: number | null = 1): ShopProduct {
     image: '',
     isFavorite: false,
     group: '',
+    inStock,
     qtyStep,
   } as ShopProduct;
 }
@@ -62,6 +63,16 @@ describe('CartService (client-agent flow)', () => {
     expect(service.cartItems().length).toBe(1);
     expect(service.cartItems()[0].clientId).toBeUndefined();
     expect(notificationSpy.warning).not.toHaveBeenCalled();
+  });
+
+  it('refuses an out-of-stock product with a warning naming it', () => {
+    setup(false);
+
+    const added = service.addItem(product(1, 1, false), 1);
+
+    expect(added).toBeFalse();
+    expect(service.cartItems().length).toBe(0);
+    expect(notificationSpy.warning).toHaveBeenCalledWith('P1 is currently not available.');
   });
 
   it('blocks an agent from adding when no client is selected', () => {

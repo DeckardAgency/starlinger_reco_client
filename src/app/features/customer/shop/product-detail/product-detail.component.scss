@@ -158,6 +158,12 @@
     margin: 0;
   }
 
+  &__stock-badge {
+    @include customer.stock-badge;
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+
   &__tech-desc {
     display: flex;
     align-items: flex-start;
@@ -282,6 +288,11 @@
     @include admin.btn-primary;
     justify-content: space-between;
     white-space: nowrap;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -378,6 +389,10 @@
     font-size: 11px;
     font-weight: 600;
     border-radius: 4px;
+  }
+
+  &__stock-badge {
+    @include customer.stock-badge;
   }
 }
 

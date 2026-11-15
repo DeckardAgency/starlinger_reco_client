@@ -73,9 +73,16 @@ export class CartService {
    * de-duplicated by product AND client, so the same product for two clients
    * becomes two separate lines.
    *
-   * @returns true if added, false if blocked (agent with no client selected).
+   * @returns true if added, false if blocked (out-of-stock product, or an agent
+   *          with no customer selected).
    */
   addItem(product: ShopProduct, quantity: number = 1): boolean {
+    // Out-of-stock products cannot be ordered; the API rejects them at submit too.
+    if (product.inStock === false) {
+      this.notification.warning(`${product.code} is currently not available.`);
+      return false;
+    }
+
     const client = this.agentSelection.getSelectedClient();
 
     // Agents must pick a client before adding anything to the cart.
@@ -182,7 +189,9 @@ export class CartService {
           image: '',
           isFavorite: false,
           group: '',
-          qtyStep: item.product.qtyStep ?? null
+          qtyStep: item.product.qtyStep ?? null,
+          // Order lines carry no stock info; the checkout and the API re-check it.
+          inStock: true
         },
         quantity: item.quantity,
         isFavorite: false,
@@ -210,9 +219,10 @@ export class CartService {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       const items: CartItem[] = data ? JSON.parse(data) : [];
-      // Persisted carts may predate the quantity cap — normalize on restore.
+      // Persisted carts may predate the quantity cap or the stock flag — normalize on restore.
       return items.map(item => ({
         ...item,
+        product: { ...item.product, inStock: item.product.inStock ?? true },
         quantity: Math.min(Math.max(item.quantity, 1), lineMax(item.product))
       }));
     } catch {

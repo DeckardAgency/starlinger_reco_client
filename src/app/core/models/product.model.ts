@@ -37,6 +37,10 @@ export interface Product {
   campaignDiscountPercent?: number;
   discountedPrice?: number | null;
   discountSource?: string | null;
+  /** False = out of stock: shown as "Currently not available", cannot be added to the cart or ordered. */
+  inStock?: boolean;
+  /** Inactive products are no longer listed to customers by the API. */
+  isActive?: boolean;
 }
 
 export interface ProductsCollection {

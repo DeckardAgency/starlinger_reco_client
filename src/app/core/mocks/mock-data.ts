@@ -969,31 +969,31 @@ export const mockCustomerAdminUsers: CustomerAdminUser[] = [
 
 export const mockShopProducts: ShopProduct[] = [
   // Pelletizer group products
-  { id: 1, code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
-  { id: 4, code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
-  { id: 5, code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
-  { id: 6, code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'pelletizer' },
+  { id: 1, code: 'Z4T-03627', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'pelletizer' },
+  { id: 4, code: 'Z4K-06202', name: 'STATOR KNIFE', price: 14.02, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'pelletizer' },
+  { id: 5, code: 'Z4T-03628', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'pelletizer' },
+  { id: 6, code: 'Z4T-03629', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'pelletizer' },
   // Electrical component group
-  { id: 8, code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
-  { id: 10, code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
-  { id: 12, code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: '/images/product-placeholder.svg', isFavorite: false, group: 'electrical' },
+  { id: 8, code: 'VEGA-00123', name: 'PRESSURE SENSOR', price: 156.50, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'electrical' },
+  { id: 10, code: 'MTR-08712', name: 'DRIVE MOTOR 2.2KW', price: 890.00, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'electrical' },
+  { id: 12, code: 'HTR-09981', name: 'HEATER BAND 400W', price: 125.00, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'electrical' },
   // Filtration group
-  { id: 11, code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: '/images/product-placeholder.svg', isFavorite: false, group: 'filtration' },
-  { id: 13, code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'filtration' },
+  { id: 11, code: 'FLT-03344', name: 'FILTER SCREEN 80 MESH', price: 67.25, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'filtration' },
+  { id: 13, code: 'FLT-03345', name: 'FILTER ELEMENT 100 MESH', price: 72.50, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'filtration' },
   // Knives group
-  { id: 14, code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'knives' },
-  { id: 15, code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: '/images/product-placeholder.svg', isFavorite: false, group: 'knives' },
+  { id: 14, code: 'Z4T-03630', name: 'ROTOR KNIFE HSS', price: 12.90, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'knives' },
+  { id: 15, code: 'Z4T-03631', name: 'CUTTER BLADE', price: 15.40, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'knives' },
   // Seals group
-  { id: 2, code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: '/images/product-placeholder.svg', isFavorite: false, group: 'seals' },
-  { id: 3, code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: '/images/product-placeholder.svg', isFavorite: false, group: 'seals' },
+  { id: 2, code: 'AZZK-00177', name: 'SEALING DIE PLATE', price: 24.11, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'seals' },
+  { id: 3, code: 'AZZK-00356', name: 'SEALING DIE PLATE', price: 32.32, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'seals' },
   // Category X group
-  { id: 9, code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-x' },
-  { id: 16, code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-x' },
+  { id: 9, code: 'BRG-04521', name: 'BALL BEARING 6205', price: 45.80, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'category-x' },
+  { id: 16, code: 'BRG-04522', name: 'BALL BEARING 6207', price: 52.90, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'category-x' },
   // Category Y group
-  { id: 17, code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-y' },
+  { id: 17, code: 'GKT-00123', name: 'GASKET SET', price: 28.50, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'category-y' },
   // Category Z group
-  { id: 18, code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-z' },
-  { id: 19, code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: '/images/product-placeholder.svg', isFavorite: false, group: 'category-z' }
+  { id: 18, code: 'SPR-00456', name: 'SPRING ASSEMBLY', price: 34.20, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'category-z' },
+  { id: 19, code: 'SPR-00457', name: 'TENSION SPRING', price: 18.75, image: '/images/product-placeholder.svg', isFavorite: false, inStock: true, group: 'category-z' }
 ];
 
 export const mockProductGroups = [

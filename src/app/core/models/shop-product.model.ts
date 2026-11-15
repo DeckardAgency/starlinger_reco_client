@@ -15,6 +15,8 @@ export interface ShopProduct {
   image: string;
   isFavorite: boolean;
   group: string;
+  /** False = out of stock ("Currently not available"): not addable to the cart, blocks checkout. */
+  inStock: boolean;
   technicalDescription?: string;
   shortDescription?: string;
   weight?: string;

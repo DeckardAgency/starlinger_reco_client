@@ -426,6 +426,10 @@
   border-radius: 4px;
 }
 
+.product-card__stock-badge {
+  @include customer.stock-badge;
+}
+
 // Product Detail Panel
 .product-detail {
   flex: 1;
@@ -536,6 +540,12 @@
     color: #18181b;
     margin: 0;
     text-transform: uppercase;
+  }
+
+  &__stock-badge {
+    @include customer.stock-badge;
+    font-size: 12px;
+    padding: 2px 8px;
   }
 
   &__description {
@@ -690,6 +700,11 @@
     @include admin.btn-base;
     @include admin.btn-primary;
     padding: 12px 24px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 

@@ -197,13 +197,18 @@ export class CheckoutComponent implements OnInit {
   // €0 (it understates the total) and must block order placement until resolved.
   deliveryCostError = computed(() => this.groupViews().some(({ state }) => state.error));
 
+  /** First cart line whose product is out of stock — the API rejects such orders. */
+  unavailableItem = computed(() => this.cartItems().find(item => item.product.inStock === false) ?? null);
+
   /**
    * All required selections are present. Mirrors the fields sent by onPlaceOrder
    * (a shipping address per group, payment type, delivery type) plus a non-empty
-   * cart and a successfully calculated shipping cost for every group.
+   * cart, no out-of-stock line and a successfully calculated shipping cost for
+   * every group.
    */
   isCheckoutValid = computed(() =>
     this.cartItems().length > 0 &&
+    this.unavailableItem() === null &&
     this.selectedPaymentTypeId() != null &&
     this.selectedDeliveryTypeId() != null &&
     this.groupViews().every(({ state }) =>
@@ -222,6 +227,10 @@ export class CheckoutComponent implements OnInit {
   checkoutBlockedReason = computed<string | null>(() => {
     if (this.isCheckoutValid() || this.isLoadingShipping() || this.cartItems().length === 0) {
       return null;
+    }
+    const unavailable = this.unavailableItem();
+    if (unavailable) {
+      return `${unavailable.product.code} is currently not available. Remove it from the cart to place the order.`;
     }
     if (this.deliveryCostError()) {
       return 'Shipping cost could not be calculated. Please review your delivery address before placing the order.';

@@ -119,6 +119,9 @@
                     <span class="checkout__label">Product name</span>
                     <span class="checkout__value">{{ item.product.name }}</span>
                   </div>
+                  @if (item.product.inStock === false) {
+                    <span class="checkout__stock-badge">Currently not available</span>
+                  }
                   <div class="checkout__product-divider"></div>
                   <!-- Quantity + Delete (visible on mobile only) -->
                   <div class="checkout__mobile-controls">

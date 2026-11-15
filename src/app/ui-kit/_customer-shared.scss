@@ -123,6 +123,26 @@
 }
 
 // =============================================================================
+// STOCK BADGE ("Currently not available")
+// Used by: product cards, detail panels, product page, linked parts, cart, checkout
+// =============================================================================
+@mixin stock-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  width: fit-content;
+  padding: 1px 6px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 4px;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+// =============================================================================
 // PRODUCT INFO (Label + Value patterns)
 // Used by: cart-item, wishlist-item, checkout product, related-card, product-card
 // =============================================================================

@@ -71,7 +71,9 @@ export class WishlistPageComponent implements AfterViewInit {
         price: item.price,
         image: item.imageUrl,
         isFavorite: true,
-        group: ''
+        group: '',
+        // Wishlist entries carry no stock info; the checkout and the API re-check it.
+        inStock: true
       }, item.quantity);
     }
     this.wishlistService.clearWishlist();

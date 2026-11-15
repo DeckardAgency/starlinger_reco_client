@@ -258,6 +258,7 @@ export class ProductsInGroupComponent implements OnInit, AfterViewInit, OnDestro
       weight: product.weight || undefined,
       qtyStep: product.qtyStep ?? null,
       quoteItemLimit: product.quoteItemLimit ?? null,
+      inStock: product.inStock ?? true,
       hasDiscount,
       discountPercent,
       discountedPrice,
