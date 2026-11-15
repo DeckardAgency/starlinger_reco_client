@@ -20,6 +20,13 @@ export interface ManagedClientResponse {
   isActive: boolean;
   isArchived: boolean;
   maxActiveUsers?: number;
+  /** Server-computed: false means the customer has no active delivery address → no orders for it. */
+  hasActiveDeliveryAddress?: boolean;
+  /** Decimal strings from API Platform (e.g. "1000.00"); null/0 = no limit. */
+  purchaseLimit?: string | null;
+  /** Open payments: sum of the customer's unpaid, non-cancelled orders (decimal string). */
+  amountSpent?: string | null;
+  isClientAgent?: boolean;
 }
 
 export interface ManagedClientsCollection {

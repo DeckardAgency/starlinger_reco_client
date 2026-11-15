@@ -39,6 +39,9 @@
         } @else if (!c.isActive) {
           <ui-badge variant="default" size="md">Inactive</ui-badge>
         }
+        @if (c.hasActiveDeliveryAddress === false) {
+          <ui-badge variant="warning" size="md">No delivery address</ui-badge>
+        }
         @if (isSelected()) {
           <ui-badge variant="success" size="md" [rounded]="true">Selected</ui-badge>
         }

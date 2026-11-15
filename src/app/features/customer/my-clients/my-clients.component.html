@@ -80,6 +80,9 @@
             } @else if (!client.isActive) {
               <ui-badge variant="default" size="sm">Inactive</ui-badge>
             }
+            @if (client.hasActiveDeliveryAddress === false) {
+              <ui-badge variant="warning" size="sm">No delivery address</ui-badge>
+            }
             @if (isSelected(client)) {
               <ui-badge variant="success" size="sm" [rounded]="true">Selected</ui-badge>
             }

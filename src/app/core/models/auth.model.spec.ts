@@ -1,5 +1,10 @@
 import { User, canShop, hasFunctionalRole, getPrimaryRoleLabel } from './auth.model';
 import { accountNoticeFor } from '@shared/components/account-notice-banner/account-notice-banner.component';
+import { ManagedClientResponse } from '@core/services/http/agent.service';
+
+function managedClient(id: number, hasActiveDeliveryAddress: boolean): ManagedClientResponse {
+  return { id, name: `Customer ${id}`, code: `C${id}`, isActive: true, isArchived: false, hasActiveDeliveryAddress };
+}
 
 function user(roles: string[], client?: Partial<User['client']>): User {
   return {
@@ -40,5 +45,25 @@ describe('accountNoticeFor', () => {
     expect(accountNoticeFor(user(['ROLE_CLIENT'], { hasActiveDeliveryAddress: true }))).toBeNull();
     expect(accountNoticeFor(user(['ROLE_FINANCE'], { hasActiveDeliveryAddress: false }))).toBeNull();
     expect(accountNoticeFor(null)).toBeNull();
+  });
+
+  it('ignores an agent\'s own missing address (agents never order for their own company)', () => {
+    const agent = user(['ROLE_USER_CLIENT_AGENT'], { hasActiveDeliveryAddress: false });
+    expect(accountNoticeFor(agent)).toBeNull();
+    expect(accountNoticeFor(agent, [])).toBeNull();
+    expect(accountNoticeFor(agent, [managedClient(1, true)])).toBeNull();
+  });
+
+  it('warns an agent about the customers without a delivery address, naming them', () => {
+    const agent = user(['ROLE_USER_CLIENT_AGENT'], { hasActiveDeliveryAddress: true });
+    const notice = accountNoticeFor(agent, [managedClient(1, false), managedClient(2, true), managedClient(3, false)]);
+    expect(notice?.id).toBe('customers-no-delivery-address');
+    expect(notice?.title).toBe('2 of your customers have no delivery address on file.');
+    expect(notice?.text).toContain('Customer 1 and Customer 3');
+
+    expect(accountNoticeFor(agent, [managedClient(1, false)])?.title).toBe('1 of your customers has no delivery address on file.');
+
+    const many = [1, 2, 3, 4, 5].map(id => managedClient(id, false));
+    expect(accountNoticeFor(agent, many)?.text).toContain('Customer 1, Customer 2, Customer 3 and 2 more');
   });
 });

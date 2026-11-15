@@ -24,6 +24,10 @@
             }
           </span>
           <span class="acs__name">{{ client.name }}</span>
+          @if (client.hasActiveDeliveryAddress === false) {
+            <!-- Still selectable: the agent can browse prices, just not order for them -->
+            <span class="acs__tag" title="Orders for this customer can't be placed until a delivery address is added">No delivery address</span>
+          }
           <span class="acs__code">{{ client.code }}</span>
         </button>
       }

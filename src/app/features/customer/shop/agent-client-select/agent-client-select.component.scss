@@ -111,6 +111,19 @@
   white-space: nowrap;
 }
 
+.acs__tag {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 .acs__code {
   flex: 0 0 auto;
   margin-left: auto;
