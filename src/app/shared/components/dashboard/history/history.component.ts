@@ -213,8 +213,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
 
   tableActions: TableAction[] = [
     { id: 'view', label: 'View', icon: 'eye' },
-    { id: 'archive', label: 'Archive', icon: 'archive' },
-    { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+    { id: 'archive', label: 'Archive', icon: 'archive' }
   ];
 
   toggleMenu(rowId: string): void {
@@ -239,15 +238,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
             this.cdr.markForCheck();
           },
           error: (error) => console.error('Error archiving order:', error)
-        });
-        break;
-      case 'delete':
-        this.orderService.deleteOrder(row.orderId).subscribe({
-          next: () => {
-            this.allData.update(list => list.filter(o => o.orderId !== row.orderId));
-            this.cdr.markForCheck();
-          },
-          error: (error) => console.error('Error deleting order:', error)
         });
         break;
     }

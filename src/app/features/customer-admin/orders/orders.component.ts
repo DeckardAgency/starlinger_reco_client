@@ -217,11 +217,11 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     } else if (filter === 'archive') {
       // On the archive page the orders are already archived, so the action is
       // Unarchive (not Archive). Checked before isCustomerView so plain customers
-      // get Unarchive too. Delete is admin-only.
+      // get Unarchive too. Submitted orders cannot be deleted (the API refuses it) —
+      // only drafts can.
       this.tableActions = [
         { id: 'view', label: 'View', icon: 'eye' },
-        { id: 'unarchive', label: 'Unarchive', icon: 'archive' },
-        ...(isCustomerView ? [] : [{ id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' as const }])
+        { id: 'unarchive', label: 'Unarchive', icon: 'archive' }
       ];
     } else if (isCustomerView) {
       // Plain customer: View + Archive (Archive is global; affects company admin's view too).
@@ -232,8 +232,7 @@ export class OrdersComponent implements AfterViewInit, OnInit {
     } else {
       this.tableActions = [
         { id: 'view', label: 'View', icon: 'eye' },
-        { id: 'archive', label: 'Archive', icon: 'archive' },
-        { id: 'delete', label: 'Delete', icon: 'trash', variant: 'danger' }
+        { id: 'archive', label: 'Archive', icon: 'archive' }
       ];
     }
 
