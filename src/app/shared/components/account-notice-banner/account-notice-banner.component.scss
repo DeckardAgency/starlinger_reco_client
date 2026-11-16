@@ -1,3 +1,10 @@
+// flow-root keeps the top margin below inside this element. As a plain block it
+// would collapse into the main area's own top margin (the one that clears the
+// fixed top bar) and the box would sit flush against the top bar.
+:host {
+  display: flow-root;
+}
+
 .account-notice {
   display: flex;
   align-items: flex-start;
