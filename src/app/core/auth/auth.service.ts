@@ -1,13 +1,14 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, throwError, of } from 'rxjs';
 import { catchError, map, switchMap, delay, tap, finalize, shareReplay } from 'rxjs/operators';
 import { User, canShop } from '@core/models';
 import { environment } from '@env/environment';
 import { AuthResponse } from '@models/api/auth-api.model';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
 import { DUMMY_USER_CREDENTIALS, mockDevelopmentUser } from './dev-user';
+import { SESSION_SCOPED_STORAGE_KEYS } from './session-storage-keys';
 
 // Re-export for backward compatibility
 export type { AuthResponse };
@@ -45,6 +46,15 @@ export class AuthService {
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  /**
+   * Fires every time a session ends or turns out not to exist: explicit logout, forced
+   * logout after a failed token refresh, idle timeout, archived client, failed /api/me.
+   * Services that hold per-user state in memory (cart, wishlist) subscribe to drop it;
+   * they depend on AuthService, never the other way round.
+   */
+  private sessionEndedSubject = new Subject<void>();
+  public sessionEnded$: Observable<void> = this.sessionEndedSubject.asObservable();
 
   private logger!: ScopedLogger;
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -318,9 +328,14 @@ export class AuthService {
 
   private clearUser(): void {
     this.removeCachedUser();
+    // Per-user data must not outlive the session on a shared browser. Storage is wiped
+    // here (so it happens even if the owning service was never instantiated) and the
+    // in-memory copies are dropped by the services reacting to sessionEnded$.
+    SESSION_SCOPED_STORAGE_KEYS.forEach(key => this.storageRemove(key));
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
     this.sessionResolved.set(true);
+    this.sessionEndedSubject.next();
   }
 
   // ---- Non-sensitive profile cache (localStorage) -------------------------------------
@@ -376,9 +391,11 @@ export class AuthService {
   }
 
   private storageRemove(key: string): void {
-    if (this.isLocalStorageAvailable()) {
-      localStorage.removeItem(key);
-    }
+    try {
+      if (this.isLocalStorageAvailable()) {
+        localStorage.removeItem(key);
+      }
+    } catch { /* storage unavailable */ }
   }
 
   // ---- Client helpers -----------------------------------------------------------------

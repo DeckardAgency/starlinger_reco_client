@@ -108,24 +108,28 @@
         @if (showPasswordChange()) {
           <div class="settings-card__content">
             <div class="form-grid">
-              <ui-form-field label="Current Password">
-                <ui-input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password"></ui-input>
+              <ui-form-field label="Current Password" [error]="currentPasswordError()">
+                <ui-input type="password" autocomplete="current-password" [(ngModel)]="passwordForm.currentPassword" (inputChange)="onPasswordInput()" placeholder="Enter current password"></ui-input>
               </ui-form-field>
 
               <div></div>
 
-              <ui-form-field label="New Password">
-                <ui-input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password"></ui-input>
+              <ui-form-field label="New Password" [hint]="passwordRulesHint" [error]="newPasswordError()">
+                <ui-input type="password" autocomplete="new-password" [(ngModel)]="passwordForm.newPassword" (inputChange)="onPasswordInput()" placeholder="Enter new password"></ui-input>
               </ui-form-field>
 
-              <ui-form-field label="Confirm Password">
-                <ui-input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password"></ui-input>
+              <ui-form-field label="Confirm Password" [error]="confirmPasswordError()">
+                <ui-input type="password" autocomplete="new-password" [(ngModel)]="passwordForm.confirmPassword" (inputChange)="onPasswordInput()" placeholder="Confirm new password"></ui-input>
               </ui-form-field>
             </div>
 
             <div class="form-actions">
-              <ui-button variant="primary" (click)="onChangePassword()">
-                Update Password
+              <ui-button variant="primary" (click)="onChangePassword()" [disabled]="isChangingPassword()">
+                @if (isChangingPassword()) {
+                  Updating...
+                } @else {
+                  Update Password
+                }
               </ui-button>
             </div>
           </div>

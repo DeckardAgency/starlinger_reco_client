@@ -1,8 +1,11 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY } from 'rxjs';
 import { ShopProduct } from '@core/models/shop-product.model';
 import { Order } from '@core/models/order.model';
 import { AuthService } from '@core/auth/auth.service';
+import { CART_STORAGE_KEY } from '@core/auth/session-storage-keys';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
 import { NotificationService } from '@core/services/notification.service';
 import { USER_ROLES } from '@core/models/auth.model';
@@ -19,7 +22,7 @@ export interface CartItem {
   clientCode?: string;
 }
 
-const STORAGE_KEY = 'cart_items';
+const STORAGE_KEY = CART_STORAGE_KEY;
 // Fallback ceiling per cart line — keeps typos (e.g. an extra digit) from
 // producing million-piece orders when a product defines no limit of its own.
 const MAX_LINE_QTY = 999999;
@@ -45,6 +48,14 @@ export class CartService {
 
   readonly isCartOpen = this._isCartOpen.asReadonly();
   readonly cartItems = this._cartItems.asReadonly();
+
+  constructor() {
+    // The cart belongs to the signed-in user: drop it when their session ends (logout,
+    // forced logout, idle timeout) so the next person on this browser starts empty.
+    (this.auth.sessionEnded$ ?? EMPTY)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.discard());
+  }
 
   get itemCount(): number {
     return this._cartItems().reduce((sum, item) => sum + item.quantity, 0);
@@ -201,6 +212,18 @@ export class CartService {
     });
     this._cartItems.set(items);
     this.saveToStorage();
+  }
+
+  /** Empty the cart in memory and remove (not just blank) its persisted copy. */
+  private discard(): void {
+    this._cartItems.set([]);
+    this._isCartOpen.set(false);
+    if (!this.isBrowser) {
+      return;
+    }
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch { /* storage unavailable */ }
   }
 
   private saveToStorage(): void {

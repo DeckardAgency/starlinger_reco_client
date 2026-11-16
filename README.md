@@ -47,8 +47,8 @@ Navigate to `http://localhost:4200/`. The application will automatically reload 
 
 For development purposes, dummy authentication is enabled. Use these credentials:
 
-- **Email**: `recouser@starlinger.com`
-- **Password**: `recouser123!`
+- **Email**: `dev-user@example.test`
+- **Password**: `local-dev-only`
 
 This bypasses the API and uses mock user data. To disable dummy auth, set `useDummyAuth: false` in `src/environments/environment.ts`.
 

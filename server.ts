@@ -1,6 +1,6 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr/node';
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
@@ -16,7 +16,8 @@ import bootstrap from './src/main.server';
 // API_ORIGIN pins connect-/img-src to the exact backend origin (e.g.
 // https://api.example.com) so the policy can't be abused to beacon to arbitrary hosts.
 // When it's unset (local dev), we fall back to the generic `https:` allowance so nothing
-// breaks — script-src 'self' already blocks the injection vector either way.
+// breaks — script-src 'self' already blocks the injection vector either way. A production
+// start without it logs a warning (see run()).
 const API_ORIGIN = process.env['API_ORIGIN'];
 const CONNECT_SRC = API_ORIGIN ? `'self' ${API_ORIGIN}` : "'self' https:";
 const IMG_SRC = API_ORIGIN ? `'self' data: blob: ${API_ORIGIN}` : "'self' data: blob: https:";
@@ -37,11 +38,25 @@ const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
 };
+
+// TLS terminates at the reverse proxy in front of this app (which itself listens on plain
+// HTTP), so the original scheme is only known from X-Forwarded-Proto. HSTS is sent on
+// HTTPS requests only — browsers ignore it over plain HTTP, and local dev stays clean.
+const HSTS_VALUE = 'max-age=31536000';
+
+function isHttpsRequest(req: Request): boolean {
+  const forwarded = req.headers['x-forwarded-proto'];
+  const proto = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0].trim().toLowerCase();
+  return proto === 'https';
+}
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   const server = express();
+  server.disable('x-powered-by');
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
   const indexHtml = join(serverDistFolder, 'index.server.html');
@@ -63,9 +78,12 @@ export function app(): express.Express {
   server.set('views', browserDistFolder);
 
   // Send security headers on every response.
-  server.use((_req, res, next) => {
+  server.use((req, res, next) => {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
       res.setHeader(name, value);
+    }
+    if (isHttpsRequest(req)) {
+      res.setHeader('Strict-Transport-Security', HSTS_VALUE);
     }
     next();
   });
@@ -107,19 +125,42 @@ export function app(): express.Express {
       .catch((err) => next(err));
   });
 
+  // Final error handler (must stay last, and keep its four arguments — that is how
+  // Express recognises it). The error is logged server-side only; the client always gets
+  // the same generic body, never a stack trace, whatever NODE_ENV is.
+  server.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+    console.error(`[ssr] Unhandled error for ${req.method} ${req.originalUrl}:`, err);
+    if (res.headersSent) {
+      // Too late for a clean response; let Express abort the connection.
+      next(err);
+      return;
+    }
+    res.status(500).type('text/plain').send('Internal Server Error');
+  });
+
   return server;
 }
 
 function run(): void {
   const port = process.env['PORT'] || 4000;
 
-  // Fail loudly (but don't crash) if the canonical origin is missing in production —
-  // otherwise the SSR URL silently falls back to the untrusted, spoofable Host header.
-  if (process.env['NODE_ENV'] === 'production' && !process.env['APP_ORIGIN']) {
-    console.warn(
-      '[security] APP_ORIGIN is not set: SSR will fall back to the untrusted Host header. ' +
-      'Set APP_ORIGIN to this deployment\'s canonical origin (e.g. https://shop.example.com).'
-    );
+  // Fail loudly (but don't crash) if deployment configuration is missing in production.
+  if (process.env['NODE_ENV'] === 'production') {
+    // Without it the SSR URL silently falls back to the untrusted, spoofable Host header.
+    if (!process.env['APP_ORIGIN']) {
+      console.warn(
+        '[security] APP_ORIGIN is not set: SSR will fall back to the untrusted Host header. ' +
+        'Set APP_ORIGIN to this deployment\'s canonical origin (e.g. https://shop.example.com).'
+      );
+    }
+    // Without it the CSP allows connections and images to ANY https: host.
+    if (!API_ORIGIN) {
+      console.warn(
+        '[security] API_ORIGIN is not set: the Content-Security-Policy falls back to allowing ' +
+        'connect-src/img-src for any https: host. Set API_ORIGIN to the backend origin ' +
+        '(e.g. https://api.example.com) to pin the policy to it.'
+      );
+    }
   }
 
   // Start up the Node server

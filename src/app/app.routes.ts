@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from '@core/auth/auth.guard';
 import { RoleGuard } from '@core/auth/role.guard';
 import { USER_ROLES } from '@core/models/auth.model';
+import { environment } from '@env/environment';
 
 export const routes: Routes = [
   // ============================================================================
@@ -268,12 +269,14 @@ export const routes: Routes = [
   // ============================================================================
   // SHARED/UTILITY ROUTES
   // ============================================================================
-  {
+  // Component showcase for developers: not part of deployed (production/staging) builds,
+  // where /ui-kit falls through to the 404 route.
+  ...(environment.production ? [] : [{
     path: 'ui-kit',
     loadComponent: () => import('@features/ui-kit-docs/ui-kit-docs.component').then(m => m.UiKitDocsComponent),
     canActivate: [AuthGuard],
     title: 'Reco | UI Kit'
-  },
+  }]),
 
   // ============================================================================
   // 404 - Not Found

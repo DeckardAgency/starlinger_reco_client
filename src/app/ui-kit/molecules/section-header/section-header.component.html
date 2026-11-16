@@ -1,6 +1,8 @@
 <div class="section-header">
   <div class="section-header__title-wrap">
-    <div *ngIf="sanitizedIcon" class="section-header__icon" [innerHTML]="sanitizedIcon"></div>
+    <div *ngIf="iconName as name" class="section-header__icon">
+      <ui-icon [name]="name" size="md" color="#232323"></ui-icon>
+    </div>
     <h2 class="section-header__title">{{ title }}</h2>
   </div>
   <a *ngIf="viewAllLink" [routerLink]="viewAllLink" class="section-header__view-all">

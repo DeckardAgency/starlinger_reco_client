@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { InputComponent, ButtonComponent, LinkComponent } from '@app/ui-kit';
 import { environment } from '@env/environment';
+import { PASSWORD_RULES_HINT, apiErrorMessage, validatePassword } from '@utils/password-policy';
 
 interface InvitationVerifyResponse {
   valid: boolean;
@@ -52,6 +53,8 @@ export class RegisterComponent implements OnInit {
 
   private token = '';
 
+  readonly passwordRulesHint = PASSWORD_RULES_HINT;
+
   // 'verifying' | 'invalid' | 'form' | 'done'
   state = signal<'verifying' | 'invalid' | 'form' | 'done'>('verifying');
 
@@ -92,8 +95,12 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.passwordValue || this.passwordValue.length < 8) {
-      this.errorMessage.set('Password must be at least 8 characters.');
+    if (this.isLoading()) return;
+
+    // Same rules as the backend (and the reset-password form), explained before submit
+    const ruleError = validatePassword(this.passwordValue);
+    if (ruleError) {
+      this.errorMessage.set(ruleError);
       return;
     }
     if (this.passwordValue !== this.repeatPasswordValue) {
@@ -112,7 +119,7 @@ export class RegisterComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.error?.error || 'Something went wrong. Please try again.');
+        this.errorMessage.set(apiErrorMessage(err, 'Something went wrong. Please try again.'));
       }
     });
   }

@@ -67,6 +67,7 @@
             type="password"
             name="password"
             autocomplete="new-password"
+            [hint]="passwordRulesHint"
             [(ngModel)]="passwordValue"
             (inputChange)="onPasswordChange($event)">
           </ui-input>

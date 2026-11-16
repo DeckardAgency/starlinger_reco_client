@@ -1,27 +1,20 @@
-import { ApplicationConfig, provideZoneChangeDetection, Provider } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection, Provider } from '@angular/core';
 import { provideRouter, withPreloading, NoPreloading } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AuthInterceptor } from '@core/auth/auth.interceptor';
+import { IdleTimeoutService } from '@core/auth/idle-timeout.service';
 import { ForClientInterceptor } from '@core/interceptors/for-client.interceptor';
-import { MockInterceptor } from '@core/mocks/mock.interceptor';
-import { environment } from '../environments/environment';
+import { provideMockHttpInterceptor } from '@core/http/mock-http.providers';
 
 // Build providers array based on environment
 function getHttpInterceptorProviders(): Provider[] {
-  const providers: Provider[] = [];
-
-  // Add mock interceptor if enabled (must be BEFORE auth interceptor to intercept first)
-  if (environment.useMocks) {
-    providers.push({
-      provide: HTTP_INTERCEPTORS,
-      useClass: MockInterceptor,
-      multi: true
-    });
-    console.log('🔧 Mock interceptor enabled - using mock data');
-  }
+  // Mock interceptor (must be BEFORE the auth interceptor to intercept first). Only ever
+  // present in local development: deployed builds swap the provider file for an empty
+  // one (see mock-http.providers.ts), so no mock code ships to production.
+  const providers: Provider[] = [...provideMockHttpInterceptor()];
 
   // Client agents: tag product reads with the selected managed client (forClient=<id>)
   // so the shop is priced for that client. Before the auth interceptor, so a request it
@@ -56,6 +49,9 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptorsFromDi()
     ),
-    ...getHttpInterceptorProviders()
+    ...getHttpInterceptorProviders(),
+    // Automatic logout after inactivity: instantiate the watcher at startup (it only
+    // runs in the browser and only while a user is signed in).
+    provideAppInitializer(() => { inject(IdleTimeoutService); })
   ]
 };

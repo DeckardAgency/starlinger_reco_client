@@ -8,6 +8,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { InputComponent, ButtonComponent, LinkComponent } from '@app/ui-kit';
 import { environment } from '../../../environments/environment';
 import { LoggerService, ScopedLogger } from '@services/logger.service';
+import { PASSWORD_RULES_HINT, apiErrorMessage, validatePassword } from '@utils/password-policy';
 
 type ResetState = 'validating' | 'invalid' | 'form' | 'done';
 
@@ -40,6 +41,8 @@ type ResetState = 'validating' | 'invalid' | 'form' | 'done';
   ]
 })
 export class ResetPasswordComponent implements OnInit {
+  readonly passwordRulesHint = PASSWORD_RULES_HINT;
+
   password = '';
   repeatPassword = '';
   state = signal<ResetState>('validating');
@@ -82,12 +85,9 @@ export class ResetPasswordComponent implements OnInit {
 
     // Mirror the server's password rules so failures are explained before submit
     const pw = this.password;
-    if (!pw || pw.length < 8) {
-      this.errorMessage.set('The password must be at least 8 characters long.');
-      return;
-    }
-    if (!/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw)) {
-      this.errorMessage.set('The password must contain an uppercase letter, a lowercase letter and a number.');
+    const ruleError = validatePassword(pw);
+    if (ruleError) {
+      this.errorMessage.set(ruleError);
       return;
     }
     if (pw !== this.repeatPassword) {
@@ -113,11 +113,8 @@ export class ResetPasswordComponent implements OnInit {
           this.state.set('invalid');
           return;
         }
-        const details = err?.error?.details;
         this.errorMessage.set(
-          Array.isArray(details) && details.length
-            ? details.join(' ')
-            : (message || 'Could not change the password. The link may have expired - request a new one.')
+          apiErrorMessage(err, 'Could not change the password. The link may have expired - request a new one.')
         );
         this.logger.error('Password reset failed', err);
       }

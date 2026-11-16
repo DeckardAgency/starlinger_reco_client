@@ -95,7 +95,7 @@
           }
         </div>
         @if (order()?.trackingUrl) {
-          <a class="tracking-card__cta" [href]="order()?.trackingUrl" target="_blank" rel="noopener">
+          <a class="tracking-card__cta" [href]="order()?.trackingUrl" target="_blank" rel="noopener noreferrer">
             Track now
             <ui-icon name="external-link" size="sm"></ui-icon>
           </a>

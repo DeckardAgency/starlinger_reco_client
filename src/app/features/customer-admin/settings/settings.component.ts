@@ -9,6 +9,7 @@ import { FormFieldComponent } from '@app/ui-kit/molecules';
 import { AuthService } from '@core/auth/auth.service';
 import { UserService } from '@core/services/http/user.service';
 import { User } from '@core/models';
+import { PASSWORD_RULES_HINT, apiErrorMessage, validatePassword } from '@utils/password-policy';
 
 @Component({
   selector: 'app-customer-admin-settings',
@@ -32,7 +33,12 @@ export class SettingsComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   saveError = signal<string | null>(null);
-  passwordError = signal<string | null>(null);
+  readonly passwordRulesHint = PASSWORD_RULES_HINT;
+  /** Inline errors of the change-password form, one per field. */
+  currentPasswordError = signal('');
+  newPasswordError = signal('');
+  confirmPasswordError = signal('');
+  isChangingPassword = signal(false);
 
   user = signal<User | null>(null);
   isEditing = signal(false);
@@ -127,42 +133,93 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  onPasswordInput(): void {
+    if (this.currentPasswordError() || this.newPasswordError() || this.confirmPasswordError()) {
+      this.clearPasswordErrors();
+    }
+  }
+
   onChangePassword(): void {
     const currentUser = this.user();
-    if (!currentUser) {
+    if (!currentUser || this.isChangingPassword()) {
+      return;
+    }
+
+    this.clearPasswordErrors();
+
+    if (!this.passwordForm.currentPassword) {
+      this.currentPasswordError.set('Please enter your current password.');
+      return;
+    }
+
+    // Same rules as the backend (and the reset-password form), explained before submit
+    const ruleError = validatePassword(this.passwordForm.newPassword);
+    if (ruleError) {
+      this.newPasswordError.set(ruleError);
       return;
     }
 
     if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-      this.passwordError.set('Passwords do not match');
+      this.confirmPasswordError.set('The passwords do not match.');
       return;
     }
 
-    if (this.passwordForm.newPassword.length < 8) {
-      this.passwordError.set('Password must be at least 8 characters');
-      return;
-    }
+    this.isChangingPassword.set(true);
 
-    this.passwordError.set(null);
-
-    const passwordData = {
-      currentPassword: this.passwordForm.currentPassword,
-      newPassword: this.passwordForm.newPassword
-    };
-
-    // Cast to any since password change uses different payload than standard user update
-    this.userService.updateUser(String(currentUser.id), passwordData as any).subscribe({
+    // Changing your OWN password: the backend requires the current one alongside the new
+    // one (`plainPassword` is the User resource's writable password field).
+    this.userService.changeOwnPassword(
+      String(currentUser.id),
+      this.passwordForm.currentPassword,
+      this.passwordForm.newPassword
+    ).subscribe({
       next: () => {
+        this.isChangingPassword.set(false);
         this.resetPasswordForm();
         this.showPasswordChange.set(false);
         this.cdr.markForCheck();
       },
       error: (error) => {
-        console.error('Failed to change password:', error);
-        this.passwordError.set('Failed to change password. Please check your current password.');
+        this.isChangingPassword.set(false);
+        this.showPasswordChangeError(error);
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /**
+   * Put the backend's answer next to the field it is about: a rejected current password
+   * (403, or a 422 violation on `currentPassword`) or a rejected new password (422).
+   */
+  private showPasswordChangeError(error: unknown): void {
+    const status = (error as { status?: number } | null)?.status;
+    const violations = (error as { error?: { violations?: Array<{ propertyPath?: string; message?: string }> } } | null)
+      ?.error?.violations;
+    const violation = (path: string): string =>
+      (Array.isArray(violations) ? violations : [])
+        .filter(v => v?.propertyPath === path && v.message)
+        .map(v => v.message)
+        .join(' ');
+
+    const currentViolation = violation('currentPassword');
+    const message = apiErrorMessage(error, '');
+
+    if (currentViolation || status === 403 || (status === 422 && /current password/i.test(message))) {
+      this.currentPasswordError.set(
+        currentViolation || (/password/i.test(message) ? message : 'The current password is incorrect.')
+      );
+      return;
+    }
+
+    this.newPasswordError.set(
+      violation('plainPassword') || message || 'Could not change the password. Please try again.'
+    );
+  }
+
+  private clearPasswordErrors(): void {
+    this.currentPasswordError.set('');
+    this.newPasswordError.set('');
+    this.confirmPasswordError.set('');
   }
 
   private resetPasswordForm(): void {
@@ -171,6 +228,7 @@ export class SettingsComponent implements OnInit {
       newPassword: '',
       confirmPassword: ''
     };
+    this.clearPasswordErrors();
   }
 
   getRoleDisplay(roles: string[]): string {

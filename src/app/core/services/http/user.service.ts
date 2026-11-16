@@ -119,6 +119,18 @@ export class UserService extends BaseHttpService {
   }
 
   /**
+   * Change the signed-in user's OWN password. The backend requires the current password
+   * for a self-change and enforces the password policy (422 with a message on violation).
+   * @param id The current user's ID
+   * @param currentPassword The password the user is signed in with
+   * @param newPassword The new password (sent as the resource's `plainPassword`)
+   */
+  changeOwnPassword(id: string, currentPassword: string, newPassword: string): Observable<User> {
+    const url = `${this.usersUrl}/${id}`;
+    return this.patchWithJsonLd<User>(url, { currentPassword, plainPassword: newPassword });
+  }
+
+  /**
    * Delete a user
    * @param id User UUID
    * @returns Observable for the delete operation

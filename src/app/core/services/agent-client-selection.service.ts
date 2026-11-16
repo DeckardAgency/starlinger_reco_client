@@ -6,9 +6,10 @@ import { distinctUntilChanged, skip } from 'rxjs/operators';
 import { ManagedClientResponse } from './http/agent.service';
 import { AuthService } from '@core/auth/auth.service';
 import { USER_ROLES } from '@core/models/auth.model';
+import { AGENT_SELECTED_CLIENT_STORAGE_KEY } from '@core/auth/session-storage-keys';
 
 const AGENT_ROLE = USER_ROLES.CLIENT_AGENT;
-const STORAGE_KEY = 'agentSelectedClient';
+const STORAGE_KEY = AGENT_SELECTED_CLIENT_STORAGE_KEY;
 
 /**
  * Holds the "currently selected" managed client for a client agent. The
@@ -37,13 +38,13 @@ export class AgentClientSelectionService {
   ) {
     // Restore from localStorage on init
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
           this.selectedClientSubject.next(JSON.parse(saved));
-        } catch {
-          // Ignore invalid JSON
         }
+      } catch {
+        // Ignore invalid JSON / unavailable storage
       }
     }
 
@@ -64,14 +65,18 @@ export class AgentClientSelectionService {
   selectClient(client: ManagedClientResponse): void {
     this.selectedClientSubject.next(client);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(client));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(client));
+      } catch { /* storage unavailable */ }
     }
   }
 
   clearSelection(): void {
     this.selectedClientSubject.next(null);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(STORAGE_KEY);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch { /* storage unavailable */ }
     }
   }
 

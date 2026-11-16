@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Subject } from 'rxjs';
 import { CartService } from './cart.service';
 import { AuthService } from '@core/auth/auth.service';
 import { AgentClientSelectionService } from '@core/services/agent-client-selection.service';
@@ -30,12 +31,14 @@ describe('CartService (client-agent flow)', () => {
   let authSpy: jasmine.SpyObj<AuthService>;
   let selectionSpy: jasmine.SpyObj<AgentClientSelectionService>;
   let notificationSpy: jasmine.SpyObj<NotificationService>;
+  let sessionEnded$: Subject<void>;
 
   function setup(isAgent: boolean, selected: ManagedClientResponse | null = null): void {
     localStorage.clear();
     TestBed.resetTestingModule();
 
-    authSpy = jasmine.createSpyObj('AuthService', ['hasRole']);
+    sessionEnded$ = new Subject<void>();
+    authSpy = jasmine.createSpyObj('AuthService', ['hasRole'], { sessionEnded$: sessionEnded$.asObservable() });
     authSpy.hasRole.and.callFake((role: string) => isAgent && role === USER_ROLES.CLIENT_AGENT);
 
     selectionSpy = jasmine.createSpyObj('AgentClientSelectionService', ['getSelectedClient']);
@@ -53,6 +56,19 @@ describe('CartService (client-agent flow)', () => {
     });
     service = TestBed.inject(CartService);
   }
+
+  it('empties the cart (memory + storage) when the session ends', () => {
+    setup(false);
+    service.addItem(product(1), 2);
+    service.openCart();
+    expect(localStorage.getItem('cart_items')).toContain('P1');
+
+    sessionEnded$.next();
+
+    expect(service.cartItems()).toEqual([]);
+    expect(service.isCartOpen()).toBeFalse();
+    expect(localStorage.getItem('cart_items')).toBeNull();
+  });
 
   it('lets a normal customer add items without a client stamp', () => {
     setup(false);

@@ -111,6 +111,20 @@ describe('AuthService (cookie auth)', () => {
     expect(localStorage.getItem(USER_KEY)).toBeNull();
   }));
 
+  it('logout wipes the per-user storage (cart, wishlist, agent client) and announces the session end', fakeAsync(() => {
+    boot(200, meUser);
+    const keys = ['cart_items', 'wishlist_items', 'agentSelectedClient'];
+    keys.forEach(key => localStorage.setItem(key, '[{"id":1}]'));
+    let ended = 0;
+    service.sessionEnded$.subscribe(() => ended++);
+
+    service.logout();
+    httpMock.expectOne(logoutUrl).flush({});
+
+    keys.forEach(key => expect(localStorage.getItem(key)).toBeNull());
+    expect(ended).toBe(1);
+  }));
+
   it('getToken / getRefreshToken return null (tokens are HttpOnly)', fakeAsync(() => {
     boot(401);
     expect(service.getToken()).toBeNull();
