@@ -53,6 +53,7 @@ export class AuthService {
    * Services that hold per-user state in memory (cart, wishlist) subscribe to drop it;
    * they depend on AuthService, never the other way round.
    */
+  private meFailedTransiently = false;
   private sessionEndedSubject = new Subject<void>();
   public sessionEnded$: Observable<void> = this.sessionEndedSubject.asObservable();
 
@@ -223,8 +224,16 @@ export class AuthService {
    */
   private fetchMe(): Observable<User | null> {
     return this.http.get<any>(this.meUrl, { withCredentials: true }).pipe(
-      map(res => this.mapMeResponse(res)),
-      catchError(() => of(null))
+      map(res => {
+        this.meFailedTransiently = false;
+        return this.mapMeResponse(res);
+      }),
+      catchError(error => {
+        // Only a 401/403 means the session is really gone; anything else (offline, 5xx
+        // during a deploy) must not cost the user their cart.
+        this.meFailedTransiently = error?.status !== 401 && error?.status !== 403;
+        return of(null);
+      })
     );
   }
 
@@ -306,7 +315,7 @@ export class AuthService {
             }
             this.setUser(user);
           } else {
-            this.clearUser();
+            this.clearUser(!this.meFailedTransiently);
           }
         }),
         finalize(() => {
@@ -326,15 +335,18 @@ export class AuthService {
     this.sessionResolved.set(true);
   }
 
-  private clearUser(): void {
+  private clearUser(wipeSessionData = true): void {
     this.removeCachedUser();
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+    this.sessionResolved.set(true);
+    if (!wipeSessionData) {
+      return;
+    }
     // Per-user data must not outlive the session on a shared browser. Storage is wiped
     // here (so it happens even if the owning service was never instantiated) and the
     // in-memory copies are dropped by the services reacting to sessionEnded$.
     SESSION_SCOPED_STORAGE_KEYS.forEach(key => this.storageRemove(key));
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
-    this.sessionResolved.set(true);
     this.sessionEndedSubject.next();
   }
 
