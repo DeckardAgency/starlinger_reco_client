@@ -12,12 +12,13 @@ describe('AuthInterceptor (cookie auth)', () => {
   let httpClient: HttpClient;
   let authService: jasmine.SpyObj<AuthService>;
   let tokenRefreshService: jasmine.SpyObj<TokenRefreshService>;
-  let router: jasmine.SpyObj<Router>;
+  let router: { navigate: jasmine.Spy; url: string };
 
   beforeEach(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const tokenRefreshServiceSpy = jasmine.createSpyObj('TokenRefreshService', ['refreshToken']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    // The interceptor reads router.url to decide whether to redirect; default to a protected page.
+    const routerSpy = { navigate: jasmine.createSpy('navigate'), url: '/customer/orders' };
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -33,7 +34,7 @@ describe('AuthInterceptor (cookie auth)', () => {
     httpClient = TestBed.inject(HttpClient);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     tokenRefreshService = TestBed.inject(TokenRefreshService) as jasmine.SpyObj<TokenRefreshService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    router = routerSpy;
   });
 
   afterEach(() => httpMock.verify());
@@ -74,7 +75,7 @@ describe('AuthInterceptor (cookie auth)', () => {
     retry.flush({ ok: true });
   });
 
-  it('on refresh failure logs out and redirects to /login', (done) => {
+  it('on refresh failure on a protected page logs out and redirects to /login', (done) => {
     tokenRefreshService.refreshToken.and.returnValue(throwError(() => new Error('refresh failed')));
 
     httpClient.get('/api/protected').subscribe({
@@ -87,6 +88,24 @@ describe('AuthInterceptor (cookie auth)', () => {
     });
 
     httpMock.expectOne('/api/protected').flush({}, { status: 401, statusText: 'Unauthorized' });
+  });
+
+  ['/login', '/forgot-password', '/reset-password?token=abc', '/register?token=abc', '/no-client'].forEach(url => {
+    it(`on refresh failure on the public page ${url} logs out but does not redirect`, (done) => {
+      router.url = url;
+      tokenRefreshService.refreshToken.and.returnValue(throwError(() => new Error('refresh failed')));
+
+      httpClient.get('/api/me').subscribe({
+        next: () => fail('should not succeed'),
+        error: () => {
+          expect(authService.logout).toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
+          done();
+        }
+      });
+
+      httpMock.expectOne('/api/me').flush({}, { status: 401, statusText: 'Unauthorized' });
+    });
   });
 
   it('passes non-401 errors through without logout', (done) => {
