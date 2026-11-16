@@ -37,7 +37,7 @@
     "@angular-eslint/eslint-plugin-template": "^21.0.1",
     "@angular/build": "^20.3.31",
     "@angular/cli": "^20.3.31",
-    "@angular/compiler-cli": "^20.3.25",
+    "@angular/compiler-cli": "^22.2.6",
     "@axe-core/cli": "^4.11.0",
     "@playwright/test": "^1.57.0",
     "@types/express": "^4.17.17",
